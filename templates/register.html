@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card" style="max-width: 540px;">
+    <h2>Create Account</h2>
+    <p class="auth-subtitle">Join Oriflame's beauty community</p>
+
+    <form method="POST" action="/register">
+      <!-- Account Type -->
+      <div class="form-group">
+        <label class="form-label">Account Type</label>
+        <div style="display: flex; gap: 12px;">
+          <label class="payment-method" style="flex: 1; padding: 12px;">
+            <input type="radio" name="role" value="customer" checked>
+            <div class="payment-method-info">
+              <h4 style="font-size: 14px;">Customer</h4>
+              <p style="font-size: 11px;">Shop our products</p>
+            </div>
+          </label>
+          <label class="payment-method" style="flex: 1; padding: 12px;">
+            <input type="radio" name="role" value="partner">
+            <div class="payment-method-info">
+              <h4 style="font-size: 14px;">Brand Partner</h4>
+              <p style="font-size: 11px;">Earn commissions</p>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="form-group">
+          <label class="form-label">First Name *</label>
+          <input type="text" class="form-control" name="first_name" required placeholder="John">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name *</label>
+          <input type="text" class="form-control" name="last_name" required placeholder="Doe">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address *</label>
+        <input type="email" class="form-control" name="email" required placeholder="your@email.com">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" class="form-control" name="phone" placeholder="+91 98765 43210">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password *</label>
+        <input type="password" class="form-control" name="password" required placeholder="Min 6 characters" minlength="6">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confirm Password *</label>
+        <input type="password" class="form-control" name="confirm_password" required placeholder="Re-enter password">
+      </div>
+
+      <!-- Sponsor Code (for partners) -->
+      <div class="form-group" id="sponsor-field" style="display: none;">
+        <label class="form-label">Sponsor Code (Optional)</label>
+        <input type="text" class="form-control" name="sponsor_code" placeholder="Enter your sponsor's referral code">
+        <div class="form-help">If someone referred you, enter their code to connect to their network</div>
+      </div>
+
+      <div class="form-group">
+        <label style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; cursor: pointer;">
+          <input type="checkbox" required style="accent-color: var(--color-accent); width: 16px; height: 16px; margin-top: 2px;">
+          I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">Create Account</button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a href="/login">Sign in</a>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('input[name="role"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    document.getElementById('sponsor-field').style.display = 
+      radio.value === 'partner' ? 'block' : 'none';
+  });
+});
+</script>
+{% endblock %}

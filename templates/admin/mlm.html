@@ -1,0 +1,104 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}MLM Network{% endblock %}
+{% block page_title %}MLM Network{% endblock %}
+
+{% block admin_content %}
+<div class="admin-stats-grid" style="margin-bottom: 24px;">
+  <div class="admin-stat-card">
+    <div class="admin-stat-card-header"><div class="admin-stat-icon gold">🤝</div></div>
+    <div class="admin-stat-value">{{ partners|length }}</div>
+    <div class="admin-stat-label">Brand Partners</div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-card-header"><div class="admin-stat-icon green">💰</div></div>
+    <div class="admin-stat-value">₹{{ "{:,.0f}".format(total_commissions) }}</div>
+    <div class="admin-stat-label">Total Commissions Paid</div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-card-header"><div class="admin-stat-icon blue">📊</div></div>
+    <div class="admin-stat-value">₹{{ "{:,.0f}".format(total_network_sales) }}</div>
+    <div class="admin-stat-label">Total Network Sales</div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-card-header"><div class="admin-stat-icon purple">⏳</div></div>
+    <div class="admin-stat-value">{{ pending_commissions }}</div>
+    <div class="admin-stat-label">Pending Commissions</div>
+  </div>
+</div>
+
+<!-- Partners Table -->
+<div class="admin-card">
+  <div class="admin-card-header">
+    <h3>Brand Partners</h3>
+  </div>
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Partner</th>
+        <th>Sponsor</th>
+        <th>Downlines</th>
+        <th>Total Sales</th>
+        <th>Commission</th>
+        <th>Joined</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for partner in partners %}
+      <tr>
+        <td>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #c9a96e, #b08d4a); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 12px;">
+              {{ partner.first_name[0] }}
+            </div>
+            <div>
+              <div style="font-weight: 600;">{{ partner.full_name }}</div>
+              <div style="font-size: 11px; color: rgba(255,255,255,0.4);">{{ partner.email }}</div>
+            </div>
+          </div>
+        </td>
+        <td>{{ partner.sponsor.full_name if partner.sponsor else 'Root' }}</td>
+        <td>{{ partner.downlines|length }}</td>
+        <td>₹{{ "{:,.0f}".format(partner.total_sales) }}</td>
+        <td><strong style="color: #2ecc71;">₹{{ "{:,.0f}".format(partner.total_commission) }}</strong></td>
+        <td>{{ partner.join_date.strftime('%d %b %Y') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Commission History -->
+<div class="admin-card">
+  <div class="admin-card-header">
+    <h3>Recent Commission Activity</h3>
+  </div>
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Partner</th>
+        <th>From</th>
+        <th>Order</th>
+        <th>Level</th>
+        <th>Rate</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in commissions %}
+      <tr>
+        <td>{{ c.user.full_name }}</td>
+        <td>{{ c.from_user.full_name }}</td>
+        <td>#{{ c.order.order_number }}</td>
+        <td><span class="admin-badge info">L{{ c.level }}</span></td>
+        <td>{{ c.rate }}%</td>
+        <td><strong style="color: #2ecc71;">₹{{ "%.0f"|format(c.amount) }}</strong></td>
+        <td><span class="admin-badge {% if c.status == 'approved' %}success{% elif c.status == 'pending' %}warning{% else %}info{% endif %}">{{ c.status }}</span></td>
+        <td>{{ c.created_at.strftime('%d %b %Y') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

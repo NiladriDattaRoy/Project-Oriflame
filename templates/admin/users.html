@@ -1,0 +1,90 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Manage Users{% endblock %}
+{% block page_title %}Users{% endblock %}
+
+{% block admin_content %}
+<div class="admin-stats-grid" style="margin-bottom: 24px;">
+  <div class="admin-stat-card">
+    <div class="admin-stat-card-header"><div class="admin-stat-icon blue">👥</div></div>
+    <div class="admin-stat-value">{{ users|length }}</div>
+    <div class="admin-stat-label">Total Users</div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-card-header"><div class="admin-stat-icon green">🛍️</div></div>
+    <div class="admin-stat-value">{{ users|selectattr('role', 'equalto', 'customer')|list|length }}</div>
+    <div class="admin-stat-label">Customers</div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-card-header"><div class="admin-stat-icon gold">🤝</div></div>
+    <div class="admin-stat-value">{{ users|selectattr('role', 'equalto', 'partner')|list|length }}</div>
+    <div class="admin-stat-label">Brand Partners</div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-card-header"><div class="admin-stat-icon purple">🔑</div></div>
+    <div class="admin-stat-value">{{ users|selectattr('role', 'equalto', 'admin')|list|length }}</div>
+    <div class="admin-stat-label">Admins</div>
+  </div>
+</div>
+
+<div class="admin-card">
+  <div class="admin-card-header">
+    <h3>All Users</h3>
+  </div>
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Role</th>
+        <th>Sponsor</th>
+        <th>Orders</th>
+        <th>Commission</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #c9a96e, #b08d4a); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 12px;">
+              {{ user.first_name[0] }}
+            </div>
+            <div>
+              <div style="font-weight: 600;">{{ user.full_name }}</div>
+              <div style="font-size: 11px; color: rgba(255,255,255,0.4);">Joined {{ user.join_date.strftime('%d %b %Y') }}</div>
+            </div>
+          </div>
+        </td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.phone or '-' }}</td>
+        <td>
+          <select class="admin-form-control" style="width: auto; padding: 4px 8px; font-size: 12px;"
+            onchange="adminUpdateUserRole({{ user.id }}, this.value)">
+            <option value="customer" {% if user.role == 'customer' %}selected{% endif %}>Customer</option>
+            <option value="partner" {% if user.role == 'partner' %}selected{% endif %}>Partner</option>
+            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+          </select>
+        </td>
+        <td>{{ user.sponsor.full_name if user.sponsor else '-' }}</td>
+        <td>{{ user.orders.count() }}</td>
+        <td>₹{{ "%.0f"|format(user.total_commission) }}</td>
+        <td>
+          <span class="admin-badge {% if user.is_active %}success{% else %}danger{% endif %}">
+            {{ 'Active' if user.is_active else 'Inactive' }}
+          </span>
+        </td>
+        <td>
+          <button class="admin-btn admin-btn-{% if user.is_active %}danger{% else %}success{% endif %} admin-btn-sm"
+            onclick="adminToggleUser({{ user.id }})">
+            {{ 'Disable' if user.is_active else 'Enable' }}
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

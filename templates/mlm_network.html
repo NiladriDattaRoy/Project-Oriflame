@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}My Network{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/mlm.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: var(--space-2xl) 0 var(--space-4xl);">
+  <div class="breadcrumb">
+    <a href="/">Home</a>
+    <span class="separator">›</span>
+    <a href="/dashboard">Dashboard</a>
+    <span class="separator">›</span>
+    <span>My Network</span>
+  </div>
+
+  <h1 style="margin-bottom: var(--space-md);">My Network</h1>
+  <p style="color: var(--color-text-secondary); margin-bottom: var(--space-2xl);">View your MLM downline tree and commission history</p>
+
+  <!-- Commission Stats -->
+  <div class="dashboard-stats" style="margin-top: 0; margin-bottom: var(--space-2xl);">
+    <div class="stat-card">
+      <div class="stat-card-icon accent">💰</div>
+      <div class="stat-card-value">₹{{ "%.0f"|format(current_user.total_commission) }}</div>
+      <div class="stat-card-label">Total Commission</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon success">👥</div>
+      <div class="stat-card-value">{{ total_downlines }}</div>
+      <div class="stat-card-label">Total Network</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon info">📊</div>
+      <div class="stat-card-value">₹{{ "%.0f"|format(network_sales) }}</div>
+      <div class="stat-card-label">Network Sales</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon warning">🔗</div>
+      <div class="stat-card-value">ORI{{ current_user.id * 1000 + 5000 }}</div>
+      <div class="stat-card-label">Referral Code</div>
+    </div>
+  </div>
+
+  <!-- Network Tree -->
+  <div class="checkout-section">
+    <h3>Network Tree</h3>
+    <div class="mlm-tree">
+      <!-- Root Node (Current User) -->
+      <div class="mlm-node">
+        <div class="mlm-node-card root" data-user-id="{{ current_user.id }}">
+          <div style="font-size: 24px; margin-bottom: 4px;">👤</div>
+          <h4>{{ current_user.full_name }}</h4>
+          <p style="font-size: 12px; opacity: 0.7;">You ({{ current_user.role|capitalize }})</p>
+        </div>
+        
+        {% if downline_tree %}
+        <div class="mlm-connector"></div>
+        <div class="mlm-children">
+          {% for node in downline_tree %}
+          <div class="mlm-node">
+            <div class="mlm-node-card" data-user-id="{{ node.user.id }}">
+              <div style="font-size: 20px; margin-bottom: 4px;">👤</div>
+              <h4 style="font-size: 14px;">{{ node.user.full_name }}</h4>
+              <p style="font-size: 11px; color: var(--color-text-muted);">Level {{ node.level }}</p>
+              <p style="font-size: 11px; color: var(--color-accent-dark);">₹{{ "%.0f"|format(node.user.total_sales) }}</p>
+            </div>
+            {% if node.children %}
+            <div class="mlm-connector"></div>
+            <div class="mlm-children">
+              {% for child in node.children %}
+              <div class="mlm-node">
+                <div class="mlm-node-card" data-user-id="{{ child.user.id }}">
+                  <div style="font-size: 16px; margin-bottom: 4px;">👤</div>
+                  <h4 style="font-size: 13px;">{{ child.user.full_name }}</h4>
+                  <p style="font-size: 11px; color: var(--color-text-muted);">Level {{ child.level }}</p>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Commission History -->
+  <div class="checkout-section" style="margin-top: var(--space-xl);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="margin-bottom: 0; border: none; padding-bottom: 0;">Commission History</h3>
+      <div style="display: flex; gap: 8px;">
+        <button class="product-tab active commission-filter" data-level="all">All</button>
+        <button class="product-tab commission-filter" data-level="1">Level 1</button>
+        <button class="product-tab commission-filter" data-level="2">Level 2</button>
+        <button class="product-tab commission-filter" data-level="3">Level 3</button>
+      </div>
+    </div>
+    
+    {% if commissions %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>From</th>
+          <th>Order</th>
+          <th>Level</th>
+          <th>Rate</th>
+          <th>Amount</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in commissions %}
+        <tr class="commission-row" data-level="{{ c.level }}">
+          <td>{{ c.created_at.strftime('%d %b %Y') }}</td>
+          <td>{{ c.from_user.full_name }}</td>
+          <td>#{{ c.order.order_number }}</td>
+          <td><span class="status-badge status-confirmed">Level {{ c.level }}</span></td>
+          <td>{{ c.rate }}%</td>
+          <td><strong style="color: var(--color-success);">₹{{ "%.0f"|format(c.amount) }}</strong></td>
+          <td><span class="status-badge status-{{ c.status }}">{{ c.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state" style="padding: 24px;">
+      <p style="color: var(--color-text-muted);">No commissions yet. Build your network to start earning!</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

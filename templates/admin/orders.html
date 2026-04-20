@@ -1,0 +1,60 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Manage Orders{% endblock %}
+{% block page_title %}Orders{% endblock %}
+
+{% block admin_content %}
+<div class="admin-card">
+  <div class="admin-card-header">
+    <h3>All Orders ({{ orders|length }})</h3>
+  </div>
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Order #</th>
+        <th>Customer</th>
+        <th>Items</th>
+        <th>Total</th>
+        <th>Payment</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td><strong>{{ order.order_number }}</strong></td>
+        <td>
+          <div>{{ order.user.full_name }}</div>
+          <div style="font-size: 11px; color: rgba(255,255,255,0.4);">{{ order.user.email }}</div>
+        </td>
+        <td>{{ order.items.count() }}</td>
+        <td><strong>₹{{ "{:,.0f}".format(order.total) }}</strong></td>
+        <td>
+          <span class="admin-badge {% if order.payment_status == 'paid' %}success{% elif order.payment_status == 'pending' %}warning{% else %}danger{% endif %}">
+            {{ order.payment_status }}
+          </span>
+          <div style="font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px;">{{ order.payment_method or 'N/A' }}</div>
+        </td>
+        <td>
+          <select class="admin-form-control" style="width: auto; padding: 4px 8px; font-size: 12px;"
+            onchange="adminUpdateOrderStatus({{ order.id }}, this.value)">
+            <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="confirmed" {% if order.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+            <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
+            <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+            <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+          </select>
+        </td>
+        <td>{{ order.created_at.strftime('%d %b %Y') }}</td>
+        <td>
+          <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="alert('Shipping: {{ order.shipping_name }}, {{ order.shipping_address }}, {{ order.shipping_city }}, {{ order.shipping_state }} - {{ order.shipping_pincode }}')">
+            View
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

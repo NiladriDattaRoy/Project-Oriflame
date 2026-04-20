@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="breadcrumb">
+    <a href="/">Home</a>
+    <span class="separator">›</span>
+    <a href="/products">Products</a>
+    <span class="separator">›</span>
+    {% if product.category %}
+    <a href="/category/{{ product.category.slug }}">{{ product.category.name }}</a>
+    <span class="separator">›</span>
+    {% endif %}
+    <span>{{ product.name }}</span>
+  </div>
+
+  <div class="product-detail">
+    <!-- Gallery -->
+    <div class="product-gallery">
+      <div class="product-gallery-main">
+        <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="{{ product.name }}" id="main-image">
+      </div>
+      <div class="product-gallery-thumbs">
+        <div class="product-gallery-thumb active" onclick="changeImage(this, '{{ product.image_url or '/static/images/placeholder.png' }}')">
+          <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="">
+        </div>
+        {% if product.image_url_2 %}
+        <div class="product-gallery-thumb" onclick="changeImage(this, '{{ product.image_url_2 }}')">
+          <img src="{{ product.image_url_2 }}" alt="">
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="product-info">
+      {% if product.brand %}
+      <span class="product-brand">{{ product.brand }}</span>
+      {% endif %}
+      
+      <h1>{{ product.name }}</h1>
+      
+      <div class="product-card-rating" style="margin-bottom: 16px;">
+        <span class="stars" style="font-size: 18px;">{% for i in range(5) %}{% if i < product.rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
+        <span class="rating-count">({{ product.review_count }} reviews)</span>
+      </div>
+
+      <div class="product-price-box">
+        <span class="price-current">₹{{ "%.0f"|format(product.price) }}</span>
+        {% if product.mrp > product.price %}
+        <span class="price-mrp" style="font-size: 18px;">MRP ₹{{ "%.0f"|format(product.mrp) }}</span>
+        <span class="price-discount" style="font-size: 16px;">Save {{ product.discount_percent }}%</span>
+        {% endif %}
+      </div>
+      <p style="font-size: 12px; color: var(--color-text-muted); margin-top: -12px; margin-bottom: 16px;">Inclusive of all taxes</p>
+
+      {% if product.short_description %}
+      <p class="product-description">{{ product.short_description }}</p>
+      {% endif %}
+
+      {% if product.description %}
+      <p class="product-description">{{ product.description }}</p>
+      {% endif %}
+
+      <!-- Quantity Selector -->
+      <div class="product-qty-selector">
+        <span style="font-weight: 600; font-size: 14px;">Quantity:</span>
+        <button class="qty-btn" onclick="adjustQty(-1)">−</button>
+        <span class="qty-value" id="product-qty">1</span>
+        <button class="qty-btn" onclick="adjustQty(1)">+</button>
+        {% if product.stock <= 10 and product.stock > 0 %}
+        <span style="color: var(--color-warning); font-size: 13px; margin-left: 12px;">Only {{ product.stock }} left!</span>
+        {% endif %}
+      </div>
+
+      <!-- Actions -->
+      <div class="product-actions">
+        {% if product.in_stock %}
+        <button class="btn btn-primary btn-lg add-to-cart-btn" data-product-id="{{ product.id }}" data-qty="1" id="add-cart-btn" style="flex: 2;">
+          Add to Cart
+        </button>
+        <button class="btn btn-outline btn-lg" onclick="addToCart({{ product.id }}, document.getElementById('product-qty').textContent); window.location.href='/checkout';" style="flex: 1;">
+          Buy Now
+        </button>
+        {% else %}
+        <button class="btn btn-secondary btn-lg" disabled style="flex: 1; opacity: 0.5;">Out of Stock</button>
+        {% endif %}
+        <button class="btn btn-outline btn-icon btn-lg" title="Wishlist" style="font-size: 20px;">♡</button>
+      </div>
+
+      <!-- Product Meta -->
+      <div class="product-meta">
+        <div class="product-meta-item">
+          <span>Product Code</span>
+          <span>{{ product.code }}</span>
+        </div>
+        {% if product.weight %}
+        <div class="product-meta-item">
+          <span>Weight</span>
+          <span>{{ product.weight }}</span>
+        </div>
+        {% endif %}
+        <div class="product-meta-item">
+          <span>Category</span>
+          <span>{{ product.category.name if product.category else 'N/A' }}</span>
+        </div>
+        <div class="product-meta-item">
+          <span>Availability</span>
+          <span style="color: {% if product.in_stock %}var(--color-success){% else %}var(--color-danger){% endif %}">
+            {% if product.in_stock %}In Stock{% else %}Out of Stock{% endif %}
+          </span>
+        </div>
+        {% if product.tags %}
+        <div class="product-meta-item">
+          <span>Tags</span>
+          <span>{{ product.tags }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Related Products -->
+{% if related_products %}
+<section class="section" style="background: var(--color-bg-alt);">
+  <div class="container">
+    <div class="section-title">
+      <h2>You May Also Like</h2>
+    </div>
+    <div class="products-grid">
+      {% for product in related_products[:4] %}
+      <div class="product-card fade-in">
+        <a href="/products/{{ product.slug }}">
+          <div class="product-card-image">
+            <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="{{ product.name }}">
+            {% if product.discount_percent > 0 %}
+            <div class="product-card-badges"><span class="badge-discount">-{{ product.discount_percent }}%</span></div>
+            {% endif %}
+          </div>
+        </a>
+        <div class="product-card-info">
+          {% if product.brand %}<span class="product-card-brand">{{ product.brand }}</span>{% endif %}
+          <a href="/products/{{ product.slug }}"><h3 class="product-card-name">{{ product.name }}</h3></a>
+          <div class="product-card-price">
+            <span class="price-current">₹{{ "%.0f"|format(product.price) }}</span>
+            {% if product.mrp > product.price %}
+            <span class="price-mrp">MRP ₹{{ "%.0f"|format(product.mrp) }}</span>
+            {% endif %}
+          </div>
+          <button class="btn-add-cart" data-product-id="{{ product.id }}">Add to Cart</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<script>
+function adjustQty(delta) {
+  const el = document.getElementById('product-qty');
+  let qty = parseInt(el.textContent) + delta;
+  if (qty < 1) qty = 1;
+  if (qty > {{ product.stock }}) qty = {{ product.stock }};
+  el.textContent = qty;
+  
+  // Update add-to-cart button quantity
+  const btn = document.getElementById('add-cart-btn');
+  if (btn) btn.dataset.qty = qty;
+}
+
+function changeImage(thumb, src) {
+  document.getElementById('main-image').src = src;
+  document.querySelectorAll('.product-gallery-thumb').forEach(t => t.classList.remove('active'));
+  thumb.classList.add('active');
+}
+</script>
+{% endblock %}

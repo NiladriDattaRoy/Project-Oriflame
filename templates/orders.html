@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: var(--space-2xl) 0 var(--space-4xl);">
+  <div class="breadcrumb">
+    <a href="/">Home</a>
+    <span class="separator">›</span>
+    <a href="/dashboard">Dashboard</a>
+    <span class="separator">›</span>
+    <span>Orders</span>
+  </div>
+
+  <h1 style="margin-bottom: var(--space-2xl);">My Orders</h1>
+
+  {% if orders %}
+  {% for order in orders %}
+  <div class="checkout-section fade-in">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <div>
+        <h3 style="margin-bottom: 4px; border: none; padding-bottom: 0;">Order #{{ order.order_number }}</h3>
+        <p style="font-size: 13px; color: var(--color-text-muted);">Placed on {{ order.created_at.strftime('%d %B %Y, %I:%M %p') }}</p>
+      </div>
+      <div style="text-align: right;">
+        <span class="status-badge status-{{ order.status }}">{{ order.status }}</span>
+        <div style="font-size: 13px; color: var(--color-text-muted); margin-top: 4px;">{{ order.payment_method|upper }}</div>
+      </div>
+    </div>
+
+    <!-- Order Status Steps -->
+    <div class="order-status-steps">
+      {% set statuses = ['pending', 'confirmed', 'shipped', 'delivered'] %}
+      {% set status_icons = {'pending': '📋', 'confirmed': '✓', 'shipped': '🚚', 'delivered': '📦'} %}
+      {% for s in statuses %}
+      <div class="order-step {% if statuses.index(order.status) >= loop.index0 %}completed{% endif %} {% if order.status == s %}active{% endif %}">
+        <div class="order-step-dot">{{ status_icons[s] }}</div>
+        <span class="order-step-label">{{ s|capitalize }}</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Order Items -->
+    {% for item in order.items %}
+    <div style="display: flex; gap: 16px; padding: 12px 0; border-top: 1px solid var(--color-border-light);">
+      <div style="width: 64px; height: 64px; border-radius: 8px; overflow: hidden; background: var(--color-bg-alt);">
+        <img src="{{ item.product_image or '/static/images/placeholder.png' }}" style="width: 100%; height: 100%; object-fit: cover;">
+      </div>
+      <div style="flex: 1;">
+        <div style="font-weight: 600; font-size: 14px;">{{ item.product_name }}</div>
+        <div style="font-size: 13px; color: var(--color-text-muted);">Qty: {{ item.quantity }}</div>
+      </div>
+      <div style="font-weight: 700;">₹{{ "%.0f"|format(item.subtotal) }}</div>
+    </div>
+    {% endfor %}
+
+    <!-- Order Total -->
+    <div style="display: flex; justify-content: space-between; padding: 16px 0 0; border-top: 2px solid var(--color-border-light); margin-top: 8px;">
+      <span style="font-weight: 700;">Total</span>
+      <span style="font-size: 20px; font-weight: 700; color: var(--color-primary);">₹{{ "%.0f"|format(order.total) }}</span>
+    </div>
+  </div>
+  {% endfor %}
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">📦</div>
+    <h3>No orders yet</h3>
+    <p>Start shopping to see your orders here.</p>
+    <a href="/products" class="btn btn-primary btn-lg">Browse Products</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

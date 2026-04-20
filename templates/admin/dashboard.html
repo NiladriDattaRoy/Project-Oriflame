@@ -1,0 +1,100 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block admin_content %}
+<!-- Stats -->
+<div class="admin-stats-grid">
+  <div class="admin-stat-card">
+    <div class="admin-stat-card-header">
+      <div class="admin-stat-icon gold">💰</div>
+      <span class="admin-stat-change up">↑ 12%</span>
+    </div>
+    <div class="admin-stat-value">₹{{ "{:,.0f}".format(total_revenue) }}</div>
+    <div class="admin-stat-label">Total Revenue</div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-card-header">
+      <div class="admin-stat-icon green">📦</div>
+      <span class="admin-stat-change up">↑ 8%</span>
+    </div>
+    <div class="admin-stat-value">{{ total_orders }}</div>
+    <div class="admin-stat-label">Total Orders</div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-card-header">
+      <div class="admin-stat-icon blue">👥</div>
+      <span class="admin-stat-change up">↑ 15%</span>
+    </div>
+    <div class="admin-stat-value">{{ total_users }}</div>
+    <div class="admin-stat-label">Total Users</div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-card-header">
+      <div class="admin-stat-icon purple">🌐</div>
+      <span class="admin-stat-change up">↑ 5%</span>
+    </div>
+    <div class="admin-stat-value">{{ total_partners }}</div>
+    <div class="admin-stat-label">Brand Partners</div>
+  </div>
+</div>
+
+<!-- Charts -->
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px;">
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <h3>Revenue Overview</h3>
+    </div>
+    <div class="admin-chart-container">
+      <div class="admin-chart-bars"></div>
+    </div>
+  </div>
+  
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <h3>Order Status</h3>
+    </div>
+    <div class="admin-card-body">
+      {% set statuses = [('Pending', pending_count, 'warning'), ('Confirmed', confirmed_count, 'info'), ('Shipped', shipped_count, 'purple'), ('Delivered', delivered_count, 'success')] %}
+      {% for label, count, color in statuses %}
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04);">
+        <span style="font-size: 13px;">{{ label }}</span>
+        <span class="admin-badge {{ color }}">{{ count }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="admin-card">
+  <div class="admin-card-header">
+    <h3>Recent Orders</h3>
+    <a href="/oriflame-admin-panel-x9k2/orders" class="admin-btn admin-btn-secondary admin-btn-sm">View All</a>
+  </div>
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Order #</th>
+        <th>Customer</th>
+        <th>Items</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in recent_orders %}
+      <tr>
+        <td><strong>{{ order.order_number }}</strong></td>
+        <td>{{ order.user.full_name }}</td>
+        <td>{{ order.items.count() }}</td>
+        <td>₹{{ "{:,.0f}".format(order.total) }}</td>
+        <td><span class="admin-badge {% if order.status == 'delivered' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'shipped' %}info{% else %}info{% endif %}">{{ order.status }}</span></td>
+        <td>{{ order.created_at.strftime('%d %b %Y') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,206 @@
+================================================================================
+        ORIFLAME E-COMMERCE & MLM PLATFORM — HOW TO RUN
+================================================================================
+
+
+================================================================================
+SECTION 1: INITIAL SETUP (One-Time Only)
+================================================================================
+
+Step 1: Open Command Prompt / Terminal
+       - Press Windows + R, type "cmd", press Enter
+       - Or search "Command Prompt" in the Start menu
+
+Step 2: Navigate to the project folder
+       > cd C:\Users\nilad\OneDrive\Desktop\Oriflame
+
+Step 3: (Optional but Recommended) Create a virtual environment
+       > python -m venv venv
+       > venv\Scripts\activate
+
+Step 4: Install the required Python packages
+       > pip install -r requirements.txt
+
+       This will install:
+       - Flask (web framework)
+       - Flask-SQLAlchemy (database)
+       - Flask-Login (user authentication)
+       - Flask-WTF (form handling)
+       - Werkzeug (password hashing)
+       - bcrypt (encryption)
+       - Pillow (image processing)
+
+
+================================================================================
+SECTION 2: RUNNING THE MAIN WEBSITE (Customer / Public Site)
+================================================================================
+
+Step 1: Open Command Prompt and navigate to the project folder
+       > cd C:\Users\nilad\OneDrive\Desktop\Oriflame
+
+Step 2: (If using virtual environment) Activate it
+       > venv\Scripts\activate
+
+Step 3: Start the server
+       > python app.py
+
+       You should see:
+       [SEED] Seeding database...       (first run only)
+       [OK] Seeded 40 products...       (first run only)
+       * Running on http://127.0.0.1:5000
+
+Step 4: Open your web browser (Chrome, Firefox, Edge)
+
+Step 5: Go to: http://localhost:5000
+
+Step 6: You can now:
+       - Browse the homepage with hero carousel and product sections
+       - Click "Shop" to view all products with filters and search
+       - Click on any product to see its detail page
+       - Click "Join Us" to see the business opportunity page
+       - Click "New Arrivals", "Bestsellers", or "Offers" for filtered views
+
+Step 7: To shop and buy products:
+       a) Click the user icon (top right) or go to: http://localhost:5000/register
+       b) Create an account (choose "Customer" or "Brand Partner")
+       c) Browse products and click "Add to Cart"
+       d) Click the cart icon (top right) to view your cart
+       e) Click "Checkout" to proceed
+       f) Fill in shipping address and select payment method
+       g) Click "Place Order" to complete your purchase
+
+Step 8: Sample Customer Login (pre-created account):
+       - Go to: http://localhost:5000/login
+       - Email:    customer@oriflame.com
+       - Password: customer123
+
+Step 9: Sample Brand Partner Login (to see MLM features):
+       - Go to: http://localhost:5000/login
+       - Email:    partner@oriflame.com
+       - Password: partner123
+       - After login, go to Dashboard > "My Network" to see MLM tree
+
+Step 10: To stop the server:
+        - Go back to the Command Prompt
+        - Press Ctrl + C
+
+
+================================================================================
+SECTION 3: RUNNING THE ADMIN PANEL (Hidden - Admin Only)
+================================================================================
+
+IMPORTANT: The admin panel is hidden from regular users. There are NO links 
+to it anywhere on the main website. Only admins can access it.
+
+Step 1: Make sure the server is running (see Section 2, Steps 1-3)
+
+Step 2: Open your web browser
+
+Step 3: Go to: http://localhost:5000/login
+
+Step 4: Login with the admin credentials:
+       - Email:    admin@oriflame.com
+       - Password: admin123
+
+Step 5: After login, go to the hidden admin URL:
+       http://localhost:5000/oriflame-admin-panel-x9k2/
+
+       NOTE: You MUST be logged in as admin. If you are not logged in
+       or logged in as a regular user, you will see a "Page Not Found" 
+       error (this is intentional to hide the admin panel).
+
+Step 6: Admin Panel Pages:
+
+       DASHBOARD (Overview):
+       http://localhost:5000/oriflame-admin-panel-x9k2/
+       - View total revenue, orders, users, and brand partners
+       - See revenue chart and order status breakdown
+       - View recent orders
+
+       PRODUCT MANAGEMENT:
+       http://localhost:5000/oriflame-admin-panel-x9k2/products
+       - View all products in a table
+       - Click "+ Add Product" to add a new product
+       - Click the edit icon to modify an existing product
+       - Click the delete icon to remove a product
+
+       ORDER MANAGEMENT:
+       http://localhost:5000/oriflame-admin-panel-x9k2/orders
+       - View all customer orders
+       - Change order status using the dropdown (Pending/Confirmed/Shipped/Delivered)
+       - Click "View" to see shipping details
+
+       USER MANAGEMENT:
+       http://localhost:5000/oriflame-admin-panel-x9k2/users
+       - View all registered users
+       - Change user roles (Customer/Partner/Admin) using the dropdown
+       - Enable or disable user accounts
+
+       MLM NETWORK:
+       http://localhost:5000/oriflame-admin-panel-x9k2/mlm
+       - View all brand partners and their networks
+       - See total commissions paid
+       - View commission activity history
+
+
+================================================================================
+SECTION 4: QUICK REFERENCE
+================================================================================
+
+MAIN WEBSITE URLS:
+  Homepage:           http://localhost:5000/
+  All Products:       http://localhost:5000/products
+  Bestsellers:        http://localhost:5000/products?filter=bestsellers
+  New Arrivals:       http://localhost:5000/products?filter=new
+  Offers:             http://localhost:5000/products?filter=offers
+  Join Us:            http://localhost:5000/join
+  Login:              http://localhost:5000/login
+  Register:           http://localhost:5000/register
+  My Dashboard:       http://localhost:5000/dashboard
+  My Orders:          http://localhost:5000/orders
+  My Cart:            http://localhost:5000/cart
+  Checkout:           http://localhost:5000/checkout
+  MLM Network:        http://localhost:5000/mlm/network
+
+ADMIN PANEL URLS (admin login required):
+  Admin Dashboard:    http://localhost:5000/oriflame-admin-panel-x9k2/
+  Manage Products:    http://localhost:5000/oriflame-admin-panel-x9k2/products
+  Manage Orders:      http://localhost:5000/oriflame-admin-panel-x9k2/orders
+  Manage Users:       http://localhost:5000/oriflame-admin-panel-x9k2/users
+  MLM Overview:       http://localhost:5000/oriflame-admin-panel-x9k2/mlm
+
+LOGIN CREDENTIALS:
+  Admin:     admin@oriflame.com      / admin123
+  Partner:   partner@oriflame.com    / partner123
+  Partner2:  partner2@oriflame.com   / partner123
+  Customer:  customer@oriflame.com   / customer123
+
+
+================================================================================
+SECTION 5: TROUBLESHOOTING
+================================================================================
+
+Problem: "python is not recognized"
+  -> Install Python from https://www.python.org/downloads/
+  -> Make sure to check "Add Python to PATH" during installation
+
+Problem: "pip install" fails
+  -> Try: python -m pip install -r requirements.txt
+
+Problem: "Address already in use" error
+  -> Another program is using port 5000
+  -> Close that program, or change the port in app.py (last line):
+     app.run(debug=True, port=5001)
+  -> Then access: http://localhost:5001
+
+Problem: Admin panel shows "Page Not Found"
+  -> Make sure you are logged in as admin@oriflame.com
+  -> Make sure the URL is exactly: /oriflame-admin-panel-x9k2/
+  -> The trailing slash is important
+
+Problem: Database errors
+  -> Delete the file: database/oriflame.db
+  -> Restart the server (python app.py)
+  -> The database will be recreated and seeded automatically
+
+================================================================================

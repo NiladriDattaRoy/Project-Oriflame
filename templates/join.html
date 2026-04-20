@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Join Us — Business Opportunity{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="join-hero">
+  <div class="container" style="position: relative;">
+    <h1>Start Your Beauty Business Today</h1>
+    <p>Join over 3 million Brand Partners worldwide. Earn attractive commissions, enjoy exclusive perks, and make your dreams a reality.</p>
+    <a href="/register" class="btn btn-primary btn-lg">Join Now — It's Free!</a>
+  </div>
+</section>
+
+<!-- Benefits -->
+<section class="section">
+  <div class="container">
+    <div class="section-title fade-in">
+      <h2>Why Join Oriflame?</h2>
+      <p>Discover the benefits of becoming a Brand Partner</p>
+    </div>
+
+    <div class="join-benefits">
+      <div class="join-benefit-card fade-in">
+        <div class="join-benefit-icon">💰</div>
+        <h3>Earn Commission</h3>
+        <p>Earn up to 30% commission on every sale. The more you sell and grow your network, the more you earn.</p>
+      </div>
+      <div class="join-benefit-card fade-in">
+        <div class="join-benefit-icon">🌍</div>
+        <h3>Global Community</h3>
+        <p>Be part of a community of 3 million+ Brand Partners across 60+ countries. Access training, events, and support.</p>
+      </div>
+      <div class="join-benefit-card fade-in">
+        <div class="join-benefit-icon">🎁</div>
+        <h3>Exclusive Perks</h3>
+        <p>Enjoy exclusive discounts, early access to new products, travel incentives, and recognition at all levels.</p>
+      </div>
+      <div class="join-benefit-card fade-in">
+        <div class="join-benefit-icon">📱</div>
+        <h3>Work Flexibly</h3>
+        <p>Build your business on your own terms. Work from anywhere, set your own hours, and be your own boss.</p>
+      </div>
+      <div class="join-benefit-card fade-in">
+        <div class="join-benefit-icon">📈</div>
+        <h3>Growth Opportunity</h3>
+        <p>Build your team and earn multi-level commissions. Our proven system helps you grow exponentially.</p>
+      </div>
+      <div class="join-benefit-card fade-in">
+        <div class="join-benefit-icon">🌿</div>
+        <h3>Premium Products</h3>
+        <p>Sell award-winning Swedish beauty products powered by science. Skincare, makeup, fragrances, and wellness.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="section" style="background: var(--color-bg-alt);">
+  <div class="container">
+    <div class="section-title fade-in">
+      <h2>How It Works</h2>
+      <p>Getting started is easy</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; max-width: 900px; margin: 0 auto;">
+      {% set steps = [
+        {'icon': '1️⃣', 'title': 'Sign Up', 'desc': 'Create your free Brand Partner account in minutes'},
+        {'icon': '2️⃣', 'title': 'Learn', 'desc': 'Access our training materials and product knowledge base'},
+        {'icon': '3️⃣', 'title': 'Share', 'desc': 'Share products with friends, family, and your social network'},
+        {'icon': '4️⃣', 'title': 'Earn', 'desc': 'Earn commissions on every sale and build your team'}
+      ] %}
+      {% for step in steps %}
+      <div style="text-align: center;" class="fade-in">
+        <div style="font-size: 48px; margin-bottom: 16px;">{{ step.icon }}</div>
+        <h4 style="font-family: var(--font-body); font-size: 16px; margin-bottom: 8px;">{{ step.title }}</h4>
+        <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6;">{{ step.desc }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Commission Structure -->
+<section class="section">
+  <div class="container">
+    <div class="section-title fade-in">
+      <h2>Commission Structure</h2>
+      <p>Earn generous commissions at multiple levels</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 800px; margin: 0 auto;">
+      <div class="stat-card fade-in" style="text-align: center;">
+        <div style="font-size: 48px; font-weight: 800; color: var(--color-accent); margin-bottom: 8px;">10%</div>
+        <h4 style="font-family: var(--font-body); font-size: 16px; margin-bottom: 4px;">Level 1</h4>
+        <p style="font-size: 13px; color: var(--color-text-secondary);">Direct Sales Commission</p>
+      </div>
+      <div class="stat-card fade-in" style="text-align: center;">
+        <div style="font-size: 48px; font-weight: 800; color: var(--color-accent); margin-bottom: 8px;">5%</div>
+        <h4 style="font-family: var(--font-body); font-size: 16px; margin-bottom: 4px;">Level 2</h4>
+        <p style="font-size: 13px; color: var(--color-text-secondary);">From your team's sales</p>
+      </div>
+      <div class="stat-card fade-in" style="text-align: center;">
+        <div style="font-size: 48px; font-weight: 800; color: var(--color-accent); margin-bottom: 8px;">2%</div>
+        <h4 style="font-family: var(--font-body); font-size: 16px; margin-bottom: 4px;">Level 3</h4>
+        <p style="font-size: 13px; color: var(--color-text-secondary);">Extended network bonus</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="promo-banner">
+  <div class="container" style="text-align: center; display: block;">
+    <h2 style="color: var(--color-white); max-width: 600px; margin: 0 auto 16px;">Ready to Start Your Journey?</h2>
+    <p style="color: rgba(255,255,255,0.7); max-width: 500px; margin: 0 auto 24px;">Join thousands of successful Brand Partners who are building their dream businesses with Oriflame.</p>
+    <a href="/register" class="btn btn-primary btn-lg">Create Your Account</a>
+  </div>
+</section>
+{% endblock %}

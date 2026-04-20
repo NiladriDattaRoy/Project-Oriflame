@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Search: ' + request.args.get('search', '') if request.args.get('search') else category.name if category else 'All Products' }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="/">Home</a>
+    <span class="separator">›</span>
+    {% if category %}
+    <a href="/products">Products</a>
+    <span class="separator">›</span>
+    <span>{{ category.name }}</span>
+    {% else %}
+    <span>Products</span>
+    {% endif %}
+  </div>
+
+  <div class="shop-layout">
+    <!-- Filters Sidebar -->
+    <aside class="filters-sidebar">
+      <div class="filter-section">
+        <h4>Categories</h4>
+        {% for cat in categories %}
+        <label class="filter-option">
+          <input type="checkbox" name="category" value="{{ cat.slug }}" {% if request.args.get('category') == cat.slug %}checked{% endif %}
+            onchange="window.location.href='/category/{{ cat.slug }}'">
+          <span>{{ cat.name }} ({{ cat.products.count() }})</span>
+        </label>
+        {% endfor %}
+      </div>
+
+      <div class="filter-section">
+        <h4>Price Range</h4>
+        <div class="price-range-slider">
+          <input type="range" min="0" max="5000" value="{{ request.args.get('max_price', 5000) }}" 
+            id="price-range" oninput="document.getElementById('price-display').textContent = '₹0 - ₹' + this.value">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-muted); margin-top: 8px;">
+            <span>₹0</span>
+            <span id="price-display">₹0 - ₹5000</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <h4>Rating</h4>
+        {% for rating in [4, 3, 2, 1] %}
+        <label class="filter-option">
+          <input type="checkbox" name="rating" value="{{ rating }}">
+          <span>{% for i in range(rating) %}★{% endfor %}{% for i in range(5-rating) %}☆{% endfor %} & Up</span>
+        </label>
+        {% endfor %}
+      </div>
+
+      <div class="filter-section">
+        <h4>Availability</h4>
+        <label class="filter-option">
+          <input type="checkbox" name="in_stock" checked>
+          <span>In Stock</span>
+        </label>
+        <label class="filter-option">
+          <input type="checkbox" name="on_sale">
+          <span>On Sale</span>
+        </label>
+      </div>
+    </aside>
+
+    <!-- Products Area -->
+    <div>
+      <!-- Toolbar -->
+      <div class="shop-toolbar">
+        <span class="result-count">Showing <strong>{{ products|length }}</strong> products</span>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <select class="sort-select" onchange="window.location.href=updateQueryParam('sort', this.value)">
+            <option value="newest" {% if request.args.get('sort') == 'newest' %}selected{% endif %}>Newest First</option>
+            <option value="price_low" {% if request.args.get('sort') == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+            <option value="price_high" {% if request.args.get('sort') == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+            <option value="rating" {% if request.args.get('sort') == 'rating' %}selected{% endif %}>Top Rated</option>
+            <option value="popular" {% if request.args.get('sort') == 'popular' %}selected{% endif %}>Most Popular</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      {% if products %}
+      <div class="products-grid">
+        {% for product in products %}
+        <div class="product-card fade-in">
+          <a href="/products/{{ product.slug }}">
+            <div class="product-card-image">
+              <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="{{ product.name }}">
+              <div class="product-card-badges">
+                {% if product.is_new %}<span class="badge-new">New</span>{% endif %}
+                {% if product.is_bestseller %}<span class="badge-bestseller">Bestseller</span>{% endif %}
+                {% if product.discount_percent > 0 %}<span class="badge-discount">-{{ product.discount_percent }}%</span>{% endif %}
+              </div>
+              <div class="product-card-actions">
+                <button title="Quick View" onclick="event.preventDefault();">👁</button>
+                <button title="Wishlist" onclick="event.preventDefault();">♡</button>
+              </div>
+            </div>
+          </a>
+          <div class="product-card-info">
+            {% if product.brand %}<span class="product-card-brand">{{ product.brand }}</span>{% endif %}
+            <a href="/products/{{ product.slug }}"><h3 class="product-card-name">{{ product.name }}</h3></a>
+            <div class="product-card-rating">
+              <span class="stars">{% for i in range(5) %}{% if i < product.rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
+              <span class="rating-count">({{ product.review_count }})</span>
+            </div>
+            <div class="product-card-price">
+              <span class="price-current">₹{{ "%.0f"|format(product.price) }}</span>
+              {% if product.mrp > product.price %}
+              <span class="price-mrp">MRP ₹{{ "%.0f"|format(product.mrp) }}</span>
+              <span class="price-discount">{{ product.discount_percent }}% off</span>
+              {% endif %}
+            </div>
+            <button class="btn-add-cart" data-product-id="{{ product.id }}">Add to Cart</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if total_pages > 1 %}
+      <div class="pagination">
+        {% if page > 1 %}
+        <a href="?page={{ page - 1 }}">‹</a>
+        {% endif %}
+        {% for p in range(1, total_pages + 1) %}
+        {% if p == page %}
+        <span class="active">{{ p }}</span>
+        {% else %}
+        <a href="?page={{ p }}">{{ p }}</a>
+        {% endif %}
+        {% endfor %}
+        {% if page < total_pages %}
+        <a href="?page={{ page + 1 }}">›</a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">🔍</div>
+        <h3>No products found</h3>
+        <p>Try adjusting your search or filter criteria</p>
+        <a href="/products" class="btn btn-primary">View All Products</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+function updateQueryParam(key, value) {
+  const url = new URL(window.location);
+  url.searchParams.set(key, value);
+  return url.toString();
+}
+</script>
+{% endblock %}

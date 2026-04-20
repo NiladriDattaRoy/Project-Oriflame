@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Shopping Cart{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: var(--space-2xl); padding-bottom: var(--space-4xl);">
+  <div class="breadcrumb">
+    <a href="/">Home</a>
+    <span class="separator">›</span>
+    <span>Shopping Cart</span>
+  </div>
+
+  <h1 style="margin-bottom: var(--space-2xl);">Shopping Cart</h1>
+
+  {% if cart_items %}
+  <div class="checkout-layout">
+    <div>
+      <!-- Cart Items -->
+      <div class="checkout-section">
+        <h3>Cart Items ({{ cart_items|length }})</h3>
+        {% for item in cart_items %}
+        <div class="cart-item" data-item-id="{{ item.id }}" style="padding: 16px 0;">
+          <div class="cart-item-image" style="width: 100px; height: 100px;">
+            <img src="{{ item.product.image_url or '/static/images/placeholder.png' }}" alt="{{ item.product.name }}">
+          </div>
+          <div class="cart-item-info" style="flex: 1;">
+            <a href="/products/{{ item.product.slug }}">
+              <div class="cart-item-name" style="font-size: 16px;">{{ item.product.name }}</div>
+            </a>
+            {% if item.product.brand %}
+            <div style="font-size: 12px; color: var(--color-accent-dark); margin-bottom: 8px;">{{ item.product.brand }}</div>
+            {% endif %}
+            <div class="cart-item-price" style="font-size: 18px;">₹{{ "%.0f"|format(item.product.price) }}
+              {% if item.product.mrp > item.product.price %}
+              <span style="font-size: 14px; color: var(--color-text-muted); text-decoration: line-through; font-weight: 400; margin-left: 8px;">₹{{ "%.0f"|format(item.product.mrp) }}</span>
+              {% endif %}
+            </div>
+            <div class="cart-item-qty" style="margin-top: 8px;">
+              <button class="qty-btn" onclick="updateCartQty({{ item.id }}, {{ item.quantity - 1 }})">−</button>
+              <span style="min-width: 24px; text-align: center; font-weight: 600;">{{ item.quantity }}</span>
+              <button class="qty-btn" onclick="updateCartQty({{ item.id }}, {{ item.quantity + 1 }})">+</button>
+              <span style="margin-left: 16px; font-size: 13px; color: var(--color-text-muted);">Subtotal: <strong style="color: var(--color-text);">₹{{ "%.0f"|format(item.subtotal) }}</strong></span>
+            </div>
+          </div>
+          <button class="cart-item-remove" onclick="removeCartItem({{ item.id }}); location.reload();" style="font-size: 18px;">✕</button>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div>
+      <div class="order-summary-card">
+        <h3 style="font-family: var(--font-body); font-size: 18px; font-weight: 700; margin-bottom: 20px;">Order Summary</h3>
+        <div class="cart-totals">
+          <div class="cart-total-row">
+            <span>Subtotal ({{ cart_items|length }} items)</span>
+            <span>₹{{ "%.0f"|format(cart_total) }}</span>
+          </div>
+          <div class="cart-total-row">
+            <span>Shipping</span>
+            <span style="color: var(--color-success);">{% if cart_total >= 999 %}Free{% else %}₹99{% endif %}</span>
+          </div>
+          {% if cart_total >= 999 %}
+          <div class="cart-total-row">
+            <span>You save on shipping</span>
+            <span style="color: var(--color-success);">-₹99</span>
+          </div>
+          {% endif %}
+          <div class="cart-total-row total">
+            <span>Total</span>
+            <span>₹{{ "%.0f"|format(cart_total + (0 if cart_total >= 999 else 99)) }}</span>
+          </div>
+        </div>
+        <a href="/checkout" class="btn btn-primary" style="width: 100%; margin-top: 16px;">Proceed to Checkout</a>
+        <a href="/products" class="btn btn-outline" style="width: 100%; margin-top: 8px;">Continue Shopping</a>
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">🛒</div>
+    <h3>Your cart is empty</h3>
+    <p>Looks like you haven't added any products to your cart yet.</p>
+    <a href="/products" class="btn btn-primary btn-lg">Start Shopping</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

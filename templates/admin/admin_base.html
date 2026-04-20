@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}Admin{% endblock %} | Oriflame Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/admin.css">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="admin-logo">
+          <div class="admin-logo-icon">O</div>
+          <div>
+            Oriflame
+            <small>Admin Panel</small>
+          </div>
+        </div>
+      </div>
+
+      <nav class="admin-nav">
+        <div class="admin-nav-section">
+          <div class="admin-nav-section-title">Overview</div>
+          <a href="/oriflame-admin-panel-x9k2/" class="admin-nav-link {% if request.path == '/oriflame-admin-panel-x9k2/' %}active{% endif %}">
+            <span class="nav-icon">📊</span> Dashboard
+          </a>
+        </div>
+
+        <div class="admin-nav-section">
+          <div class="admin-nav-section-title">Management</div>
+          <a href="/oriflame-admin-panel-x9k2/products" class="admin-nav-link {% if 'products' in request.path %}active{% endif %}">
+            <span class="nav-icon">📦</span> Products
+            <span class="nav-badge">{{ product_count or '' }}</span>
+          </a>
+          <a href="/oriflame-admin-panel-x9k2/orders" class="admin-nav-link {% if 'orders' in request.path %}active{% endif %}">
+            <span class="nav-icon">🛒</span> Orders
+            <span class="nav-badge">{{ pending_orders or '' }}</span>
+          </a>
+          <a href="/oriflame-admin-panel-x9k2/users" class="admin-nav-link {% if 'users' in request.path %}active{% endif %}">
+            <span class="nav-icon">👥</span> Users
+          </a>
+          <a href="/oriflame-admin-panel-x9k2/mlm" class="admin-nav-link {% if 'mlm' in request.path %}active{% endif %}">
+            <span class="nav-icon">🌐</span> MLM Network
+          </a>
+        </div>
+
+        <div class="admin-nav-section">
+          <div class="admin-nav-section-title">Store</div>
+          <a href="/" class="admin-nav-link" target="_blank">
+            <span class="nav-icon">🏪</span> View Store
+          </a>
+        </div>
+      </nav>
+
+      <div class="admin-sidebar-footer">
+        <div class="admin-user-info">
+          <div class="admin-user-avatar">{{ current_user.first_name[0] }}</div>
+          <div>
+            <div class="admin-user-name">{{ current_user.full_name }}</div>
+            <div class="admin-user-role">Administrator</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <h2>{% block page_title %}Dashboard{% endblock %}</h2>
+        <div class="admin-topbar-actions">
+          <div class="admin-search">
+            <span>🔍</span>
+            <input type="text" placeholder="Search...">
+          </div>
+          <a href="/logout" class="admin-btn admin-btn-secondary admin-btn-sm">Logout</a>
+        </div>
+      </div>
+
+      <div class="admin-content">
+        {% block admin_content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-container"></div>
+
+  <script src="/static/js/main.js"></script>
+  <script src="/static/js/admin.js"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: var(--space-2xl); padding-bottom: var(--space-4xl);">
+  <div class="breadcrumb">
+    <a href="/">Home</a>
+    <span class="separator">›</span>
+    <a href="/cart">Cart</a>
+    <span class="separator">›</span>
+    <span>Checkout</span>
+  </div>
+
+  <h1 style="margin-bottom: var(--space-2xl);">Checkout</h1>
+
+  <form id="checkout-form" method="POST" action="/checkout">
+    <div class="checkout-layout">
+      <div>
+        <!-- Shipping Address -->
+        <div class="checkout-section">
+          <h3>Shipping Address</h3>
+          
+          {% if addresses %}
+          <div style="margin-bottom: 20px;">
+            <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 12px;">Select a saved address or enter a new one</p>
+            {% for addr in addresses %}
+            <div class="payment-method saved-address" data-address='{"shipping_name":"{{ addr.full_name }}","shipping_phone":"{{ addr.phone }}","shipping_address":"{{ addr.address_line1 }}{% if addr.address_line2 %}, {{ addr.address_line2 }}{% endif %}","shipping_city":"{{ addr.city }}","shipping_state":"{{ addr.state }}","shipping_pincode":"{{ addr.pincode }}"}'>
+              <input type="radio" name="address_id" value="{{ addr.id }}" {% if addr.is_default %}checked{% endif %}>
+              <div class="payment-method-info">
+                <h4>{{ addr.full_name }}</h4>
+                <p>{{ addr.full_address }}</p>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <div class="form-group">
+            <label class="form-label">Full Name *</label>
+            <input type="text" class="form-control" name="shipping_name" required value="{{ current_user.full_name }}">
+            <div class="form-error"></div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Phone *</label>
+              <input type="tel" class="form-control" name="shipping_phone" required value="{{ current_user.phone or '' }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pincode *</label>
+              <input type="text" class="form-control" name="shipping_pincode" required maxlength="6">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address Line 1 *</label>
+            <input type="text" class="form-control" name="shipping_address" required placeholder="House no., Building, Street">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">City *</label>
+              <input type="text" class="form-control" name="shipping_city" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">State *</label>
+              <select class="form-control" name="shipping_state" required>
+                <option value="">Select State</option>
+                <option>Andhra Pradesh</option><option>Bihar</option><option>Delhi</option>
+                <option>Gujarat</option><option>Haryana</option><option>Karnataka</option>
+                <option>Kerala</option><option>Madhya Pradesh</option><option>Maharashtra</option>
+                <option>Punjab</option><option>Rajasthan</option><option>Tamil Nadu</option>
+                <option>Telangana</option><option>Uttar Pradesh</option><option>West Bengal</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Order Notes (Optional)</label>
+            <textarea class="form-control" name="notes" placeholder="Any special instructions..." rows="3"></textarea>
+          </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="checkout-section">
+          <h3>Payment Method</h3>
+          <div class="payment-methods">
+            <label class="payment-method selected" data-details="card-details">
+              <input type="radio" name="payment_method" value="card" checked>
+              <div class="payment-method-info">
+                <h4>💳 Credit / Debit Card</h4>
+                <p>Pay securely with your card</p>
+              </div>
+            </label>
+            <label class="payment-method" data-details="upi-details">
+              <input type="radio" name="payment_method" value="upi">
+              <div class="payment-method-info">
+                <h4>📱 UPI</h4>
+                <p>Pay using Google Pay, PhonePe, Paytm</p>
+              </div>
+            </label>
+            <label class="payment-method">
+              <input type="radio" name="payment_method" value="cod">
+              <div class="payment-method-info">
+                <h4>💰 Cash on Delivery</h4>
+                <p>Pay when you receive your order</p>
+              </div>
+            </label>
+            <label class="payment-method">
+              <input type="radio" name="payment_method" value="wallet">
+              <div class="payment-method-info">
+                <h4>👛 Wallet</h4>
+                <p>Pay using your commission wallet balance</p>
+              </div>
+            </label>
+          </div>
+
+          <!-- Card Details -->
+          <div id="card-details" class="payment-details" style="margin-top: 20px;">
+            <div class="form-group">
+              <label class="form-label">Card Number</label>
+              <input type="text" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Expiry Date</label>
+                <input type="text" class="form-control" placeholder="MM/YY" maxlength="5">
+              </div>
+              <div class="form-group">
+                <label class="form-label">CVV</label>
+                <input type="password" class="form-control" placeholder="•••" maxlength="3">
+              </div>
+            </div>
+          </div>
+
+          <!-- UPI Details -->
+          <div id="upi-details" class="payment-details" style="display: none; margin-top: 20px;">
+            <div class="form-group">
+              <label class="form-label">UPI ID</label>
+              <input type="text" class="form-control" placeholder="yourname@upi">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div>
+        <div class="order-summary-card">
+          <h3 style="font-family: var(--font-body); font-size: 18px; font-weight: 700; margin-bottom: 20px;">Order Summary</h3>
+          
+          {% for item in cart_items %}
+          <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--color-border-light);">
+            <div style="width: 56px; height: 56px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: var(--color-bg-alt);">
+              <img src="{{ item.product.image_url or '/static/images/placeholder.png' }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; font-weight: 600;">{{ item.product.name }}</div>
+              <div style="font-size: 12px; color: var(--color-text-muted);">Qty: {{ item.quantity }}</div>
+            </div>
+            <div style="font-weight: 700; font-size: 14px;">₹{{ "%.0f"|format(item.subtotal) }}</div>
+          </div>
+          {% endfor %}
+          
+          <div class="cart-totals" style="margin-top: 16px;">
+            <div class="cart-total-row">
+              <span>Subtotal</span>
+              <span>₹{{ "%.0f"|format(cart_total) }}</span>
+            </div>
+            <div class="cart-total-row">
+              <span>Shipping</span>
+              <span style="color: var(--color-success);">{% if cart_total >= 999 %}Free{% else %}₹99{% endif %}</span>
+            </div>
+            <div class="cart-total-row total">
+              <span>Total</span>
+              <span>₹{{ "%.0f"|format(cart_total + (0 if cart_total >= 999 else 99)) }}</span>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary btn-lg btn-place-order" style="width: 100%; margin-top: 20px;">
+            Place Order — ₹{{ "%.0f"|format(cart_total + (0 if cart_total >= 999 else 99)) }}
+          </button>
+          
+          <p style="text-align: center; font-size: 11px; color: var(--color-text-muted); margin-top: 12px;">
+            🔒 Your payment is secured with SSL encryption
+          </p>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% block extra_js %}
+<script src="/static/js/checkout.js"></script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Manage Products{% endblock %}
+{% block page_title %}Products{% endblock %}
+
+{% block admin_content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+  <p style="color: rgba(255,255,255,0.5);">{{ products|length }} products found</p>
+  <button class="admin-btn admin-btn-primary" data-modal="product-modal" onclick="document.getElementById('product-form').reset(); document.querySelector('#product-modal [name=id]').value='';">
+    + Add Product
+  </button>
+</div>
+
+<div class="admin-card">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Code</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>MRP</th>
+        <th>Stock</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in products %}
+      <tr>
+        <td>
+          <div class="product-cell">
+            <div class="product-thumb">
+              <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="">
+            </div>
+            <div>
+              <div style="font-weight: 600;">{{ product.name[:40] }}{% if product.name|length > 40 %}...{% endif %}</div>
+              <div style="font-size: 11px; color: rgba(255,255,255,0.4);">{{ product.brand or '' }}</div>
+            </div>
+          </div>
+        </td>
+        <td>{{ product.code }}</td>
+        <td>{{ product.category.name if product.category else 'N/A' }}</td>
+        <td>₹{{ "%.0f"|format(product.price) }}</td>
+        <td>₹{{ "%.0f"|format(product.mrp) }}</td>
+        <td>
+          <span class="admin-badge {% if product.stock > 10 %}success{% elif product.stock > 0 %}warning{% else %}danger{% endif %}">
+            {{ product.stock }}
+          </span>
+        </td>
+        <td>
+          {% if product.is_active %}
+          <span class="admin-badge success">Active</span>
+          {% else %}
+          <span class="admin-badge danger">Inactive</span>
+          {% endif %}
+        </td>
+        <td>
+          <div style="display: flex; gap: 4px;">
+            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Edit"
+              data-modal="product-modal"
+              data-id="{{ product.id }}"
+              data-name="{{ product.name }}"
+              data-code="{{ product.code }}"
+              data-price="{{ product.price }}"
+              data-mrp="{{ product.mrp }}"
+              data-stock="{{ product.stock }}"
+              data-category_id="{{ product.category_id }}"
+              data-brand="{{ product.brand or '' }}"
+              data-description="{{ product.description or '' }}"
+              data-image_url="{{ product.image_url or '' }}"
+              data-weight="{{ product.weight or '' }}">
+              ✏️
+            </button>
+            <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete" onclick="adminDeleteProduct({{ product.id }})">
+              🗑️
+            </button>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Product Modal -->
+<div class="admin-modal-overlay" id="product-modal">
+  <div class="admin-modal" style="max-width: 700px;">
+    <div class="admin-modal-header">
+      <h3>Add / Edit Product</h3>
+      <button class="admin-modal-close">✕</button>
+    </div>
+    <form id="product-form" onsubmit="event.preventDefault(); adminSaveProduct(this);">
+      <div class="admin-modal-body">
+        <input type="hidden" name="id" value="">
+        
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label class="admin-form-label">Product Name *</label>
+            <input type="text" class="admin-form-control" name="name" required>
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Product Code *</label>
+            <input type="text" class="admin-form-control" name="code" required>
+          </div>
+        </div>
+
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label class="admin-form-label">Price (₹) *</label>
+            <input type="number" class="admin-form-control" name="price" required step="0.01">
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">MRP (₹) *</label>
+            <input type="number" class="admin-form-control" name="mrp" required step="0.01">
+          </div>
+        </div>
+
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label class="admin-form-label">Category *</label>
+            <select class="admin-form-control" name="category_id" required>
+              <option value="">Select Category</option>
+              {% for cat in categories %}
+              <option value="{{ cat.id }}">{{ cat.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Stock</label>
+            <input type="number" class="admin-form-control" name="stock" value="100">
+          </div>
+        </div>
+
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label class="admin-form-label">Brand</label>
+            <input type="text" class="admin-form-control" name="brand">
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Weight</label>
+            <input type="text" class="admin-form-control" name="weight" placeholder="e.g., 50ml">
+          </div>
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-form-label">Image URL</label>
+          <input type="text" class="admin-form-control" name="image_url" placeholder="https://...">
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-form-label">Description</label>
+          <textarea class="admin-form-control" name="description" rows="4"></textarea>
+        </div>
+
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.6); font-size: 13px;">
+              <input type="checkbox" name="is_new" style="accent-color: #c9a96e;"> Mark as New
+            </label>
+          </div>
+          <div class="admin-form-group">
+            <label style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.6); font-size: 13px;">
+              <input type="checkbox" name="is_bestseller" style="accent-color: #c9a96e;"> Mark as Bestseller
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="admin-modal-footer">
+        <button type="button" class="admin-btn admin-btn-secondary" onclick="this.closest('.admin-modal-overlay').classList.remove('active')">Cancel</button>
+        <button type="submit" class="admin-btn admin-btn-primary">Save Product</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
