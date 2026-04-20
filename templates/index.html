@@ -1,83 +1,77 @@
 {% extends "base.html" %}
+{% from 'macros/ui_icons.html' import icon_truck, icon_lock, icon_return, icon_leaf, rating_stars, icon_eye, icon_heart %}
 {% block title %}Home — Beauty, Skincare & Business Opportunity{% endblock %}
 
 {% block content %}
-<!-- Hero Carousel -->
 <section class="hero-carousel">
   <div class="hero-slide active" data-index="0">
-    <div class="hero-slide-bg" style="background: linear-gradient(135deg, #1a1a2e 0%, #2d1f4e 40%, #1a1a2e 100%);"></div>
+    <div class="hero-slide-bg" style="background: linear-gradient(105deg, #1a1a1a 0%, #3d3d3d 45%, #1f1f1f 100%);"></div>
     <div class="hero-slide-content">
-      <span class="hero-tag">Limited Time Offer</span>
-      <h1>Great Clearance Carnival</h1>
-      <p>Discover incredible deals on your favourite beauty essentials. Up to 60% off on selected products!</p>
-      <a href="/products?filter=offers" class="btn btn-primary btn-lg">Shop Now</a>
+      <span class="hero-tag">20th April to 23rd April 2026</span>
+      <h1>Great clearance carnival</h1>
+      <p>Up to 60% off on selected beauty essentials. Limited time online.</p>
+      <a href="/products?filter=offers" class="btn btn-primary btn-lg">Shop now</a>
     </div>
   </div>
-  
+
   <div class="hero-slide" data-index="1">
-    <div class="hero-slide-bg" style="background: linear-gradient(135deg, #2d1f4e 0%, #1a1a2e 50%, #0f0f1a 100%);"></div>
+    <div class="hero-slide-bg" style="background: linear-gradient(105deg, #2a2a2a 0%, #1a1a1a 50%, #333 100%);"></div>
     <div class="hero-slide-content">
-      <span class="hero-tag">New Collection</span>
-      <h1>Advanced Skincare Solutions</h1>
-      <p>Experience smoother, firmer skin with our advanced care range powered by cutting-edge Swedish technology.</p>
-      <a href="/products?category=skincare" class="btn btn-primary btn-lg">Explore Range</a>
+      <span class="hero-tag">Fragrance</span>
+      <h1>Carry the aroma in your bag</h1>
+      <p>Iconic scents for every moment — discover Love Potion, Eclat, and more.</p>
+      <a href="/products?category=fragrance" class="btn btn-primary btn-lg">Shop now</a>
     </div>
   </div>
-  
+
   <div class="hero-slide" data-index="2">
-    <div class="hero-slide-bg" style="background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 40%, #2d1f4e 100%);"></div>
+    <div class="hero-slide-bg" style="background: linear-gradient(105deg, #1f1f1f 0%, #404040 40%, #1a1a1a 100%);"></div>
     <div class="hero-slide-content">
-      <span class="hero-tag">Business Opportunity</span>
-      <h1>Start Your Beauty Business</h1>
-      <p>Join Oriflame as a Brand Partner. Earn attractive commissions, build your network, and transform your life.</p>
-      <div style="display: flex; gap: 12px; justify-content: center;">
-        <a href="/join" class="btn btn-primary btn-lg">Join Now</a>
-        <a href="/join" class="btn btn-outline-white btn-lg">Learn More</a>
-      </div>
+      <span class="hero-tag">Skincare</span>
+      <h1>Advanced care for smoother, firmer skin</h1>
+      <p>NovAge, Optimals, and clinically inspired routines for visible results.</p>
+      <a href="/products?category=skincare" class="btn btn-primary btn-lg">Shop now</a>
     </div>
   </div>
-  
-  <!-- Navigation -->
-  <button class="hero-nav prev" aria-label="Previous slide">‹</button>
-  <button class="hero-nav next" aria-label="Next slide">›</button>
-  
-  <!-- Dots -->
+
+  <button type="button" class="hero-nav prev" aria-label="Previous slide"><span aria-hidden="true">‹</span></button>
+  <button type="button" class="hero-nav next" aria-label="Next slide"><span aria-hidden="true">›</span></button>
+
   <div class="hero-dots">
-    <button class="hero-dot active" data-index="0" aria-label="Slide 1"></button>
-    <button class="hero-dot" data-index="1" aria-label="Slide 2"></button>
-    <button class="hero-dot" data-index="2" aria-label="Slide 3"></button>
+    <button type="button" class="hero-dot active" data-index="0" aria-label="Slide 1"></button>
+    <button type="button" class="hero-dot" data-index="1" aria-label="Slide 2"></button>
+    <button type="button" class="hero-dot" data-index="2" aria-label="Slide 3"></button>
   </div>
 </section>
 
-<!-- Features Strip -->
 <section class="features-strip">
   <div class="container">
     <div class="features-grid">
       <div class="feature-item fade-in">
-        <div class="feature-icon">🚚</div>
+        <div class="feature-icon">{{ icon_truck() }}</div>
         <div class="feature-text">
-          <h4>Free Shipping</h4>
+          <h4>Free shipping</h4>
           <p>On orders above ₹999</p>
         </div>
       </div>
       <div class="feature-item fade-in">
-        <div class="feature-icon">🔒</div>
+        <div class="feature-icon">{{ icon_lock() }}</div>
         <div class="feature-text">
-          <h4>Secure Payment</h4>
-          <p>100% secure transactions</p>
+          <h4>Secure payment</h4>
+          <p>Protected checkout</p>
         </div>
       </div>
       <div class="feature-item fade-in">
-        <div class="feature-icon">↩️</div>
+        <div class="feature-icon">{{ icon_return() }}</div>
         <div class="feature-text">
-          <h4>Easy Returns</h4>
+          <h4>Easy returns</h4>
           <p>14-day return policy</p>
         </div>
       </div>
       <div class="feature-item fade-in">
-        <div class="feature-icon">🌿</div>
+        <div class="feature-icon">{{ icon_leaf() }}</div>
         <div class="feature-text">
-          <h4>Natural Ingredients</h4>
+          <h4>Natural ingredients</h4>
           <p>Swedish beauty innovation</p>
         </div>
       </div>
@@ -85,22 +79,23 @@
   </div>
 </section>
 
-<!-- New Arrivals -->
 <section class="section">
   <div class="container">
     <div class="section-title fade-in">
-      <h2>Discover Our Collection</h2>
-      <p>Explore our latest arrivals and iconic bestsellers</p>
+      <h2>New arrivals</h2>
+      <p>Fresh launches and limited offers — prices inclusive of all taxes.</p>
     </div>
-    
-    <!-- Tabs -->
+
+    <div class="section-title fade-in" style="margin-top: -1rem; margin-bottom: var(--space-lg);">
+      <h2 style="font-size: var(--font-size-xl);">Our icons</h2>
+    </div>
+
     <div class="product-tabs">
-      <button class="product-tab active" data-tab="new">New Arrivals</button>
-      <button class="product-tab" data-tab="bestsellers">Bestsellers</button>
-      <button class="product-tab" data-tab="featured">Featured</button>
+      <button type="button" class="product-tab active" data-tab="new">New arrivals</button>
+      <button type="button" class="product-tab" data-tab="bestsellers">Bestsellers</button>
+      <button type="button" class="product-tab" data-tab="featured">Featured</button>
     </div>
-    
-    <!-- New Arrivals Tab -->
+
     <div class="tab-content" data-tab="new" style="display: block;">
       <div class="products-grid">
         {% for product in new_arrivals[:8] %}
@@ -109,12 +104,12 @@
             <div class="product-card-image">
               <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="{{ product.name }}">
               <div class="product-card-badges">
-                {% if product.is_new %}<span class="badge-new">New</span>{% endif %}
+                {% if product.is_new %}<span class="badge-new">New product</span>{% endif %}
                 {% if product.discount_percent > 0 %}<span class="badge-discount">-{{ product.discount_percent }}%</span>{% endif %}
               </div>
               <div class="product-card-actions">
-                <button title="Quick View" onclick="event.preventDefault();">👁</button>
-                <button title="Wishlist" onclick="event.preventDefault();">♡</button>
+                <button type="button" title="Quick view" aria-label="Quick view" onclick="event.preventDefault();">{{ icon_eye() }}</button>
+                <button type="button" title="Save to wishlist" aria-label="Save to wishlist" onclick="event.preventDefault();">{{ icon_heart() }}</button>
               </div>
             </div>
           </a>
@@ -122,24 +117,23 @@
             {% if product.brand %}<span class="product-card-brand">{{ product.brand }}</span>{% endif %}
             <a href="/products/{{ product.slug }}"><h3 class="product-card-name">{{ product.name }}</h3></a>
             <div class="product-card-rating">
-              <span class="stars">{% for i in range(5) %}{% if i < product.rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
+              {{ rating_stars(product.rating) }}
               <span class="rating-count">({{ product.review_count }})</span>
             </div>
             <div class="product-card-price">
-              <span class="price-current">₹{{ "%.0f"|format(product.price) }}</span>
+              <span class="price-current">Rs. {{ "%.0f"|format(product.price) }}</span>
               {% if product.mrp > product.price %}
-              <span class="price-mrp">MRP ₹{{ "%.0f"|format(product.mrp) }}</span>
-              <span class="price-discount">{{ product.discount_percent }}% off</span>
+              <span class="price-mrp">MRP Rs. {{ "%.0f"|format(product.mrp) }}</span>
               {% endif %}
             </div>
-            <button class="btn-add-cart" data-product-id="{{ product.id }}">Add to Cart</button>
+            <span class="price-tax-note">Inclusive of all taxes</span>
+            <button type="button" class="btn-add-cart" data-product-id="{{ product.id }}">Add to bag</button>
           </div>
         </div>
         {% endfor %}
       </div>
     </div>
-    
-    <!-- Bestsellers Tab -->
+
     <div class="tab-content" data-tab="bestsellers" style="display: none;">
       <div class="products-grid">
         {% for product in bestsellers[:8] %}
@@ -152,8 +146,8 @@
                 {% if product.discount_percent > 0 %}<span class="badge-discount">-{{ product.discount_percent }}%</span>{% endif %}
               </div>
               <div class="product-card-actions">
-                <button title="Quick View">👁</button>
-                <button title="Wishlist">♡</button>
+                <button type="button" title="Quick view" aria-label="Quick view">{{ icon_eye() }}</button>
+                <button type="button" title="Save to wishlist" aria-label="Save to wishlist">{{ icon_heart() }}</button>
               </div>
             </div>
           </a>
@@ -161,23 +155,23 @@
             {% if product.brand %}<span class="product-card-brand">{{ product.brand }}</span>{% endif %}
             <a href="/products/{{ product.slug }}"><h3 class="product-card-name">{{ product.name }}</h3></a>
             <div class="product-card-rating">
-              <span class="stars">{% for i in range(5) %}{% if i < product.rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
+              {{ rating_stars(product.rating) }}
               <span class="rating-count">({{ product.review_count }})</span>
             </div>
             <div class="product-card-price">
-              <span class="price-current">₹{{ "%.0f"|format(product.price) }}</span>
+              <span class="price-current">Rs. {{ "%.0f"|format(product.price) }}</span>
               {% if product.mrp > product.price %}
-              <span class="price-mrp">MRP ₹{{ "%.0f"|format(product.mrp) }}</span>
+              <span class="price-mrp">MRP Rs. {{ "%.0f"|format(product.mrp) }}</span>
               {% endif %}
             </div>
-            <button class="btn-add-cart" data-product-id="{{ product.id }}">Add to Cart</button>
+            <span class="price-tax-note">Inclusive of all taxes</span>
+            <button type="button" class="btn-add-cart" data-product-id="{{ product.id }}">Add to bag</button>
           </div>
         </div>
         {% endfor %}
       </div>
     </div>
-    
-    <!-- Featured Tab -->
+
     <div class="tab-content" data-tab="featured" style="display: none;">
       <div class="products-grid">
         {% for product in featured[:8] %}
@@ -189,8 +183,8 @@
                 {% if product.discount_percent > 0 %}<span class="badge-discount">-{{ product.discount_percent }}%</span>{% endif %}
               </div>
               <div class="product-card-actions">
-                <button title="Quick View">👁</button>
-                <button title="Wishlist">♡</button>
+                <button type="button" title="Quick view" aria-label="Quick view">{{ icon_eye() }}</button>
+                <button type="button" title="Save to wishlist" aria-label="Save to wishlist">{{ icon_heart() }}</button>
               </div>
             </div>
           </a>
@@ -198,42 +192,42 @@
             {% if product.brand %}<span class="product-card-brand">{{ product.brand }}</span>{% endif %}
             <a href="/products/{{ product.slug }}"><h3 class="product-card-name">{{ product.name }}</h3></a>
             <div class="product-card-rating">
-              <span class="stars">{% for i in range(5) %}{% if i < product.rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
+              {{ rating_stars(product.rating) }}
               <span class="rating-count">({{ product.review_count }})</span>
             </div>
             <div class="product-card-price">
-              <span class="price-current">₹{{ "%.0f"|format(product.price) }}</span>
+              <span class="price-current">Rs. {{ "%.0f"|format(product.price) }}</span>
               {% if product.mrp > product.price %}
-              <span class="price-mrp">MRP ₹{{ "%.0f"|format(product.mrp) }}</span>
+              <span class="price-mrp">MRP Rs. {{ "%.0f"|format(product.mrp) }}</span>
               {% endif %}
             </div>
-            <button class="btn-add-cart" data-product-id="{{ product.id }}">Add to Cart</button>
+            <span class="price-tax-note">Inclusive of all taxes</span>
+            <button type="button" class="btn-add-cart" data-product-id="{{ product.id }}">Add to bag</button>
           </div>
         </div>
         {% endfor %}
       </div>
     </div>
-    
-    <div style="text-align: center; margin-top: var(--space-2xl);">
-      <a href="/products" class="btn btn-outline">View All Products</a>
+
+    <div style="text-align: left; margin-top: var(--space-2xl);">
+      <a href="/products" class="btn btn-outline">View all</a>
     </div>
   </div>
 </section>
 
-<!-- Category Showcase -->
 <section class="section" style="background: var(--color-bg-alt);">
   <div class="container">
     <div class="section-title fade-in">
-      <h2>Shop by Category</h2>
-      <p>Find your perfect beauty essentials</p>
+      <h2>Shop by category</h2>
+      <p>Find skincare, makeup, fragrance, and more.</p>
     </div>
     <div class="categories-grid">
       {% for cat in categories[:5] %}
       <a href="/category/{{ cat.slug }}" class="category-card scale-in">
-        <div class="category-card-bg" style="background: linear-gradient({{ loop.index * 60 }}deg, #1a1a2e, #2d1f4e, #1a1a2e);"></div>
+        <div class="category-card-bg" style="background: linear-gradient({{ loop.index * 55 }}deg, #2a2a2a, #4a4a4a, #222);"></div>
         <div class="category-card-overlay">
           <span class="category-card-name">{{ cat.name }}</span>
-          <span class="category-card-count">{{ cat.products.count() }} Products</span>
+          <span class="category-card-count">{{ cat.products.count() }} products</span>
         </div>
       </a>
       {% endfor %}
@@ -241,21 +235,20 @@
   </div>
 </section>
 
-<!-- Join Us Banner -->
 <section class="promo-banner">
   <div class="container">
     <div class="promo-content fade-in">
-      <h2>Start Your Beauty Business Today</h2>
-      <p>Join Oriflame as a Brand Partner. Earn attractive commissions through our network marketing program and build a business with unlimited potential.</p>
-      <div style="display: flex; gap: 12px;">
-        <a href="/join" class="btn btn-primary btn-lg">Become a Partner</a>
-        <a href="/join" class="btn btn-outline-white btn-lg">Learn More</a>
+      <h2>Business opportunity</h2>
+      <p>Join as a Brand Partner — earn commissions, grow your network, and build your beauty business with support from Oriflame.</p>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <a href="/join" class="btn btn-primary btn-lg">Become a partner</a>
+        <a href="/join" class="btn btn-outline-white btn-lg">Learn more</a>
       </div>
     </div>
     <div class="promo-stats fade-in">
       <div class="promo-stat">
         <span class="promo-stat-value">3M+</span>
-        <span class="promo-stat-label">Brand Partners</span>
+        <span class="promo-stat-label">Brand partners</span>
       </div>
       <div class="promo-stat">
         <span class="promo-stat-value">60+</span>

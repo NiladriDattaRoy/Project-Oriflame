@@ -126,16 +126,21 @@ function initMobileNav() {
   
   if (!toggle || !nav) return;
   
-  toggle.addEventListener('click', () => {
-    nav.classList.toggle('open');
-    toggle.classList.toggle('active');
+  function setOpen(open) {
+    nav.classList.toggle('open', open);
+    toggle.classList.toggle('active', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  }
+  
+  toggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setOpen(!nav.classList.contains('open'));
   });
   
-  // Close on outside click
   document.addEventListener('click', (e) => {
     if (!toggle.contains(e.target) && !nav.contains(e.target)) {
-      nav.classList.remove('open');
-      toggle.classList.remove('active');
+      setOpen(false);
     }
   });
 }
@@ -165,19 +170,20 @@ function showToast(message, type = 'success') {
     document.body.appendChild(container);
   }
   
-  const icons = {
-    success: '✓',
-    error: '✕',
-    warning: '⚠',
-    info: 'ℹ'
+  const svg = {
+    success: '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>',
+    error: '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>',
+    warning: '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.6 2.2 18A2 2 0 0 0 4 21h16a2 2 0 0 0 1.8-3L13.7 3.6a2 2 0 0 0-3.4 0z"/></svg>',
+    info: '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path fill="currentColor" d="M12 10h.01V10H12zm0 8v-6h2v6h-2z"/></svg>'
   };
+  const closeSvg = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>';
   
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
   toast.innerHTML = `
-    <div class="toast-icon">${icons[type] || icons.info}</div>
+    <div class="toast-icon">${svg[type] || svg.info}</div>
     <span class="toast-message">${message}</span>
-    <button class="toast-close" onclick="this.parentElement.remove()">✕</button>
+    <button type="button" class="toast-close" onclick="this.parentElement.remove()" aria-label="Dismiss">${closeSvg}</button>
   `;
   
   container.appendChild(toast);

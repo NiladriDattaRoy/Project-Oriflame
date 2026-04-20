@@ -1,0 +1,56 @@
+{# Inline SVGs — reference: in.oriflame.com storefront patterns (no emoji icons) #}
+{% macro icon_search(class='icon-svg') -%}
+<svg class="{{ class }}" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm10 2-4.35-4.35"/></svg>
+{%- endmacro %}
+
+{% macro icon_cart(class='icon-svg') -%}
+<svg class="{{ class }}" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M6 6h15l-1.5 9h-12z"/><path fill="none" stroke="currentColor" stroke-width="2" d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.5" fill="currentColor"/><circle cx="18" cy="20" r="1.5" fill="currentColor"/></svg>
+{%- endmacro %}
+
+{% macro icon_heart(class='icon-svg') -%}
+<svg class="{{ class }}" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M12 21s-8-4.35-8-11a5.5 5.5 0 0 1 9.14-3.95A5.49 5.49 0 0 1 20 10c0 6.65-8 11-8 11z"/></svg>
+{%- endmacro %}
+
+{% macro icon_menu(class='icon-svg nav-toggle-svg') -%}
+<svg class="{{ class }}" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M5 7h14M5 12h14M5 17h14"/></svg>
+{%- endmacro %}
+
+{% macro icon_close(class='icon-svg') -%}
+<svg class="{{ class }}" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+{%- endmacro %}
+
+{% macro icon_check(class='icon-svg') -%}
+<svg class="{{ class }}" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+{%- endmacro %}
+
+{% macro icon_info(class='icon-svg') -%}
+<svg class="{{ class }}" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path fill="currentColor" d="M12 10h.01V10H12zm0 8v-6h2v6h-2z"/></svg>
+{%- endmacro %}
+
+{% macro icon_warning(class='icon-svg') -%}
+<svg class="{{ class }}" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.6 2.2 18A2 2 0 0 0 4 21h16a2 2 0 0 0 1.8-3L13.7 3.6a2 2 0 0 0-3.4 0z"/></svg>
+{%- endmacro %}
+
+{% macro icon_truck(class='icon-svg') -%}
+<svg class="{{ class }}" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" d="M1 3h15v13H1zM16 8h4l3 3v5h-7"/><circle cx="5.5" cy="18.5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.75"/><circle cx="18.5" cy="18.5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.75"/></svg>
+{%- endmacro %}
+
+{% macro icon_lock(class='icon-svg') -%}
+<svg class="{{ class }}" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.75"/><path fill="none" stroke="currentColor" stroke-width="1.75" d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+{%- endmacro %}
+
+{% macro icon_return(class='icon-svg') -%}
+<svg class="{{ class }}" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" d="M9 14 4 9l5-5"/><path fill="none" stroke="currentColor" stroke-width="1.75" d="M20 20v-5a4 4 0 0 0-4-4H4"/></svg>
+{%- endmacro %}
+
+{% macro icon_leaf(class='icon-svg') -%}
+<svg class="{{ class }}" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path fill="none" stroke="currentColor" stroke-width="1.75" d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+{%- endmacro %}
+
+{% macro icon_eye(class='icon-svg') -%}
+<svg class="{{ class }}" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><ellipse cx="12" cy="12" rx="9" ry="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
+{%- endmacro %}
+
+{% macro rating_stars(rating) -%}
+<span class="rating-stars" aria-label="Rating {{ rating }} out of 5">{% for i in range(5) %}<span class="rating-star{% if i < (rating|int) %} rating-star--filled{% endif %}"></span>{% endfor %}</span>
+{%- endmacro %}

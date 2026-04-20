@@ -91,7 +91,8 @@ async function addToCart(productId, quantity = 1) {
 /* ==================== LOAD CART ITEMS ==================== */
 async function loadCartItems() {
   const container = document.querySelector('.cart-sidebar-items');
-  const totalEl = document.querySelector('#cart-total');
+  const subtotalEl = document.querySelector('#cart-subtotal');
+  const grandEl = document.querySelector('#cart-grand-total');
   const countEl = document.querySelector('#cart-sidebar-count');
   
   if (!container) return;
@@ -115,21 +116,25 @@ async function loadCartItems() {
               <button class="qty-btn" onclick="updateCartQty(${item.id}, ${item.quantity + 1})">+</button>
             </div>
           </div>
-          <button class="cart-item-remove" onclick="removeCartItem(${item.id})">✕</button>
+          <button type="button" class="cart-item-remove" onclick="removeCartItem(${item.id})" aria-label="Remove item"><span aria-hidden="true">×</span></button>
         </div>
       `).join('');
       
-      if (totalEl) totalEl.textContent = formatCurrency(data.total);
+      if (subtotalEl) subtotalEl.textContent = formatCurrency(data.total);
+      if (grandEl) grandEl.textContent = formatCurrency(data.total);
       if (countEl) countEl.textContent = `${data.count} item${data.count !== 1 ? 's' : ''}`;
     } else {
       container.innerHTML = `
         <div class="empty-state" style="padding: 48px 16px;">
-          <div class="empty-state-icon">🛒</div>
-          <h3 style="font-size: 16px;">Your cart is empty</h3>
-          <p style="font-size: 13px;">Add some products to get started!</p>
+          <div class="empty-state-icon-svg empty-state-icon-svg--muted" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.5" fill="currentColor"/><circle cx="18" cy="20" r="1.5" fill="currentColor"/></svg>
+          </div>
+          <h3 style="font-size: 16px;">Your bag is empty</h3>
+          <p style="font-size: 13px;">Add products to get started.</p>
         </div>
       `;
-      if (totalEl) totalEl.textContent = '₹0';
+      if (subtotalEl) subtotalEl.textContent = '₹0';
+      if (grandEl) grandEl.textContent = '₹0';
       if (countEl) countEl.textContent = '0 items';
     }
     

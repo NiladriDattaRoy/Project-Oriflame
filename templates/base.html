@@ -1,3 +1,4 @@
+{% from 'macros/ui_icons.html' import icon_search, icon_cart, icon_heart, icon_menu, icon_close, icon_check, icon_info, icon_warning %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,119 +6,117 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Oriflame India - Premium beauty products, skincare, makeup, fragrances & business opportunity. Shop online or join as a Brand Partner.">
   <title>{% block title %}Oriflame India{% endblock %} | Premium Beauty & Wellness</title>
-  
-  <!-- Google Fonts -->
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  
-  <!-- Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="/static/css/main.css">
   {% block extra_css %}{% endblock %}
 </head>
 <body>
-  <!-- Top Bar -->
-  <div class="top-bar">
-    <span>✨ Free Shipping on orders over ₹999 | <a href="/join">Join us and earn up to 30% commission</a></span>
+  <div class="skip-links">
+    <a href="#main-content">Skip to main content</a>
+    <a href="#main-menu">Skip to menu</a>
+    <a href="#main-search">Skip to search</a>
   </div>
 
-  <!-- Header -->
+  <div class="top-bar">
+    <span>Free shipping on orders over ₹999</span>
+    <span aria-hidden="true"> · </span>
+    <a href="/join">Join us and earn up to 30% commission</a>
+  </div>
+
   <header class="header" id="main-header">
     <div class="header-inner">
-      <!-- Logo -->
-      <a href="/" class="logo">
+      <a href="/" class="logo" aria-label="Home">
         <div class="logo-icon">O</div>
         <span>Oriflame</span>
       </a>
 
-      <!-- Navigation -->
-      <nav class="nav-main" id="main-menu">
-        <a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
-        
+      <nav class="nav-main" id="main-menu" aria-label="Primary">
+        <a href="/products?filter=offers" class="nav-link {% if request.args.get('filter') == 'offers' %}active{% endif %}">Offers</a>
+        <a href="/products?filter=bestsellers" class="nav-link {% if request.args.get('filter') == 'bestsellers' %}active{% endif %}">Bestsellers</a>
+        <a href="/products" class="nav-link">Virtual tools</a>
+
         <div class="nav-item">
-          <a href="/products" class="nav-link {% if 'products' in request.path %}active{% endif %}">Shop</a>
+          <a href="/products" class="nav-link {% if ('products' in request.path or '/category/' in request.path) and request.path != '/join' %}active{% endif %}">Shop</a>
           <div class="nav-dropdown">
             {% for cat in categories %}
             <a href="/category/{{ cat.slug }}">{{ cat.name }}</a>
             {% endfor %}
-            <a href="/products" style="color: var(--color-accent-dark); font-weight: 600;">View All →</a>
+            <a href="/products" class="nav-dropdown-highlight">View all</a>
           </div>
         </div>
 
-        <a href="/products?filter=bestsellers" class="nav-link">Bestsellers</a>
-        <a href="/products?filter=new" class="nav-link">New Arrivals</a>
-        <a href="/products?filter=offers" class="nav-link">Offers</a>
-        <a href="/join" class="nav-link {% if request.path == '/join' %}active{% endif %}">Join Us</a>
+        <a href="/products?filter=new" class="nav-link {% if request.args.get('filter') == 'new' %}active{% endif %}">New arrivals</a>
+        <a href="/join" class="nav-link">Join us</a>
       </nav>
 
-      <!-- Search & Actions -->
       <div class="header-actions">
-        <form class="search-bar" action="/products" method="GET" id="main-search">
-          <input type="text" name="search" placeholder="Search products..." value="{{ request.args.get('search', '') }}">
-          <button type="submit">🔍</button>
+        <form class="search-bar" action="/products" method="GET" id="main-search" role="search">
+          <input type="text" name="search" placeholder="Search" value="{{ request.args.get('search', '') }}" aria-label="Search products">
+          <button type="submit" aria-label="Submit search">{{ icon_search() }}</button>
         </form>
 
         {% if current_user.is_authenticated %}
-        <a href="/dashboard" class="header-action-btn" title="My Account">👤</a>
+        <a href="/dashboard" class="header-auth-link">My account</a>
         {% else %}
-        <a href="/login" class="header-action-btn" title="Login">👤</a>
+        <a href="/login" class="header-auth-link">Sign in</a>
         {% endif %}
 
-        <a href="/wishlist" class="header-action-btn" title="Wishlist">♡</a>
+        <a href="/wishlist" class="header-action-btn" title="Wishlist" aria-label="Wishlist">{{ icon_heart() }}</a>
 
-        <button class="header-action-btn" id="cart-toggle" title="Cart">
-          🛒
+        <button type="button" class="header-action-btn" id="cart-toggle" title="Shopping bag" aria-label="Shopping bag">
+          {{ icon_cart() }}
           <span class="badge cart-badge" style="{% if not cart_count %}display:none{% endif %}">{{ cart_count or 0 }}</span>
         </button>
       </div>
 
-      <!-- Mobile Toggle -->
-      <button class="nav-toggle" aria-label="Toggle navigation">
-        <span></span><span></span><span></span>
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="main-menu">
+        {{ icon_menu() }}
       </button>
     </div>
   </header>
 
-  <!-- Flash Messages -->
   {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
   <div class="toast-container">
     {% for category, message in messages %}
     <div class="toast toast-{{ category }}">
-      <div class="toast-icon">{% if category == 'success' %}✓{% elif category == 'error' %}✕{% else %}ℹ{% endif %}</div>
+      <div class="toast-icon" aria-hidden="true">
+        {% if category == 'success' %}{{ icon_check() }}{% elif category == 'error' %}{{ icon_close() }}{% elif category == 'warning' %}{{ icon_warning() }}{% else %}{{ icon_info() }}{% endif %}
+      </div>
       <span class="toast-message">{{ message }}</span>
-      <button class="toast-close" onclick="this.parentElement.remove()">✕</button>
+      <button type="button" class="toast-close" onclick="this.parentElement.remove()" aria-label="Dismiss">{{ icon_close() }}</button>
     </div>
     {% endfor %}
   </div>
   {% endif %}
   {% endwith %}
 
-  <!-- Main Content -->
   <main id="main-content">
     {% block content %}{% endblock %}
   </main>
 
-  <!-- Cart Sidebar -->
   <div class="cart-sidebar-overlay"></div>
-  <aside class="cart-sidebar">
+  <aside class="cart-sidebar" aria-label="Shopping cart">
     <div class="cart-sidebar-header">
-      <h3>Shopping Cart <span id="cart-sidebar-count" style="color: var(--color-text-muted); font-size: 14px; font-weight: 400;"></span></h3>
-      <button class="modal-close" id="cart-close">✕</button>
+      <h3>Shopping bag <span id="cart-sidebar-count" style="color: var(--color-text-muted); font-size: 14px; font-weight: 400;"></span></h3>
+      <button type="button" class="modal-close" id="cart-close" aria-label="Close cart">{{ icon_close() }}</button>
     </div>
     <div class="cart-sidebar-items">
-      <!-- Cart items loaded via AJAX -->
       <div class="empty-state" style="padding: 48px 16px;">
-        <div class="empty-state-icon">🛒</div>
-        <h3 style="font-size: 16px;">Your cart is empty</h3>
-        <p style="font-size: 13px;">Add some products to get started!</p>
+        <div class="empty-state-icon-svg" aria-hidden="true">{{ icon_cart() }}</div>
+        <h3 style="font-size: 16px;">Your bag is empty</h3>
+        <p style="font-size: 13px;">Add products to get started.</p>
       </div>
     </div>
     <div class="cart-sidebar-footer">
       <div class="cart-totals">
         <div class="cart-total-row">
           <span>Subtotal</span>
-          <span id="cart-total">₹0</span>
+          <span id="cart-subtotal">₹0</span>
         </div>
         <div class="cart-total-row">
           <span>Shipping</span>
@@ -125,19 +124,17 @@
         </div>
         <div class="cart-total-row total">
           <span>Total</span>
-          <span id="cart-total">₹0</span>
+          <span id="cart-grand-total">₹0</span>
         </div>
       </div>
-      <a href="/cart" class="btn btn-secondary" style="width: 100%; margin-bottom: 8px;">View Cart</a>
+      <a href="/cart" class="btn btn-secondary" style="width: 100%; margin-bottom: 8px;">View bag</a>
       <a href="/checkout" class="btn btn-primary" style="width: 100%;">Checkout</a>
     </div>
   </aside>
 
-  <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
-        <!-- Brand -->
         <div class="footer-brand">
           <a href="/" class="logo">
             <div class="logo-icon">O</div>
@@ -145,59 +142,53 @@
           </a>
           <p>Oriflame is a leading beauty company selling direct. We offer a wide range of high-quality beauty products and an opportunity to start your own business.</p>
           <div class="footer-social">
-            <a href="#" title="Facebook">f</a>
-            <a href="#" title="Instagram">📷</a>
-            <a href="#" title="Twitter">𝕏</a>
-            <a href="#" title="YouTube">▶</a>
+            <a href="#" title="Facebook" aria-label="Facebook"><span class="footer-social-letter">f</span></a>
+            <a href="#" title="Instagram" aria-label="Instagram"><span class="footer-social-letter">in</span></a>
+            <a href="#" title="YouTube" aria-label="YouTube"><span class="footer-social-letter">▶</span></a>
           </div>
         </div>
 
-        <!-- Quick Links -->
         <div class="footer-col">
-          <h4>Quick Links</h4>
-          <a href="/products">All Products</a>
-          <a href="/products?filter=new">New Arrivals</a>
+          <h4>Quick links</h4>
+          <a href="/products">All products</a>
+          <a href="/products?filter=new">New arrivals</a>
           <a href="/products?filter=bestsellers">Bestsellers</a>
-          <a href="/products?filter=offers">Special Offers</a>
-          <a href="/join">Business Opportunity</a>
+          <a href="/products?filter=offers">Offers</a>
+          <a href="/join">Business opportunity</a>
         </div>
 
-        <!-- Customer Care -->
         <div class="footer-col">
-          <h4>Customer Care</h4>
-          <a href="#">Track Order</a>
-          <a href="#">Returns & Exchange</a>
-          <a href="#">Shipping Policy</a>
+          <h4>Customer care</h4>
+          <a href="#">Track order</a>
+          <a href="#">Returns &amp; exchange</a>
+          <a href="#">Shipping policy</a>
           <a href="#">FAQ</a>
-          <a href="#">Contact Us</a>
+          <a href="#">Contact us</a>
         </div>
 
-        <!-- Newsletter -->
         <div class="footer-col">
-          <h4>Stay Updated</h4>
+          <h4>Stay updated</h4>
           <p style="font-size: 13px; margin-bottom: 16px;">Subscribe for exclusive offers and beauty tips.</p>
           <div class="footer-newsletter">
             <form class="newsletter-form" onsubmit="event.preventDefault(); showToast('Subscribed successfully!', 'success');">
-              <input type="email" placeholder="Your email" required>
-              <button type="submit" class="btn btn-primary btn-sm">→</button>
+              <input type="email" placeholder="Your email" required aria-label="Email for newsletter">
+              <button type="submit" class="btn btn-primary btn-sm">Subscribe</button>
             </form>
           </div>
         </div>
       </div>
 
-      <!-- Bottom -->
       <div class="footer-bottom">
         <span>© 2026 Oriflame India. All rights reserved.</span>
         <div style="display: flex; gap: 16px;">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
-          <a href="#">Cookie Policy</a>
+          <a href="#">Privacy policy</a>
+          <a href="#">Terms of service</a>
+          <a href="#">Cookie policy</a>
         </div>
       </div>
     </div>
   </footer>
 
-  <!-- Scripts -->
   <script src="/static/js/main.js"></script>
   <script src="/static/js/cart.js"></script>
   {% block extra_js %}{% endblock %}

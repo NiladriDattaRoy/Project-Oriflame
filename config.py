@@ -34,3 +34,10 @@ class Config:
     # Pagination
     PRODUCTS_PER_PAGE = 12
     ORDERS_PER_PAGE = 10
+
+    # Razorpay (https://razorpay.com/) — UPI, cards, netbanking via hosted Checkout.
+    # Test keys: Dashboard → Settings → API Keys → Generate test key.
+    # Set both in production; never commit the secret. Amounts are in INR on orders; Razorpay uses paise.
+    RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '').strip()
+    RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '').strip()
+    RAZORPAY_ENABLED = bool(RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET)

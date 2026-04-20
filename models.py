@@ -229,6 +229,7 @@ class Order(db.Model):
     shipping_state = db.Column(db.String(100))
     shipping_pincode = db.Column(db.String(10))
     notes = db.Column(db.Text)
+    razorpay_order_id = db.Column(db.String(100), nullable=True, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -271,7 +272,7 @@ class Transaction(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
-    transaction_ref = db.Column(db.String(50), unique=True, nullable=False)
+    transaction_ref = db.Column(db.String(100), unique=True, nullable=False)
     amount = db.Column(db.Float, nullable=False)
     method = db.Column(db.String(30), nullable=False)  # card, upi, cod, wallet
     status = db.Column(db.String(20), default='pending')  # pending, success, failed, refunded

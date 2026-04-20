@@ -1,22 +1,23 @@
 {% extends "base.html" %}
-{% block title %}Shopping Cart{% endblock %}
+{% from 'macros/ui_icons.html' import icon_cart %}
+{% block title %}Shopping bag{% endblock %}
 
 {% block content %}
 <div class="container" style="padding-top: var(--space-2xl); padding-bottom: var(--space-4xl);">
   <div class="breadcrumb">
     <a href="/">Home</a>
     <span class="separator">›</span>
-    <span>Shopping Cart</span>
+    <span>Shopping bag</span>
   </div>
 
-  <h1 style="margin-bottom: var(--space-2xl);">Shopping Cart</h1>
+  <h1 style="margin-bottom: var(--space-2xl);">Shopping bag</h1>
 
   {% if cart_items %}
   <div class="checkout-layout">
     <div>
       <!-- Cart Items -->
       <div class="checkout-section">
-        <h3>Cart Items ({{ cart_items|length }})</h3>
+        <h3>Items ({{ cart_items|length }})</h3>
         {% for item in cart_items %}
         <div class="cart-item" data-item-id="{{ item.id }}" style="padding: 16px 0;">
           <div class="cart-item-image" style="width: 100px; height: 100px;">
@@ -41,7 +42,7 @@
               <span style="margin-left: 16px; font-size: 13px; color: var(--color-text-muted);">Subtotal: <strong style="color: var(--color-text);">₹{{ "%.0f"|format(item.subtotal) }}</strong></span>
             </div>
           </div>
-          <button class="cart-item-remove" onclick="removeCartItem({{ item.id }}); location.reload();" style="font-size: 18px;">✕</button>
+          <button type="button" class="cart-item-remove" onclick="removeCartItem({{ item.id }}); location.reload();" aria-label="Remove item"><span aria-hidden="true">×</span></button>
         </div>
         {% endfor %}
       </div>
@@ -79,10 +80,10 @@
 
   {% else %}
   <div class="empty-state">
-    <div class="empty-state-icon">🛒</div>
-    <h3>Your cart is empty</h3>
-    <p>Looks like you haven't added any products to your cart yet.</p>
-    <a href="/products" class="btn btn-primary btn-lg">Start Shopping</a>
+    <div class="empty-state-icon-svg empty-state-icon-svg--muted" aria-hidden="true">{{ icon_cart() }}</div>
+    <h3>Your bag is empty</h3>
+    <p>Add products to continue.</p>
+    <a href="/products" class="btn btn-primary btn-lg">Shop now</a>
   </div>
   {% endif %}
 </div>

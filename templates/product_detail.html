@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from 'macros/ui_icons.html' import rating_stars, icon_heart %}
 {% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
@@ -42,18 +43,18 @@
       <h1>{{ product.name }}</h1>
       
       <div class="product-card-rating" style="margin-bottom: 16px;">
-        <span class="stars" style="font-size: 18px;">{% for i in range(5) %}{% if i < product.rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
+        {{ rating_stars(product.rating) }}
         <span class="rating-count">({{ product.review_count }} reviews)</span>
       </div>
 
       <div class="product-price-box">
-        <span class="price-current">₹{{ "%.0f"|format(product.price) }}</span>
+        <span class="price-current">Rs. {{ "%.0f"|format(product.price) }}</span>
         {% if product.mrp > product.price %}
-        <span class="price-mrp" style="font-size: 18px;">MRP ₹{{ "%.0f"|format(product.mrp) }}</span>
+        <span class="price-mrp" style="font-size: 18px;">MRP Rs. {{ "%.0f"|format(product.mrp) }}</span>
         <span class="price-discount" style="font-size: 16px;">Save {{ product.discount_percent }}%</span>
         {% endif %}
       </div>
-      <p style="font-size: 12px; color: var(--color-text-muted); margin-top: -12px; margin-bottom: 16px;">Inclusive of all taxes</p>
+      <p class="price-tax-note" style="margin-top: 4px; margin-bottom: 16px;">Inclusive of all taxes</p>
 
       {% if product.short_description %}
       <p class="product-description">{{ product.short_description }}</p>
@@ -77,8 +78,8 @@
       <!-- Actions -->
       <div class="product-actions">
         {% if product.in_stock %}
-        <button class="btn btn-primary btn-lg add-to-cart-btn" data-product-id="{{ product.id }}" data-qty="1" id="add-cart-btn" style="flex: 2;">
-          Add to Cart
+        <button type="button" class="btn btn-primary btn-lg add-to-cart-btn" data-product-id="{{ product.id }}" data-qty="1" id="add-cart-btn" style="flex: 2;">
+          Add to bag
         </button>
         <button class="btn btn-outline btn-lg" onclick="addToCart({{ product.id }}, document.getElementById('product-qty').textContent); window.location.href='/checkout';" style="flex: 1;">
           Buy Now
@@ -86,7 +87,7 @@
         {% else %}
         <button class="btn btn-secondary btn-lg" disabled style="flex: 1; opacity: 0.5;">Out of Stock</button>
         {% endif %}
-        <button class="btn btn-outline btn-icon btn-lg" title="Wishlist" style="font-size: 20px;">♡</button>
+        <button type="button" class="btn btn-outline btn-icon btn-lg" title="Wishlist" aria-label="Add to wishlist">{{ icon_heart() }}</button>
       </div>
 
       <!-- Product Meta -->

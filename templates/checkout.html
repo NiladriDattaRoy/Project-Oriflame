@@ -84,28 +84,28 @@
             <label class="payment-method selected" data-details="card-details">
               <input type="radio" name="payment_method" value="card" checked>
               <div class="payment-method-info">
-                <h4>💳 Credit / Debit Card</h4>
+                <h4>Credit / Debit card</h4>
                 <p>Pay securely with your card</p>
               </div>
             </label>
             <label class="payment-method" data-details="upi-details">
               <input type="radio" name="payment_method" value="upi">
               <div class="payment-method-info">
-                <h4>📱 UPI</h4>
+                <h4>UPI</h4>
                 <p>Pay using Google Pay, PhonePe, Paytm</p>
               </div>
             </label>
             <label class="payment-method">
               <input type="radio" name="payment_method" value="cod">
               <div class="payment-method-info">
-                <h4>💰 Cash on Delivery</h4>
+                <h4>Cash on delivery</h4>
                 <p>Pay when you receive your order</p>
               </div>
             </label>
             <label class="payment-method">
               <input type="radio" name="payment_method" value="wallet">
               <div class="payment-method-info">
-                <h4>👛 Wallet</h4>
+                <h4>Wallet</h4>
                 <p>Pay using your commission wallet balance</p>
               </div>
             </label>
@@ -177,15 +177,15 @@
           </button>
           
           <p style="text-align: center; font-size: 11px; color: var(--color-text-muted); margin-top: 12px;">
-            🔒 Your payment is secured with SSL encryption
+            Your payment is secured with SSL encryption.
           </p>
         </div>
       </div>
     </div>
   </form>
 </div>
+{% endblock %}
 
 {% block extra_js %}
 <script src="/static/js/checkout.js"></script>
-{% endblock %}
 {% endblock %}

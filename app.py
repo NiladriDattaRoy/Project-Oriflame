@@ -2,10 +2,13 @@
 Oriflame E-Commerce & MLM Platform — Main Application
 Flask application with all routes for the public store, user dashboard, and admin panel.
 """
+import json
 import os
 import uuid
 from datetime import datetime
 from functools import wraps
+
+from sqlalchemy import inspect, text
 
 from flask import (
     Flask, render_template, request, redirect, url_for,
@@ -108,6 +111,82 @@ def calculate_mlm_commissions(order):
         current = sponsor
     
     db.session.commit()
+
+
+def ensure_db_schema():
+    """Apply lightweight SQLite migrations for new columns."""
+    try:
+        inspector = inspect(db.engine)
+        cols = {c['name'] for c in inspector.get_columns('orders')}
+        if 'razorpay_order_id' not in cols:
+            with db.engine.begin() as conn:
+                conn.execute(text('ALTER TABLE orders ADD COLUMN razorpay_order_id VARCHAR(100)'))
+    except Exception as exc:
+        print(f"[WARN] ensure_db_schema: {exc}")
+
+
+def get_razorpay_client():
+    """Return Razorpay client if configured, else None."""
+    if not app.config.get('RAZORPAY_ENABLED'):
+        return None
+    try:
+        import razorpay
+        return razorpay.Client(auth=(
+            app.config['RAZORPAY_KEY_ID'],
+            app.config['RAZORPAY_KEY_SECRET'],
+        ))
+    except Exception as exc:
+        print(f"[WARN] Razorpay client: {exc}")
+        return None
+
+
+def finalize_successful_payment(order, *, transaction_ref, method_override=None, gateway_payload=None):
+    """
+    Mark order paid, record transaction, update buyer sales, run MLM commissions.
+    Idempotent if already paid or transaction_ref already recorded.
+    """
+    if order.payment_status == 'paid':
+        return {
+            'success': True,
+            'order_number': order.order_number,
+            'transaction_ref': transaction_ref,
+            'already_paid': True,
+        }
+
+    if Transaction.query.filter_by(transaction_ref=transaction_ref).first():
+        return {
+            'success': True,
+            'order_number': order.order_number,
+            'transaction_ref': transaction_ref,
+            'already_paid': True,
+        }
+
+    buyer = User.query.get(order.user_id)
+    if not buyer:
+        return {'success': False, 'message': 'Buyer not found'}
+
+    method = method_override or order.payment_method or 'unknown'
+    txn = Transaction(
+        order_id=order.id,
+        transaction_ref=transaction_ref[:100],
+        amount=order.total,
+        method=method,
+        status='success',
+        gateway_response=json.dumps(gateway_payload) if gateway_payload else None,
+    )
+    db.session.add(txn)
+
+    order.status = 'confirmed'
+    order.payment_status = 'paid'
+    buyer.total_sales += order.total
+
+    calculate_mlm_commissions(order)
+
+    return {
+        'success': True,
+        'order_number': order.order_number,
+        'transaction_ref': transaction_ref,
+    }
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -487,7 +566,18 @@ def checkout():
     addresses = Address.query.filter_by(user_id=current_user.id).all()
     
     if request.method == 'POST':
-        # Create order
+        payment_method = request.form.get('payment_method', 'cod')
+
+        if payment_method in ('card', 'upi') and not app.config.get('RAZORPAY_ENABLED'):
+            return jsonify({
+                'success': False,
+                'message': (
+                    'Online payments are not configured. Set environment variables '
+                    'RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET (Razorpay test or live keys), '
+                    'or choose Cash on delivery.'
+                ),
+            }), 400
+
         shipping_fee = 0 if cart_total >= 999 else 99
         order = Order(
             order_number=generate_order_number(),
@@ -495,107 +585,199 @@ def checkout():
             subtotal=cart_total,
             shipping_fee=shipping_fee,
             total=cart_total + shipping_fee,
-            payment_method=request.form.get('payment_method', 'cod'),
+            payment_method=payment_method,
             shipping_name=request.form.get('shipping_name'),
             shipping_phone=request.form.get('shipping_phone'),
             shipping_address=request.form.get('shipping_address'),
             shipping_city=request.form.get('shipping_city'),
             shipping_state=request.form.get('shipping_state'),
             shipping_pincode=request.form.get('shipping_pincode'),
-            notes=request.form.get('notes')
+            notes=request.form.get('notes'),
         )
-        db.session.add(order)
-        db.session.flush()
-        
-        # Create order items
-        for item in cart_items:
-            order_item = OrderItem(
-                order_id=order.id,
-                product_id=item.product_id,
-                product_name=item.product.name,
-                product_image=item.product.image_url,
-                quantity=item.quantity,
-                price=item.product.price,
-                mrp=item.product.mrp
-            )
-            db.session.add(order_item)
-            
-            # Decrease stock
-            item.product.stock -= item.quantity
-        
-        # Save address if new
-        if request.form.get('shipping_name'):
-            existing_addr = Address.query.filter_by(
-                user_id=current_user.id,
-                pincode=request.form.get('shipping_pincode')
-            ).first()
-            if not existing_addr:
-                addr = Address(
-                    user_id=current_user.id,
-                    full_name=request.form.get('shipping_name'),
-                    phone=request.form.get('shipping_phone'),
-                    address_line1=request.form.get('shipping_address'),
-                    city=request.form.get('shipping_city'),
-                    state=request.form.get('shipping_state'),
-                    pincode=request.form.get('shipping_pincode'),
-                    is_default=len(addresses) == 0
+
+        try:
+            db.session.add(order)
+            db.session.flush()
+
+            for item in cart_items:
+                order_item = OrderItem(
+                    order_id=order.id,
+                    product_id=item.product_id,
+                    product_name=item.product.name,
+                    product_image=item.product.image_url,
+                    quantity=item.quantity,
+                    price=item.product.price,
+                    mrp=item.product.mrp,
                 )
-                db.session.add(addr)
-        
-        # Clear cart
-        for item in cart_items:
-            db.session.delete(item)
-        
-        db.session.commit()
-        
-        return jsonify({
+                db.session.add(order_item)
+                item.product.stock -= item.quantity
+
+            razorpay_payload = None
+            if payment_method in ('card', 'upi'):
+                client = get_razorpay_client()
+                if not client:
+                    db.session.rollback()
+                    return jsonify({
+                        'success': False,
+                        'message': 'Razorpay client could not be initialized.',
+                    }), 503
+                amount_paise = int(round(order.total * 100))
+                receipt = (order.order_number or 'order')[:40]
+                rp_order = client.order.create({
+                    'amount': amount_paise,
+                    'currency': 'INR',
+                    'receipt': receipt,
+                    'payment_capture': 1,
+                    'notes': {'internal_order_id': str(order.id)},
+                })
+                order.razorpay_order_id = rp_order['id']
+                razorpay_payload = {
+                    'key_id': app.config['RAZORPAY_KEY_ID'],
+                    'order_id': rp_order['id'],
+                    'amount': rp_order.get('amount', amount_paise),
+                    'currency': rp_order.get('currency', 'INR'),
+                }
+
+            if request.form.get('shipping_name'):
+                existing_addr = Address.query.filter_by(
+                    user_id=current_user.id,
+                    pincode=request.form.get('shipping_pincode'),
+                ).first()
+                if not existing_addr:
+                    addr = Address(
+                        user_id=current_user.id,
+                        full_name=request.form.get('shipping_name'),
+                        phone=request.form.get('shipping_phone'),
+                        address_line1=request.form.get('shipping_address'),
+                        city=request.form.get('shipping_city'),
+                        state=request.form.get('shipping_state'),
+                        pincode=request.form.get('shipping_pincode'),
+                        is_default=len(addresses) == 0,
+                    )
+                    db.session.add(addr)
+
+            for item in list(cart_items):
+                db.session.delete(item)
+
+            db.session.commit()
+        except Exception as exc:
+            db.session.rollback()
+            return jsonify({
+                'success': False,
+                'message': f'Could not create order or payment session: {exc}',
+            }), 502
+
+        out = {
             'success': True,
             'order_id': order.id,
-            'order_number': order.order_number
-        })
+            'order_number': order.order_number,
+        }
+        if razorpay_payload:
+            out['razorpay'] = razorpay_payload
+        return jsonify(out)
     
-    return render_template('checkout.html',
-                           cart_items=cart_items,
-                           cart_total=cart_total,
-                           addresses=addresses)
+    return render_template(
+        'checkout.html',
+        cart_items=cart_items,
+        cart_total=cart_total,
+        addresses=addresses,
+        razorpay_enabled=app.config.get('RAZORPAY_ENABLED', False),
+        razorpay_key_id=app.config.get('RAZORPAY_KEY_ID', ''),
+    )
 
 
 @app.route('/payment/process', methods=['POST'])
 @login_required
 def process_payment():
+    """Complete simulated payment (COD, wallet) — not used for Razorpay card/UPI orders."""
     data = request.get_json()
     order_id = data.get('order_id')
-    
+
     order = Order.query.get(order_id)
     if not order or order.user_id != current_user.id:
-        return jsonify({'success': False, 'message': 'Order not found'})
-    
-    # Create transaction record
-    transaction = Transaction(
-        order_id=order.id,
-        transaction_ref=generate_transaction_ref(),
-        amount=order.total,
-        method=order.payment_method,
-        status='success'
+        return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+    if order.razorpay_order_id:
+        return jsonify({
+            'success': False,
+            'message': 'This order is paid online. Complete payment in the Razorpay window.',
+        }), 400
+
+    if order.payment_status == 'paid':
+        last_txn = (
+            Transaction.query.filter_by(order_id=order.id)
+            .order_by(Transaction.created_at.desc())
+            .first()
+        )
+        ref = last_txn.transaction_ref if last_txn else generate_transaction_ref()
+        return jsonify({
+            'success': True,
+            'order_number': order.order_number,
+            'transaction_ref': ref,
+        })
+
+    ref = generate_transaction_ref()
+    result = finalize_successful_payment(
+        order,
+        transaction_ref=ref,
+        gateway_payload={'mode': 'simulated', 'method': order.payment_method},
     )
-    db.session.add(transaction)
-    
-    # Update order status
-    order.status = 'confirmed'
-    order.payment_status = 'paid'
-    
-    # Update user's total sales
-    current_user.total_sales += order.total
-    
-    # Calculate MLM commissions
-    calculate_mlm_commissions(order)
-    
-    db.session.commit()
-    
+    if not result.get('success'):
+        return jsonify(result), 400
     return jsonify({
         'success': True,
-        'order_number': order.order_number,
-        'transaction_ref': transaction.transaction_ref
+        'order_number': result['order_number'],
+        'transaction_ref': result['transaction_ref'],
+    })
+
+
+@app.route('/payment/razorpay/verify', methods=['POST'])
+@login_required
+def razorpay_verify_payment():
+    """
+    Verify Razorpay payment signature and finalize the order.
+    See https://razorpay.com/docs/payments/server-integration/python/payment-verification/
+    """
+    data = request.get_json() or {}
+    order = Order.query.get(data.get('order_id'))
+    if not order or order.user_id != current_user.id:
+        return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+    if not order.razorpay_order_id:
+        return jsonify({'success': False, 'message': 'This order is not awaiting an online payment.'}), 400
+
+    razorpay_order_id = data.get('razorpay_order_id', '')
+    razorpay_payment_id = data.get('razorpay_payment_id', '')
+    razorpay_signature = data.get('razorpay_signature', '')
+
+    if razorpay_order_id != order.razorpay_order_id:
+        return jsonify({'success': False, 'message': 'Payment does not match this order.'}), 400
+
+    client = get_razorpay_client()
+    if not client:
+        return jsonify({'success': False, 'message': 'Payment gateway is not configured.'}), 503
+
+    params_dict = {
+        'razorpay_order_id': razorpay_order_id,
+        'razorpay_payment_id': razorpay_payment_id,
+        'razorpay_signature': razorpay_signature,
+    }
+    try:
+        client.utility.verify_payment_signature(params_dict)
+    except Exception:
+        return jsonify({'success': False, 'message': 'Payment verification failed. If money was debited, contact support with your payment ID.'}), 400
+
+    result = finalize_successful_payment(
+        order,
+        transaction_ref=razorpay_payment_id,
+        gateway_payload={'razorpay': params_dict},
+    )
+    if not result.get('success'):
+        return jsonify(result), 400
+    return jsonify({
+        'success': True,
+        'order_number': result['order_number'],
+        'transaction_ref': result['transaction_ref'],
     })
 
 
@@ -1035,6 +1217,7 @@ def seed_database():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        ensure_db_schema()
         seed_database()
     
     app.run(debug=True, port=5000)
