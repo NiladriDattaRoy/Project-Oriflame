@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Monthly Catalogue{% endblock %}
+
+{% block extra_css %}
+<style>
+  .catalogue-header {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: var(--color-white);
+    padding: var(--space-4xl) 0;
+    text-align: center;
+  }
+  
+  .catalogue-header h1 {
+    color: var(--color-white);
+    font-size: var(--font-size-4xl);
+    margin-bottom: var(--space-sm);
+  }
+  
+  .catalogue-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-xl);
+    margin-top: var(--space-2xl);
+  }
+  
+  .catalogue-card {
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+    border: 1px solid var(--color-border-light);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .catalogue-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-accent-light);
+  }
+  
+  .catalogue-cover {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    background: var(--color-bg-alt);
+  }
+  
+  .catalogue-info {
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
+  }
+  
+  .catalogue-info h3 {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-xs);
+    font-family: var(--font-heading);
+  }
+  
+  .catalogue-info p {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-lg);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="catalogue-header">
+  <div class="container fade-in">
+    <h1>Our Latest Catalogues</h1>
+    <p style="opacity: 0.8; font-size: var(--font-size-lg); max-width: 600px; margin: 0 auto;">
+      Discover our newest beauty and wellness products. Browse the interactive catalogue and find your next favorite!
+    </p>
+  </div>
+</div>
+
+<div class="container section">
+  {% if catalogues %}
+    <div class="catalogue-grid fade-in">
+      {% for cat in catalogues %}
+      <div class="catalogue-card scale-in" style="transition-delay: {{ loop.index0 * 100 }}ms">
+        <a href="/catalogue/{{ cat.id }}">
+          <img src="{{ cat.cover_image or '/static/images/placeholder.png' }}" alt="{{ cat.title }}" class="catalogue-cover">
+        </a>
+        <div class="catalogue-info">
+          <h3>{{ cat.title }}</h3>
+          <p>{{ cat.month_year }}</p>
+          <a href="/catalogue/{{ cat.id }}" class="btn btn-outline" style="width: 100%;">Read Now</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state fade-in" style="padding: 100px 20px;">
+      <div class="empty-state-icon" style="font-size: 14px; margin-bottom: 8px; font-weight: 700;">NOT FOUND</div>
+      <h2>Coming Soon</h2>
+      <p style="color: var(--color-text-secondary);">We are currently updating our monthly catalogue. Please check back later!</p>
+      <a href="/products" class="btn btn-primary" style="margin-top: 24px;">Browse Products</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
