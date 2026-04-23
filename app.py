@@ -9,7 +9,7 @@ from functools import wraps
 
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    flash, jsonify, abort
+    flash, jsonify, abort, session
 )
 from werkzeug.utils import secure_filename
 from flask_login import (
@@ -201,7 +201,12 @@ def products():
     elif sort == 'newest':
         query = query.order_by(Product.created_at.desc())
     else:
-        query = query.order_by(db.func.random())
+        seed = session.get('random_sort_seed')
+        if not seed:
+            import random
+            seed = random.randint(1, 100000)
+            session['random_sort_seed'] = seed
+        query = query.order_by((Product.id * seed % 100003).asc())
     
     # Pagination
     page = request.args.get('page', 1, type=int)
@@ -241,7 +246,12 @@ def category_page(slug):
     elif sort == 'newest':
         query = query.order_by(Product.created_at.desc())
     else:
-        query = query.order_by(db.func.random())
+        seed = session.get('random_sort_seed')
+        if not seed:
+            import random
+            seed = random.randint(1, 100000)
+            session['random_sort_seed'] = seed
+        query = query.order_by((Product.id * seed % 100003).asc())
     
     page = request.args.get('page', 1, type=int)
     per_page = Config.PRODUCTS_PER_PAGE
