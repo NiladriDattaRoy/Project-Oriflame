@@ -128,20 +128,39 @@
 
 <script>
 function saveCatalogue(form) {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Saving...';
+    submitBtn.disabled = true;
+
     const formData = new FormData(form);
     fetch('/oriflame-admin-panel-x9k2/catalogues', {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(async response => {
+        if (!response.ok) {
+            // Handle HTTP errors like 413 Payload Too Large or 504 Gateway Timeout
+            const text = await response.text();
+            throw new Error(`Server error ${response.status}. This usually happens if the uploaded PDF is too large for the hosted server.`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             window.location.reload();
         } else {
             alert(data.message);
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving catalogue: ' + error.message + '\n\nTip: Try providing a URL for the PDF instead of uploading it directly if it exceeds your hosting size limits.');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    });
 }
 
 // Bind modal data on edit

@@ -68,7 +68,6 @@
     font-size: var(--font-size-sm);
     margin-bottom: var(--space-lg);
   }
-<<<<<<< HEAD
 
   .catalogue-card.coming-soon {
     pointer-events: none;
@@ -98,8 +97,6 @@
     white-space: nowrap;
     border-radius: 4px;
   }
-=======
->>>>>>> bd9ddde3f6ba5a352f5c0a5e0902f20b1bfc4d18
 </style>
 {% endblock %}
 
@@ -117,7 +114,6 @@
   {% if catalogues %}
     <div class="catalogue-grid fade-in">
       {% for cat in catalogues %}
-<<<<<<< HEAD
       <div class="catalogue-card scale-in {% if cat.is_coming_soon %}coming-soon{% endif %}" style="transition-delay: {{ loop.index0 * 100 }}ms">
         <div style="position: relative; overflow: hidden;">
           {% if cat.is_coming_soon %}
@@ -135,16 +131,6 @@
           {% else %}
           <a href="/catalogue/{{ cat.id }}" class="btn btn-outline" style="width: 100%;">Read Now</a>
           {% endif %}
-=======
-      <div class="catalogue-card scale-in" style="transition-delay: {{ loop.index0 * 100 }}ms">
-        <a href="/catalogue/{{ cat.id }}">
-          <img src="{{ cat.cover_image or '/static/images/placeholder.png' }}" alt="{{ cat.title }}" class="catalogue-cover">
-        </a>
-        <div class="catalogue-info">
-          <h3>{{ cat.title }}</h3>
-          <p>{{ cat.month_year }}</p>
-          <a href="/catalogue/{{ cat.id }}" class="btn btn-outline" style="width: 100%;">Read Now</a>
->>>>>>> bd9ddde3f6ba5a352f5c0a5e0902f20b1bfc4d18
         </div>
       </div>
       {% endfor %}
