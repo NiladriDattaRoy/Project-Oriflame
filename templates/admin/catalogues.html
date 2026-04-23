@@ -1,0 +1,166 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Manage Catalogues{% endblock %}
+{% block page_title %}Catalogues{% endblock %}
+
+{% block admin_content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+  <p style="color: rgba(255,255,255,0.5);">{{ catalogues|length }} catalogues found</p>
+  <button class="admin-btn admin-btn-primary" data-modal="catalogue-modal" onclick="document.getElementById('catalogue-form').reset(); document.querySelector('#catalogue-modal [name=id]').value='';">
+    + Add Catalogue
+  </button>
+</div>
+
+<div class="admin-card">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Cover</th>
+        <th>Title</th>
+        <th>Month / Year</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for cat in catalogues %}
+      <tr>
+        <td>
+          <div class="product-thumb">
+            <img src="{{ cat.cover_image or '/static/images/placeholder.png' }}" alt="">
+          </div>
+        </td>
+        <td style="font-weight: 600;">{{ cat.title }}</td>
+        <td>{{ cat.month_year }}</td>
+        <td>
+          {% if cat.is_active %}
+          <span class="admin-badge success">Active</span>
+          {% else %}
+          <span class="admin-badge danger">Inactive</span>
+          {% endif %}
+        </td>
+        <td>
+          <div style="display: flex; gap: 4px;">
+            <a href="{{ cat.file_url }}" target="_blank" class="admin-btn admin-btn-secondary admin-btn-icon" title="View PDF/Link">
+              👁️
+            </a>
+            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Edit"
+              data-modal="catalogue-modal"
+              data-id="{{ cat.id }}"
+              data-title="{{ cat.title }}"
+              data-month_year="{{ cat.month_year }}"
+              data-cover_image="{{ cat.cover_image }}"
+              data-file_url="{{ cat.file_url }}"
+              data-is_active="{{ 'true' if cat.is_active else 'false' }}"
+              data-is_coming_soon="{{ 'true' if cat.is_coming_soon else 'false' }}">
+              ✏️
+            </button>
+            <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete" onclick="if(confirm('Delete catalogue?')) { fetch('/oriflame-admin-panel-x9k2/catalogues/{{ cat.id }}/delete', {method: 'POST'}).then(r => r.json()).then(d => { if(d.success) window.location.reload(); }); }">
+              🗑️
+            </button>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      {% if not catalogues %}
+      <tr>
+        <td colspan="5" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
+          No catalogues found. Add one to display it on the storefront!
+        </td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Catalogue Modal -->
+<div class="admin-modal-overlay" id="catalogue-modal">
+  <div class="admin-modal" style="max-width: 600px;">
+    <div class="admin-modal-header">
+      <h3>Add / Edit Catalogue</h3>
+      <button class="admin-modal-close">✕</button>
+    </div>
+    <form id="catalogue-form" enctype="multipart/form-data" onsubmit="event.preventDefault(); saveCatalogue(this);">
+      <div class="admin-modal-body">
+        <input type="hidden" name="id" value="">
+        
+        <div class="admin-form-group">
+          <label class="admin-form-label">Title *</label>
+          <input type="text" class="admin-form-control" name="title" required placeholder="e.g. April 2026 Catalogue">
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-form-label">Month & Year *</label>
+          <input type="text" class="admin-form-control" name="month_year" required placeholder="e.g. April 2026">
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-form-label" style="font-weight: 700; color: var(--color-accent-dark);">Upload Cover Image</label>
+          <input type="file" class="admin-form-control" name="cover_file" accept="image/*">
+          <div style="text-align: center; margin: 10px 0; color: rgba(255,255,255,0.4); font-size: 13px;">— OR —</div>
+          <label class="admin-form-label">External Cover Image URL</label>
+          <input type="text" class="admin-form-control" name="cover_image" placeholder="https://...">
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-form-label" style="font-weight: 700; color: var(--color-accent-dark);">Upload PDF File (Recommended)</label>
+          <input type="file" class="admin-form-control" name="pdf_file" accept=".pdf">
+          <div style="text-align: center; margin: 10px 0; color: rgba(255,255,255,0.4); font-size: 13px;">— OR —</div>
+          <label class="admin-form-label">External PDF URL</label>
+          <input type="text" class="admin-form-control" name="file_url" placeholder="https://...">
+        </div>
+
+        <div class="admin-form-group" style="display: flex; gap: 20px;">
+          <label style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.6); font-size: 13px;">
+            <input type="checkbox" name="is_active" checked style="accent-color: #c9a96e;" value="true"> Show as Active / Visible
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.6); font-size: 13px;">
+            <input type="checkbox" name="is_coming_soon" style="accent-color: #c9a96e;" value="true"> Mark as "Coming Soon"
+          </label>
+        </div>
+      </div>
+      <div class="admin-modal-footer">
+        <button type="button" class="admin-btn admin-btn-secondary" onclick="this.closest('.admin-modal-overlay').classList.remove('active')">Cancel</button>
+        <button type="submit" class="admin-btn admin-btn-primary">Save Catalogue</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function saveCatalogue(form) {
+    const formData = new FormData(form);
+    fetch('/oriflame-admin-panel-x9k2/catalogues', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Bind modal data on edit
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-modal="catalogue-modal"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = btn.dataset.id;
+            if (id) {
+                const form = document.getElementById('catalogue-form');
+                form.elements['id'].value = id;
+                form.elements['title'].value = btn.dataset.title;
+                form.elements['month_year'].value = btn.dataset.month_year;
+                form.elements['cover_image'].value = btn.dataset.cover_image;
+                form.elements['file_url'].value = btn.dataset.file_url;
+                form.elements['is_active'].checked = btn.dataset.is_active === 'true';
+                form.elements['is_coming_soon'].checked = btn.dataset.is_coming_soon === 'true';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

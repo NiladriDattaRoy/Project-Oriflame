@@ -1,0 +1,134 @@
+{% extends "admin/admin_base.html" %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <div>
+        <h1>Contact Messages</h1>
+        <p>Manage customer inquiries and business opportunity leads.</p>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="admin-table-wrapper">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Sender</th>
+                    <th>Subject</th>
+                    <th>Message</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for msg in messages %}
+                <tr class="{% if not msg.is_read %}unread-row{% endif %}" id="msg-row-{{ msg.id }}">
+                    <td style="white-space: nowrap; font-size: 13px;">{{ msg.created_at.strftime('%d %b, %H:%M') }}</td>
+                    <td>
+                        <div style="font-weight: 700;">{{ msg.first_name }} {{ msg.last_name }}</div>
+                        <div style="font-size: 12px; color: var(--color-text-muted);">{{ msg.email }}</div>
+                    </td>
+                    <td><span class="badge">{{ msg.subject }}</span></td>
+                    <td style="max-width: 400px;">
+                        <div class="message-preview" onclick="toggleFullMessage(this)">
+                            {{ msg.message }}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge {% if msg.is_read %}badge-success{% else %}badge-warning{% endif %}" id="msg-status-{{ msg.id }}">
+                            {{ 'Read' if msg.is_read else 'New' }}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm {% if msg.is_read %}btn-success{% else %}btn-outline{% endif %}" onclick="toggleRead({{ msg.id }})">
+                            Mark as {{ 'Unread' if msg.is_read else 'Read' }}
+                        </button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 48px;">No messages yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .unread-row {
+        background-color: rgba(201, 169, 110, 0.05);
+    }
+    .message-preview {
+        font-size: 13px;
+        line-height: 1.5;
+        max-height: 1.5em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        transition: all 0.3s ease;
+    }
+    .message-preview.expanded {
+        max-height: 1000px;
+        display: block;
+        -webkit-line-clamp: unset;
+    }
+    .badge-warning {
+        background: #fff3cd;
+        color: #856404;
+    }
+    .badge-success {
+        background: #28a745;
+        color: #fff;
+    }
+    .btn-success {
+        background: #28a745;
+        color: #fff;
+        border-color: #28a745;
+    }
+    .btn-success:hover {
+        background: #218838;
+        border-color: #1e7e34;
+    }
+</style>
+
+<script>
+function toggleFullMessage(el) {
+    el.classList.toggle('expanded');
+}
+
+function toggleRead(msgId) {
+    fetch(`/oriflame-admin-panel-x9k2/messages/${msgId}/toggle-read`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const row = document.getElementById(`msg-row-${msgId}`);
+            const badge = document.getElementById(`msg-status-${msgId}`);
+            const btn = row.querySelector('button');
+            
+            if (data.is_read) {
+                row.classList.remove('unread-row');
+                badge.className = 'badge badge-success';
+                badge.innerText = 'Read';
+                btn.innerText = 'Mark as Unread';
+                btn.classList.remove('btn-outline');
+                btn.classList.add('btn-success');
+            } else {
+                row.classList.add('unread-row');
+                badge.className = 'badge badge-warning';
+                badge.innerText = 'New';
+                btn.innerText = 'Mark as Read';
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline');
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

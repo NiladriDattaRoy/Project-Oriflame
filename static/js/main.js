@@ -3,12 +3,36 @@
  * Handles navigation, hero carousel, scroll animations, search, and toasts.
  */
 
+/* ==================== GLOBAL SEARCH FUNCTIONS ==================== */
+function openSearchOverlay() {
+  const overlay = document.getElementById('search-overlay');
+  if (overlay) {
+    overlay.classList.add('active');
+    const input = overlay.querySelector('input');
+    if (input) setTimeout(() => input.focus(), 300);
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeSearchOverlay() {
+  const overlay = document.getElementById('search-overlay');
+  if (overlay) {
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
+// Global exposure
+window.openSearchOverlay = openSearchOverlay;
+window.closeSearchOverlay = closeSearchOverlay;
+
 document.addEventListener('DOMContentLoaded', () => {
   initHeader();
   initHeroCarousel();
   initScrollAnimations();
   initProductTabs();
   initMobileNav();
+  initLeftSidebar();
   initSearch();
 });
 
@@ -140,20 +164,36 @@ function initMobileNav() {
   });
 }
 
-/* ==================== SEARCH ==================== */
 function initSearch() {
-  const searchForm = document.querySelector('.search-bar');
-  if (!searchForm) return;
+  const toggleBtn = document.getElementById('search-toggle');
+  const overlay = document.getElementById('search-overlay');
+  if (!overlay) return;
+
+  const searchForm = overlay.querySelector('.search-form-expanded');
   
-  const input = searchForm.querySelector('input');
-  
-  searchForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const query = input.value.trim();
-    if (query) {
-      window.location.href = `/products?search=${encodeURIComponent(query)}`;
+  // Close on overlay background click
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      closeSearchOverlay();
     }
   });
+  
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('active')) {
+      closeSearchOverlay();
+    }
+  });
+  
+  if (searchForm) {
+    const input = searchForm.querySelector('input');
+    searchForm.addEventListener('submit', (e) => {
+      const query = input.value.trim();
+      if (query) return true;
+      e.preventDefault();
+      return false;
+    });
+  }
 }
 
 /* ==================== TOAST NOTIFICATIONS ==================== */
@@ -166,10 +206,10 @@ function showToast(message, type = 'success') {
   }
   
   const icons = {
-    success: '✓',
-    error: '✕',
-    warning: '⚠',
-    info: 'ℹ'
+    success: 'OK',
+    error: 'ERR',
+    warning: 'FIX',
+    info: 'INFO'
   };
   
   const toast = document.createElement('div');
@@ -204,4 +244,30 @@ function debounce(func, wait) {
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
   };
+}
+
+/* ==================== LEFT SIDEBAR ==================== */
+function initLeftSidebar() {
+  const toggleBtn = document.getElementById('left-sidebar-toggle');
+  const closeBtn = document.getElementById('left-sidebar-close');
+  const sidebar = document.getElementById('left-sidebar');
+  const overlay = document.getElementById('left-sidebar-overlay');
+  
+  if (!toggleBtn || !sidebar || !overlay) return;
+  
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  
+  toggleBtn.addEventListener('click', openSidebar);
+  if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+  overlay.addEventListener('click', closeSidebar);
 }

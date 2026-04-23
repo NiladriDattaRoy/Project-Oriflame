@@ -91,6 +91,7 @@ async function addToCart(productId, quantity = 1) {
 /* ==================== LOAD CART ITEMS ==================== */
 async function loadCartItems() {
   const container = document.querySelector('.cart-sidebar-items');
+  const subtotalEl = document.querySelector('#cart-subtotal');
   const totalEl = document.querySelector('#cart-total');
   const countEl = document.querySelector('#cart-sidebar-count');
   
@@ -115,20 +116,22 @@ async function loadCartItems() {
               <button class="qty-btn" onclick="updateCartQty(${item.id}, ${item.quantity + 1})">+</button>
             </div>
           </div>
-          <button class="cart-item-remove" onclick="removeCartItem(${item.id})">✕</button>
+          <button class="cart-item-remove" onclick="removeCartItem(${item.id})" style="font-size: 9px; letter-spacing: 1px; font-weight: 700; background: transparent; border: none; text-transform: uppercase;">Remove</button>
         </div>
       `).join('');
       
+      if (subtotalEl) subtotalEl.textContent = formatCurrency(data.total);
       if (totalEl) totalEl.textContent = formatCurrency(data.total);
       if (countEl) countEl.textContent = `${data.count} item${data.count !== 1 ? 's' : ''}`;
     } else {
       container.innerHTML = `
         <div class="empty-state" style="padding: 48px 16px;">
-          <div class="empty-state-icon">🛒</div>
+          <div class="empty-state-icon" style="font-size: 14px; margin-bottom: 8px; font-weight: 700;">EMPTY</div>
           <h3 style="font-size: 16px;">Your cart is empty</h3>
           <p style="font-size: 13px;">Add some products to get started!</p>
         </div>
       `;
+      if (subtotalEl) subtotalEl.textContent = '₹0';
       if (totalEl) totalEl.textContent = '₹0';
       if (countEl) countEl.textContent = '0 items';
     }

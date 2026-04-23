@@ -61,6 +61,12 @@ function populateForm(modal, data) {
   
   const idInput = modal.querySelector('[name="id"]');
   if (idInput) idInput.value = data.id;
+
+  // Special handling for color picker sync
+  if (data.shade_color) {
+    const picker = modal.querySelector('#shade-color-picker');
+    if (picker) picker.value = data.shade_color;
+  }
 }
 
 /* ==================== ADMIN CRUD ==================== */
@@ -79,7 +85,17 @@ async function adminSaveProduct(form) {
     
     if (data.success) {
       showToast(data.message || 'Product saved!', 'success');
-      setTimeout(() => location.reload(), 1000);
+      
+      if (form.dataset.stayOpen === 'true') {
+        form.dataset.stayOpen = 'false';
+        // Clear only id and code, keep the rest for variants
+        form.querySelector('[name="id"]').value = '';
+        form.querySelector('[name="code"]').value = '';
+        form.querySelector('[name="code"]').focus();
+        showToast('Now enter the code for the next variant.', 'info');
+      } else {
+        setTimeout(() => location.reload(), 1000);
+      }
     } else {
       showToast(data.message || 'Failed to save product', 'error');
     }

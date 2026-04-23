@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Daily Blog — Beauty Tips & Inspiration{% endblock %}
+
+{% block content %}
+<!-- Blog Hero -->
+<section class="join-hero" style="min-height: 260px;">
+  <div class="container" style="position: relative;">
+    <h1>Daily Blog</h1>
+    <p>Beauty tips, skincare routines, product spotlights, and inspiration from the world of Oriflame.</p>
+  </div>
+</section>
+
+<!-- Blog Posts Grid -->
+<section class="section">
+  <div class="container">
+    {% if posts %}
+    <div class="section-title fade-in">
+      <h2>Latest Posts</h2>
+      <p>Stay updated with our latest beauty insights</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 32px; max-width: 1100px; margin: 0 auto;">
+      {% for post in posts %}
+      <article class="fade-in" style="background: var(--color-bg-card); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-md); transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer;" onmouseenter="this.style.transform='translateY(-6px)'; this.style.boxShadow='var(--shadow-xl)'" onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-md)'" onclick="window.location='/blog/{{ post.slug }}'">
+        <!-- Cover Image -->
+        <div style="position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; background: var(--color-bg-alt);">
+          {% if post.cover_image %}
+          <img src="{{ post.cover_image }}" alt="{{ post.title }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;" onmouseenter="this.style.transform='scale(1.05)'" onmouseleave="this.style.transform='scale(1)'">
+          {% else %}
+          <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; color: var(--color-accent); background: linear-gradient(135deg, rgba(201,169,110,0.1), rgba(201,169,110,0.05));">📝</div>
+          {% endif %}
+          <div style="position: absolute; bottom: 12px; left: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 500; letter-spacing: 0.5px;">
+            {{ post.created_at.strftime('%d %b %Y') }}
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div style="padding: 24px;">
+          <h3 style="font-family: var(--font-heading); font-size: 18px; font-weight: 700; margin-bottom: 10px; line-height: 1.4; color: var(--color-text-primary);">
+            {{ post.title }}
+          </h3>
+          {% if post.summary %}
+          <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 16px;">
+            {{ post.summary[:150] }}{{ '...' if post.summary|length > 150 else '' }}
+          </p>
+          {% endif %}
+          <a href="/blog/{{ post.slug }}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--color-accent); text-decoration: none; letter-spacing: 0.5px; transition: gap 0.3s ease;" onmouseenter="this.style.gap='10px'" onmouseleave="this.style.gap='6px'">
+            Read More
+            <svg style="width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state fade-in" style="padding: 80px 16px;">
+      <div style="font-size: 64px; margin-bottom: 16px;">📝</div>
+      <h3 style="font-size: 22px; margin-bottom: 8px;">Coming Soon</h3>
+      <p style="color: var(--color-text-secondary); max-width: 400px; margin: 0 auto;">We're working on exciting blog content for you. Check back soon for beauty tips, product spotlights, and more!</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

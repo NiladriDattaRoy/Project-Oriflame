@@ -5,34 +5,34 @@
 <!-- Hero Carousel -->
 <section class="hero-carousel">
   <div class="hero-slide active" data-index="0">
-    <div class="hero-slide-bg" style="background: linear-gradient(135deg, #1a1a2e 0%, #2d1f4e 40%, #1a1a2e 100%);"></div>
+    <div class="hero-slide-bg" style="background-image: url('https://images.unsplash.com/photo-1620916566398-39f1143ab7be?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');"></div>
     <div class="hero-slide-content">
-      <span class="hero-tag">Limited Time Offer</span>
-      <h1>Great Clearance Carnival</h1>
-      <p>Discover incredible deals on your favourite beauty essentials. Up to 60% off on selected products!</p>
-      <a href="/products?filter=offers" class="btn btn-primary btn-lg">Shop Now</a>
+      <span class="hero-tag">Summer Essence</span>
+      <h1>Luminous Beauty Festival</h1>
+      <p>Discover the art of Swedish glow. Up to 60% off on our most-loved skincare and makeup essentials.</p>
+      <a href="/products?filter=offers" class="btn btn-primary btn-lg">Explore Offers</a>
     </div>
   </div>
   
   <div class="hero-slide" data-index="1">
-    <div class="hero-slide-bg" style="background: linear-gradient(135deg, #2d1f4e 0%, #1a1a2e 50%, #0f0f1a 100%);"></div>
+    <div class="hero-slide-bg" style="background-image: url('https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');"></div>
     <div class="hero-slide-content">
-      <span class="hero-tag">New Collection</span>
-      <h1>Advanced Skincare Solutions</h1>
-      <p>Experience smoother, firmer skin with our advanced care range powered by cutting-edge Swedish technology.</p>
-      <a href="/products?category=skincare" class="btn btn-primary btn-lg">Explore Range</a>
+      <span class="hero-tag">Nordic Science</span>
+      <h1>Pure Botanical Care</h1>
+      <p>Transform your daily ritual with advanced skincare solutions powered by pristine Swedish nature.</p>
+      <a href="/products?category=skincare" class="btn btn-primary btn-lg">Shop Skincare</a>
     </div>
   </div>
   
   <div class="hero-slide" data-index="2">
-    <div class="hero-slide-bg" style="background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 40%, #2d1f4e 100%);"></div>
+    <div class="hero-slide-bg" style="background-image: url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');"></div>
     <div class="hero-slide-content">
-      <span class="hero-tag">Business Opportunity</span>
-      <h1>Start Your Beauty Business</h1>
-      <p>Join Oriflame as a Brand Partner. Earn attractive commissions, build your network, and transform your life.</p>
+      <span class="hero-tag">Your Success</span>
+      <h1>The Beauty of Opportunity</h1>
+      <p>Join our global community of 3 million Brand Partners. Build your network and define your own future.</p>
       <div style="display: flex; gap: 12px; justify-content: center;">
-        <a href="/join" class="btn btn-primary btn-lg">Join Now</a>
-        <a href="/join" class="btn btn-outline-white btn-lg">Learn More</a>
+        <a href="/join" class="btn btn-primary btn-lg">Start Your Journey</a>
+        <a href="/join" class="btn btn-outline-white btn-lg">Benefits</a>
       </div>
     </div>
   </div>
@@ -53,29 +53,25 @@
 <section class="features-strip">
   <div class="container">
     <div class="features-grid">
-      <div class="feature-item fade-in">
-        <div class="feature-icon">🚚</div>
+      <div class="feature-item">
         <div class="feature-text">
           <h4>Free Shipping</h4>
           <p>On orders above ₹999</p>
         </div>
       </div>
-      <div class="feature-item fade-in">
-        <div class="feature-icon">🔒</div>
+      <div class="feature-item">
         <div class="feature-text">
           <h4>Secure Payment</h4>
           <p>100% secure transactions</p>
         </div>
       </div>
-      <div class="feature-item fade-in">
-        <div class="feature-icon">↩️</div>
+      <div class="feature-item">
         <div class="feature-text">
           <h4>Easy Returns</h4>
           <p>14-day return policy</p>
         </div>
       </div>
-      <div class="feature-item fade-in">
-        <div class="feature-icon">🌿</div>
+      <div class="feature-item">
         <div class="feature-text">
           <h4>Natural Ingredients</h4>
           <p>Swedish beauty innovation</p>
@@ -113,8 +109,8 @@
                 {% if product.discount_percent > 0 %}<span class="badge-discount">-{{ product.discount_percent }}%</span>{% endif %}
               </div>
               <div class="product-card-actions">
-                <button title="Quick View" onclick="event.preventDefault();">👁</button>
-                <button title="Wishlist" onclick="event.preventDefault();">♡</button>
+                <button title="Quick View" onclick="event.preventDefault();" style="font-size: 10px; font-weight: 700;">VIEW</button>
+                <button title="Wishlist" onclick="event.preventDefault();" style="font-size: 10px; font-weight: 700;">WISH</button>
               </div>
             </div>
           </a>
@@ -152,13 +148,13 @@
                 {% if product.discount_percent > 0 %}<span class="badge-discount">-{{ product.discount_percent }}%</span>{% endif %}
               </div>
               <div class="product-card-actions">
-                <button title="Quick View">👁</button>
-                <button title="Wishlist">♡</button>
+                <button title="Quick View" style="font-size: 10px; font-weight: 700;">VIEW</button>
+                <button title="Wishlist" style="font-size: 10px; font-weight: 700;">WISH</button>
               </div>
             </div>
           </a>
           <div class="product-card-info">
-            {% if product.brand %}<span class="product-card-brand">{{ product.brand }}</span>{% endif %}
+            {% if product.brand %}<a href="/products?brand={{ product.brand|urlencode }}" class="product-card-brand" style="text-decoration: none; z-index: 2; position: relative;">{{ product.brand }}</a>{% endif %}
             <a href="/products/{{ product.slug }}"><h3 class="product-card-name">{{ product.name }}</h3></a>
             <div class="product-card-rating">
               <span class="stars">{% for i in range(5) %}{% if i < product.rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
@@ -189,13 +185,13 @@
                 {% if product.discount_percent > 0 %}<span class="badge-discount">-{{ product.discount_percent }}%</span>{% endif %}
               </div>
               <div class="product-card-actions">
-                <button title="Quick View">👁</button>
-                <button title="Wishlist">♡</button>
+                <button title="Quick View" style="font-size: 10px; font-weight: 700;">VIEW</button>
+                <button title="Wishlist" style="font-size: 10px; font-weight: 700;">WISH</button>
               </div>
             </div>
           </a>
           <div class="product-card-info">
-            {% if product.brand %}<span class="product-card-brand">{{ product.brand }}</span>{% endif %}
+            {% if product.brand %}<a href="/products?brand={{ product.brand|urlencode }}" class="product-card-brand" style="text-decoration: none; z-index: 2; position: relative;">{{ product.brand }}</a>{% endif %}
             <a href="/products/{{ product.slug }}"><h3 class="product-card-name">{{ product.name }}</h3></a>
             <div class="product-card-rating">
               <span class="stars">{% for i in range(5) %}{% if i < product.rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
@@ -221,19 +217,26 @@
 </section>
 
 <!-- Category Showcase -->
-<section class="section" style="background: var(--color-bg-alt);">
+<section class="section" style="background: var(--color-bg-alt); padding: var(--space-4xl) 0;">
   <div class="container">
     <div class="section-title fade-in">
-      <h2>Shop by Category</h2>
-      <p>Find your perfect beauty essentials</p>
+      <h2>Curated Categories</h2>
+      <p>Bespoke beauty selections for every ritual</p>
     </div>
     <div class="categories-grid">
+      {% set cat_images = [
+        'https://images.unsplash.com/photo-1512496015851-a90fb38ba496?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1526045612212-70caf35c11bc?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1596462502278-27bfaf433394?auto=format&fit=crop&w=600&q=80'
+      ] %}
       {% for cat in categories[:5] %}
-      <a href="/category/{{ cat.slug }}" class="category-card scale-in">
-        <div class="category-card-bg" style="background: linear-gradient({{ loop.index * 60 }}deg, #1a1a2e, #2d1f4e, #1a1a2e);"></div>
+      <a href="/category/{{ cat.slug }}" class="category-card scale-in" style="transition-delay: {{ loop.index0 * 100 }}ms">
+        <div class="category-card-bg" style="background-image: url('{{ cat_images[loop.index0] }}');"></div>
         <div class="category-card-overlay">
           <span class="category-card-name">{{ cat.name }}</span>
-          <span class="category-card-count">{{ cat.products.count() }} Products</span>
+          <span class="category-card-count">{{ cat.products.count() }} products</span>
         </div>
       </a>
       {% endfor %}

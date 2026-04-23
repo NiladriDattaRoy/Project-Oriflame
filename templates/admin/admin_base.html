@@ -39,6 +39,9 @@
             <span class="nav-icon">📦</span> Products
             <span class="nav-badge">{{ product_count or '' }}</span>
           </a>
+          <a href="/oriflame-admin-panel-x9k2/catalogues" class="admin-nav-link {% if 'catalogues' in request.path %}active{% endif %}">
+            <span class="nav-icon">📖</span> Catalogues
+          </a>
           <a href="/oriflame-admin-panel-x9k2/orders" class="admin-nav-link {% if 'orders' in request.path %}active{% endif %}">
             <span class="nav-icon">🛒</span> Orders
             <span class="nav-badge">{{ pending_orders or '' }}</span>
@@ -48,6 +51,12 @@
           </a>
           <a href="/oriflame-admin-panel-x9k2/mlm" class="admin-nav-link {% if 'mlm' in request.path %}active{% endif %}">
             <span class="nav-icon">🌐</span> MLM Network
+          </a>
+          <a href="/oriflame-admin-panel-x9k2/blog" class="admin-nav-link {% if 'blog' in request.path %}active{% endif %}">
+            <span class="nav-icon">📝</span> Blog
+          </a>
+          <a href="/oriflame-admin-panel-x9k2/messages" class="admin-nav-link {% if 'messages' in request.path %}active{% endif %}">
+            <span class="nav-icon">📬</span> Messages
           </a>
         </div>
 

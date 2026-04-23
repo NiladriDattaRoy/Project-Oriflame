@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}My Wishlist{% endblock %}
+
+{% block extra_css %}
+<style>
+  .wishlist-header {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: var(--color-white);
+    padding: var(--space-4xl) 0;
+    text-align: center;
+  }
+  
+  .wishlist-header h1 {
+    color: var(--color-white);
+    font-size: var(--font-size-4xl);
+    margin-bottom: var(--space-sm);
+  }
+
+  .wishlist-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    margin-top: var(--space-2xl);
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .wishlist-item {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    align-items: center;
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+    border: 1px solid var(--color-border-light);
+    gap: var(--space-xl);
+  }
+
+  .wishlist-item:hover {
+    transform: translateX(8px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-accent-light);
+  }
+
+  .wishlist-img-wrapper {
+    width: 120px;
+    height: 120px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-bg-alt);
+  }
+
+  .wishlist-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .wishlist-info {
+    flex: 1;
+  }
+
+  .wishlist-info h3 {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .wishlist-info .brand {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .wishlist-price {
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--color-primary);
+  }
+
+  .wishlist-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 150px;
+  }
+
+  .remove-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+    text-align: right;
+    padding: 0;
+    transition: color 0.2s ease;
+  }
+
+  .remove-btn:hover {
+    color: var(--color-danger);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wishlist-header">
+  <div class="container fade-in">
+    <h1>Your Wishlist</h1>
+    <p style="opacity: 0.8; font-size: var(--font-size-lg); max-width: 600px; margin: 0 auto;">
+      Manage your saved beauty items in one organized list.
+    </p>
+  </div>
+</div>
+
+<div class="container section">
+  {% if items %}
+    <div class="wishlist-list fade-in">
+      {% for item in items %}
+      <div class="wishlist-item scale-in" style="transition-delay: {{ loop.index0 * 100 }}ms" id="wishlist-item-{{ item.product.id }}">
+        <a href="/products/{{ item.product.slug }}">
+          <div class="wishlist-img-wrapper">
+            <img src="{{ item.product.image_url or '/static/images/placeholder.png' }}" alt="{{ item.product.name }}">
+          </div>
+        </a>
+        
+        <div class="wishlist-info">
+          <span class="brand">{{ item.product.brand }}</span>
+          <h3><a href="/products/{{ item.product.slug }}" style="color: inherit; text-decoration: none;">{{ item.product.name }}</a></h3>
+          <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 12px;">Product Code: {{ item.product.code }}</p>
+          <div class="wishlist-price">₹{{ "%.0f"|format(item.product.price) }}</div>
+        </div>
+        
+        <div class="wishlist-actions">
+          <button class="btn btn-primary" onclick="addToCart({{ item.product.id }}, 1); showToast('Added to cart!');">Add to Cart</button>
+          <a href="/products/{{ item.product.slug }}" class="btn btn-outline" style="text-align: center;">View Detail</a>
+          <button class="remove-btn" onclick="removeWishlistItem({{ item.product.id }})">Remove from List</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state fade-in" style="padding: 100px 20px;">
+      <div class="empty-state-icon">♡</div>
+      <h2>Your wishlist is empty</h2>
+      <p style="color: var(--color-text-secondary);">Start adding your favorite products and they will appear here!</p>
+      <a href="/products" class="btn btn-primary" style="margin-top: 24px;">Browse Products</a>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+function removeWishlistItem(productId) {
+    fetch(`/wishlist/toggle/${productId}`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const el = document.getElementById(`wishlist-item-${productId}`);
+            el.style.opacity = '0';
+            el.style.transform = 'scale(0.8)';
+            setTimeout(() => {
+                el.remove();
+                if (document.querySelectorAll('.wishlist-item').length === 0) {
+                    window.location.reload();
+                }
+            }, 300);
+            showToast('Removed from wishlist');
+        }
+    });
+}
+</script>
+{% endblock %}

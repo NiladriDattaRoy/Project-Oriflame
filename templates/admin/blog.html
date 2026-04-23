@@ -1,0 +1,165 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Manage Blog{% endblock %}
+{% block page_title %}Daily Blog{% endblock %}
+
+{% block admin_content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+  <p style="color: rgba(255,255,255,0.5);">{{ posts|length }} blog post{{ 's' if posts|length != 1 else '' }} found</p>
+  <button class="admin-btn admin-btn-primary" data-modal="blog-modal" onclick="document.getElementById('blog-form').reset(); document.querySelector('#blog-modal [name=id]').value='';">
+    + New Post
+  </button>
+</div>
+
+<div class="admin-card">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Cover</th>
+        <th>Title</th>
+        <th>Summary</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for post in posts %}
+      <tr>
+        <td>
+          <div class="product-thumb">
+            <img src="{{ post.cover_image or '/static/images/placeholder.png' }}" alt="">
+          </div>
+        </td>
+        <td style="font-weight: 600; max-width: 200px;">{{ post.title }}</td>
+        <td style="max-width: 250px; color: rgba(255,255,255,0.5); font-size: 13px;">{{ post.summary[:80] }}{{ '...' if post.summary|length > 80 else '' }}</td>
+        <td style="white-space: nowrap; font-size: 13px;">{{ post.created_at.strftime('%d %b %Y') }}</td>
+        <td>
+          {% if post.is_active %}
+          <span class="admin-badge success">Published</span>
+          {% else %}
+          <span class="admin-badge danger">Hidden</span>
+          {% endif %}
+        </td>
+        <td>
+          <div style="display: flex; gap: 4px;">
+            <a href="/blog/{{ post.slug }}" target="_blank" class="admin-btn admin-btn-secondary admin-btn-icon" title="View">
+              👁️
+            </a>
+            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Edit"
+              data-modal="blog-modal"
+              data-id="{{ post.id }}"
+              data-title="{{ post.title }}"
+              data-summary="{{ post.summary or '' }}"
+              data-content="{{ post.content }}"
+              data-cover_image="{{ post.cover_image or '' }}"
+              data-is_active="{{ 'true' if post.is_active else 'false' }}">
+              ✏️
+            </button>
+            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Toggle Status"
+              onclick="fetch('/oriflame-admin-panel-x9k2/blog/{{ post.id }}/toggle', {method: 'POST'}).then(r => r.json()).then(d => { if(d.success) window.location.reload(); });">
+              {% if post.is_active %}🔒{% else %}🔓{% endif %}
+            </button>
+            <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete"
+              onclick="if(confirm('Delete this blog post?')) { fetch('/oriflame-admin-panel-x9k2/blog/{{ post.id }}/delete', {method: 'POST'}).then(r => r.json()).then(d => { if(d.success) window.location.reload(); }); }">
+              🗑️
+            </button>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      {% if not posts %}
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
+          No blog posts yet. Click "+ New Post" to create your first one!
+        </td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Blog Modal -->
+<div class="admin-modal-overlay" id="blog-modal">
+  <div class="admin-modal" style="max-width: 750px;">
+    <div class="admin-modal-header">
+      <h3>Add / Edit Blog Post</h3>
+      <button class="admin-modal-close">✕</button>
+    </div>
+    <form id="blog-form" enctype="multipart/form-data" onsubmit="event.preventDefault(); saveBlogPost(this);">
+      <div class="admin-modal-body">
+        <input type="hidden" name="id" value="">
+
+        <div class="admin-form-group">
+          <label class="admin-form-label">Title *</label>
+          <input type="text" class="admin-form-control" name="title" required placeholder="e.g. Top 5 Skincare Tips for Summer">
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-form-label">Summary (short preview text)</label>
+          <input type="text" class="admin-form-control" name="summary" placeholder="A brief one-line summary shown on the blog listing..." maxlength="500">
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-form-label">Content *</label>
+          <textarea class="admin-form-control" name="content" required rows="12" placeholder="Write your blog post content here. HTML is supported for formatting..." style="resize: vertical; min-height: 200px;"></textarea>
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-form-label" style="font-weight: 700; color: var(--color-accent-dark);">Upload Cover Image</label>
+          <input type="file" class="admin-form-control" name="cover_file" accept="image/*">
+          <div style="text-align: center; margin: 10px 0; color: rgba(255,255,255,0.4); font-size: 13px;">— OR —</div>
+          <label class="admin-form-label">External Cover Image URL</label>
+          <input type="text" class="admin-form-control" name="cover_image" placeholder="https://...">
+        </div>
+
+        <div class="admin-form-group">
+          <label style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.6); font-size: 13px;">
+            <input type="checkbox" name="is_active" checked style="accent-color: #c9a96e;" value="true"> Publish (visible on website)
+          </label>
+        </div>
+      </div>
+      <div class="admin-modal-footer">
+        <button type="button" class="admin-btn admin-btn-secondary" onclick="this.closest('.admin-modal-overlay').classList.remove('active')">Cancel</button>
+        <button type="submit" class="admin-btn admin-btn-primary">Save Post</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function saveBlogPost(form) {
+    const formData = new FormData(form);
+    fetch('/oriflame-admin-panel-x9k2/blog', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Bind modal data on edit
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-modal="blog-modal"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = btn.dataset.id;
+            if (id) {
+                const form = document.getElementById('blog-form');
+                form.elements['id'].value = id;
+                form.elements['title'].value = btn.dataset.title;
+                form.elements['summary'].value = btn.dataset.summary || '';
+                form.elements['content'].value = btn.dataset.content;
+                form.elements['cover_image'].value = btn.dataset.cover_image || '';
+                form.elements['is_active'].checked = btn.dataset.is_active === 'true';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

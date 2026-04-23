@@ -32,9 +32,14 @@
             <div class="product-thumb">
               <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="">
             </div>
-            <div>
-              <div style="font-weight: 600;">{{ product.name[:40] }}{% if product.name|length > 40 %}...{% endif %}</div>
-              <div style="font-size: 11px; color: rgba(255,255,255,0.4);">{{ product.brand or '' }}</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              {% if product.shade_color %}
+              <div style="width: 16px; height: 16px; border-radius: 50%; background-color: {{ product.shade_color }}; border: 1px solid rgba(0,0,0,0.1);" title="{{ product.shade_name }}"></div>
+              {% endif %}
+              <div>
+                <div style="font-weight: 600;">{{ product.name[:40] }}{% if product.name|length > 40 %}...{% endif %}</div>
+                <div style="font-size: 11px; color: rgba(255,255,255,0.4);">{{ product.brand or '' }}</div>
+              </div>
             </div>
           </div>
         </td>
@@ -68,8 +73,26 @@
               data-brand="{{ product.brand or '' }}"
               data-description="{{ product.description or '' }}"
               data-image_url="{{ product.image_url or '' }}"
-              data-weight="{{ product.weight or '' }}">
+              data-weight="{{ product.weight or '' }}"
+              data-shade_name="{{ product.shade_name or '' }}"
+              data-shade_color="{{ product.shade_color or '' }}">
               ✏️
+            </button>
+            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Toggle Status" onclick="adminToggleProductStatus({{ product.id }})">
+              {% if product.is_active %}👁️{% else %}🕶️{% endif %}
+            </button>
+            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Duplicate as Variant"
+              onclick="adminDuplicateProduct(this)"
+              data-name="{{ product.name }}"
+              data-price="{{ product.price }}"
+              data-mrp="{{ product.mrp }}"
+              data-category_id="{{ product.category_id }}"
+              data-brand="{{ product.brand or '' }}"
+              data-description="{{ product.description or '' }}"
+              data-weight="{{ product.weight or '' }}"
+              data-shade_name="{{ product.shade_name or '' }}"
+              data-shade_color="{{ product.shade_color or '' }}">
+              📋
             </button>
             <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete" onclick="adminDeleteProduct({{ product.id }})">
               🗑️
@@ -95,30 +118,30 @@
         
         <div class="admin-form-row">
           <div class="admin-form-group">
-            <label class="admin-form-label">Product Name *</label>
-            <input type="text" class="admin-form-control" name="name" required>
+            <label class="admin-form-label">Product Name</label>
+            <input type="text" class="admin-form-control" name="name">
           </div>
           <div class="admin-form-group">
-            <label class="admin-form-label">Product Code *</label>
-            <input type="text" class="admin-form-control" name="code" required>
-          </div>
-        </div>
-
-        <div class="admin-form-row">
-          <div class="admin-form-group">
-            <label class="admin-form-label">Price (₹) *</label>
-            <input type="number" class="admin-form-control" name="price" required step="0.01">
-          </div>
-          <div class="admin-form-group">
-            <label class="admin-form-label">MRP (₹) *</label>
-            <input type="number" class="admin-form-control" name="mrp" required step="0.01">
+            <label class="admin-form-label">Product Code</label>
+            <input type="text" class="admin-form-control" name="code">
           </div>
         </div>
 
         <div class="admin-form-row">
           <div class="admin-form-group">
-            <label class="admin-form-label">Category *</label>
-            <select class="admin-form-control" name="category_id" required>
+            <label class="admin-form-label">Price (₹)</label>
+            <input type="number" class="admin-form-control" name="price" step="0.01">
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">MRP (₹)</label>
+            <input type="number" class="admin-form-control" name="mrp" step="0.01">
+          </div>
+        </div>
+
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label class="admin-form-label">Category</label>
+            <select class="admin-form-control" name="category_id">
               <option value="">Select Category</option>
               {% for cat in categories %}
               <option value="{{ cat.id }}">{{ cat.name }}</option>
@@ -142,9 +165,41 @@
           </div>
         </div>
 
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label class="admin-form-label">Shade Name (e.g. Red Sunset)</label>
+            <input type="text" class="admin-form-control" name="shade_name">
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Shade Color (Hex)</label>
+            <div style="display: flex; gap: 10px;">
+              <input type="text" class="admin-form-control" name="shade_color" placeholder="#000000" id="shade-color-text" oninput="document.getElementById('shade-color-picker').value = this.value">
+              <input type="color" class="admin-form-control" style="width: 50px; padding: 2px;" id="shade-color-picker" oninput="document.getElementById('shade-color-text').value = this.value">
+            </div>
+          </div>
+        </div>
+
         <div class="admin-form-group">
-          <label class="admin-form-label">Image URL</label>
+          <label class="admin-form-label">Product Media (Images or Videos)</label>
+          <input type="file" class="admin-form-control" name="product_images" multiple accept="image/*,video/*" style="padding: 8px;">
+          <small style="color: rgba(255,255,255,0.4); font-size: 11px;">You can select multiple images and videos to upload.</small>
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-form-label">Main Image URL</label>
           <input type="text" class="admin-form-control" name="image_url" placeholder="https://...">
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-form-label">Additional Image URLs (One per line)</label>
+          <textarea class="admin-form-control" name="additional_image_urls" rows="3" placeholder="https://image1.jpg&#10;https://image2.jpg"></textarea>
+          <small style="color: rgba(255,255,255,0.4); font-size: 11px;">Paste multiple image links here, each on a new line.</small>
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-form-label">Video URLs (One per line)</label>
+          <textarea class="admin-form-control" name="video_urls" rows="2" placeholder="https://youtube.com/watch?v=...&#10;https://mysite.com/video.mp4"></textarea>
+          <small style="color: rgba(255,255,255,0.4); font-size: 11px;">YouTube links or direct MP4 links are supported.</small>
         </div>
 
         <div class="admin-form-group">
@@ -167,9 +222,78 @@
       </div>
       <div class="admin-modal-footer">
         <button type="button" class="admin-btn admin-btn-secondary" onclick="this.closest('.admin-modal-overlay').classList.remove('active')">Cancel</button>
+        <button type="submit" class="admin-btn admin-btn-secondary" onclick="this.form.dataset.stayOpen='true'">Save & Add Variant</button>
         <button type="submit" class="admin-btn admin-btn-primary">Save Product</button>
       </div>
     </form>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function adminDuplicateProduct(btn) {
+  const data = btn.dataset;
+  const modal = document.getElementById('product-modal');
+  const form = document.getElementById('product-form');
+  
+  form.reset();
+  modal.classList.add('active');
+  
+  // Populate with same data but CLEAR id and code
+  form.querySelector('[name="id"]').value = '';
+  form.querySelector('[name="name"]').value = data.name;
+  form.querySelector('[name="category_id"]').value = data.category_id;
+  form.querySelector('[name="brand"]').value = data.brand;
+  form.querySelector('[name="price"]').value = data.price;
+  form.querySelector('[name="mrp"]').value = data.mrp;
+  form.querySelector('[name="description"]').value = data.description;
+  form.querySelector('[name="weight"]').value = data.weight;
+  form.querySelector('[name="shade_name"]').value = data.shade_name || '';
+  form.querySelector('[name="shade_color"]').value = data.shade_color || '';
+  form.querySelector('#shade-color-text').value = data.shade_color || '';
+  form.querySelector('[name="code"]').value = ''; // Important: must be different code
+  form.querySelector('[name="code"]').focus();
+  
+  showToast('Clone created. Please enter a new Product Code.', 'info');
+}
+
+async function adminDeleteProduct(productId) {
+  if (!confirm('Are you sure you want to PERMANENTLY remove this product? This cannot be undone.')) return;
+  
+  try {
+    const response = await fetch(`/oriflame-admin-panel-x9k2/products/${productId}/delete`, {
+      method: 'POST'
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      showToast(data.message || 'Failed to remove product', 'error');
+    }
+  } catch (err) {
+    showToast('Something went wrong', 'error');
+  }
+}
+
+async function adminToggleProductStatus(productId) {
+  try {
+    const response = await fetch(`/oriflame-admin-panel-x9k2/products/${productId}/toggle-status`, {
+      method: 'POST'
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      showToast(data.message || 'Failed to toggle status', 'error');
+    }
+  } catch (err) {
+    showToast('Something went wrong', 'error');
+  }
+}
+</script>
 {% endblock %}

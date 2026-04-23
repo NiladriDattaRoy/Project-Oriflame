@@ -11,14 +11,15 @@ from flask import (
     Flask, render_template, request, redirect, url_for,
     flash, jsonify, abort
 )
+from werkzeug.utils import secure_filename
 from flask_login import (
     LoginManager, login_user, logout_user, login_required, current_user
 )
 
 from config import Config, BASE_DIR
 from models import (
-    db, User, Category, Product, Cart, CartItem,
-    Address, Order, OrderItem, Transaction, MLMCommission, Wishlist
+    db, User, Category, Product, ProductImage, Catalogue, Cart, CartItem,
+    Address, Order, OrderItem, Transaction, MLMCommission, Wishlist, BlogPost, ContactMessage, Review
 )
 
 # ─── App Factory ──────────────────────────────────────────────────────────────
@@ -28,6 +29,7 @@ app.config.from_object(Config)
 # Ensure database directory exists
 os.makedirs(os.path.join(BASE_DIR, 'database'), exist_ok=True)
 os.makedirs(os.path.join(BASE_DIR, 'static', 'images', 'uploads'), exist_ok=True)
+os.makedirs(os.path.join(BASE_DIR, 'static', 'catalogues'), exist_ok=True)
 
 db.init_app(app)
 
@@ -48,9 +50,12 @@ def inject_globals():
     """Make categories and cart count available in all templates."""
     categories = Category.query.filter_by(is_active=True).order_by(Category.display_order).all()
     cart_count = 0
-    if current_user.is_authenticated and current_user.cart:
-        cart_count = current_user.cart.item_count
-    return dict(categories=categories, cart_count=cart_count)
+    wishlist_count = 0
+    if current_user.is_authenticated:
+        if current_user.cart:
+            cart_count = current_user.cart.item_count
+        wishlist_count = Wishlist.query.filter_by(user_id=current_user.id).count()
+    return dict(categories=categories, cart_count=cart_count, wishlist_count=wishlist_count)
 
 
 # ─── Admin Required Decorator ────────────────────────────────────────────────
@@ -138,13 +143,18 @@ def home():
 def products():
     query = Product.query.filter_by(is_active=True)
     
-    # Search
-    search = request.args.get('search', '').strip()
-    if search:
+    # Combined Search (handles 'search' or 'q' parameters)
+    search_query = request.args.get('search') or request.args.get('q')
+    if search_query:
+        search_query = search_query.strip()
         query = query.filter(
-            (Product.name.ilike(f'%{search}%')) |
-            (Product.brand.ilike(f'%{search}%')) |
-            (Product.tags.ilike(f'%{search}%'))
+            db.or_(
+                Product.name.ilike(f'%{search_query}%'),
+                Product.description.ilike(f'%{search_query}%'),
+                Product.code.ilike(f'%{search_query}%'),
+                Product.brand.ilike(f'%{search_query}%'),
+                Product.tags.ilike(f'%{search_query}%')
+            )
         )
     
     # Filter
@@ -162,6 +172,19 @@ def products():
         cat = Category.query.filter_by(slug=cat_slug).first()
         if cat:
             query = query.filter_by(category_id=cat.id)
+            
+    # Brand filter
+    brand = request.args.get('brand')
+    if brand:
+        query = query.filter(Product.brand.ilike(brand))
+    
+    # Price range filter
+    min_price = request.args.get('min_price', type=float)
+    max_price = request.args.get('max_price', type=float)
+    if min_price is not None:
+        query = query.filter(Product.price >= min_price)
+    if max_price is not None:
+        query = query.filter(Product.price <= max_price)
     
     # Sort
     sort = request.args.get('sort', 'newest')
@@ -196,6 +219,14 @@ def category_page(slug):
     
     query = Product.query.filter_by(category_id=category.id, is_active=True)
     
+    # Price range filter
+    min_price = request.args.get('min_price', type=float)
+    max_price = request.args.get('max_price', type=float)
+    if min_price is not None:
+        query = query.filter(Product.price >= min_price)
+    if max_price is not None:
+        query = query.filter(Product.price <= max_price)
+
     sort = request.args.get('sort', 'newest')
     if sort == 'price_low':
         query = query.order_by(Product.price.asc())
@@ -222,13 +253,66 @@ def category_page(slug):
 @app.route('/products/<slug>')
 def product_detail(slug):
     product = Product.query.filter_by(slug=slug, is_active=True).first_or_404()
+    
+    # Find variants (same name, different code)
+    variants = Product.query.filter(
+        Product.name == product.name,
+        Product.id != product.id,
+        Product.is_active == True
+    ).all()
+    
+    # Find related products
     related = Product.query.filter(
         Product.category_id == product.category_id,
         Product.id != product.id,
+        Product.name != product.name,
         Product.is_active == True
     ).limit(4).all()
+
+    # Check wishlist status
+    is_in_wishlist = False
+    if current_user.is_authenticated:
+        is_in_wishlist = Wishlist.query.filter_by(
+            user_id=current_user.id, 
+            product_id=product.id
+        ).first() is not None
     
-    return render_template('product_detail.html', product=product, related_products=related)
+    return render_template('product_detail.html', 
+                           product=product, 
+                           variants=variants, 
+                           related_products=related,
+                           is_in_wishlist=is_in_wishlist,
+                           Review=Review)
+
+
+@app.route('/product/<int:product_id>/review', methods=['POST'])
+@login_required
+def submit_review(product_id):
+    product = Product.query.get_or_404(product_id)
+    rating = request.form.get('rating', type=int)
+    comment = request.form.get('comment')
+    
+    if rating and comment:
+        review = Review(
+            product_id=product.id,
+            user_id=current_user.id,
+            rating=rating,
+            comment=comment
+        )
+        db.session.add(review)
+        
+        # Update product average rating (simple logic)
+        all_reviews = product.reviews.all()
+        total_rating = sum([r.rating for r in all_reviews]) + rating
+        product.review_count = len(all_reviews) + 1
+        product.rating = round(total_rating / product.review_count, 1)
+        
+        db.session.commit()
+        flash('Thank you for your feedback!', 'success')
+    else:
+        flash('Please provide both a rating and a comment.', 'warning')
+        
+    return redirect(url_for('product_detail', slug=product.slug))
 
 
 @app.route('/join')
@@ -236,9 +320,77 @@ def join_page():
     return render_template('join.html')
 
 
+@app.route('/contact', methods=['GET', 'POST'])
+def contact_page():
+    if request.method == 'POST':
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        email = request.form.get('email')
+        subject = request.form.get('subject')
+        message_text = request.form.get('message')
+        
+        # Debug log
+        with open('contact_debug.log', 'a') as f:
+            f.write(f"{datetime.now()}: POST received from {email}. Fields: {first_name}, {last_name}, {subject}\n")
+        
+        if first_name and last_name and email and message_text:
+            try:
+                msg = ContactMessage(
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email,
+                    subject=subject,
+                    message=message_text
+                )
+                db.session.add(msg)
+                db.session.commit()
+                flash('Thank you for your message! Our team will get back to you shortly.', 'success')
+                with open('contact_debug.log', 'a') as f:
+                    f.write(f"{datetime.now()}: SUCCESS - Message saved to DB (ID: {msg.id})\n")
+            except Exception as e:
+                db.session.rollback()
+                flash(f'An error occurred: {str(e)}', 'danger')
+                with open('contact_debug.log', 'a') as f:
+                    f.write(f"{datetime.now()}: ERROR - {str(e)}\n")
+        else:
+            flash('Please fill in all required fields.', 'danger')
+            with open('contact_debug.log', 'a') as f:
+                f.write(f"{datetime.now()}: VALIDATION FAILED - Missing fields\n")
+            
+        return redirect(url_for('contact_page'))
+    return render_template('contact.html')
+
+
 @app.route('/search')
 def search_page():
     return redirect(url_for('products', search=request.args.get('q', '')))
+
+
+@app.route('/catalogue')
+def catalogue_page():
+    catalogues = Catalogue.query.filter_by(is_active=True).order_by(Catalogue.created_at.desc()).all()
+    return render_template('catalogue.html', catalogues=catalogues)
+
+
+@app.route('/catalogue/<int:cat_id>')
+def catalogue_view(cat_id):
+    cat = Catalogue.query.filter_by(id=cat_id, is_active=True).first_or_404()
+    return render_template('catalogue_view.html', cat=cat)
+
+
+@app.route('/blog')
+def blog_page():
+    posts = BlogPost.query.filter_by(is_active=True).order_by(BlogPost.created_at.desc()).all()
+    return render_template('blog.html', posts=posts)
+
+
+@app.route('/blog/<slug>')
+def blog_detail(slug):
+    post = BlogPost.query.filter_by(slug=slug, is_active=True).first_or_404()
+    recent_posts = BlogPost.query.filter(
+        BlogPost.id != post.id, BlogPost.is_active == True
+    ).order_by(BlogPost.created_at.desc()).limit(5).all()
+    return render_template('blog_detail.html', post=post, recent_posts=recent_posts)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -560,7 +712,29 @@ def checkout():
                            addresses=addresses)
 
 
+@app.route('/wishlist/toggle/<int:product_id>', methods=['POST'])
+@login_required
+def toggle_wishlist(product_id):
+    item = Wishlist.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+    if item:
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({'success': True, 'status': 'removed', 'message': 'Removed from wishlist'})
+    else:
+        new_item = Wishlist(user_id=current_user.id, product_id=product_id)
+        db.session.add(new_item)
+        db.session.commit()
+        return jsonify({'success': True, 'status': 'added', 'message': 'Added to wishlist'})
+
+@app.route('/wishlist')
+@login_required
+def wishlist():
+    items = Wishlist.query.filter_by(user_id=current_user.id).all()
+    return render_template('wishlist.html', items=items)
+
+
 @app.route('/payment/process', methods=['POST'])
+
 @login_required
 def process_payment():
     data = request.get_json()
@@ -728,32 +902,111 @@ def admin_products():
 @admin_required
 def admin_save_product(product_id=None):
     form = request.form
+    files = request.files.getlist('product_images')
+    
+    product_name = form.get('name', 'Unnamed Product')
+    product_code = form.get('code')
+    if not product_code:
+        product_code = f"ORI{uuid.uuid4().hex[:6].upper()}"
+        
+    initial_slug = slugify(product_name) if product_name else uuid.uuid4().hex[:10]
     
     if product_id:
         product = Product.query.get_or_404(product_id)
     else:
         product = Product()
+        # Don't add to session yet to avoid premature flush
+        
+    product.name = product_name
+    product.code = product_code
+    product.slug = initial_slug
+    
+    # Check for slug conflicts BEFORE any other DB operations
+    existing = Product.query.filter(Product.slug == product.slug, Product.id != product.id).first()
+    if existing:
+        product.slug = f"{initial_slug}-{product.code.lower()}"
+    
+    # Now we can safely add it to the session if it's new
+    if not product_id:
         db.session.add(product)
     
-    product.name = form.get('name')
-    product.code = form.get('code')
-    product.slug = slugify(form.get('name'))
-    product.price = float(form.get('price', 0))
-    product.mrp = float(form.get('mrp', 0))
-    product.category_id = int(form.get('category_id'))
+    price_val = form.get('price')
+    product.price = float(price_val) if price_val else 0.0
+    
+    mrp_val = form.get('mrp')
+    product.mrp = float(mrp_val) if mrp_val else product.price
+    
+    cat_id = form.get('category_id')
+    if cat_id:
+        product.category_id = int(cat_id)
+        
     product.stock = int(form.get('stock', 100))
     product.brand = form.get('brand')
     product.weight = form.get('weight')
+    product.shade_name = form.get('shade_name')
+    product.shade_color = form.get('shade_color')
     product.description = form.get('description')
-    product.image_url = form.get('image_url')
+    product.how_to_use = form.get('how_to_use')
+    product.ingredients = form.get('ingredients')
+    
+    # Optional image URL fallback
+    if form.get('image_url'):
+        product.image_url = form.get('image_url')
+    
     product.is_new = bool(form.get('is_new'))
     product.is_bestseller = bool(form.get('is_bestseller'))
     product.is_active = True
     
-    # Ensure unique slug
-    existing = Product.query.filter(Product.slug == product.slug, Product.id != product.id).first()
-    if existing:
-        product.slug = product.slug + '-' + product.code.lower()
+    # Handle Multiple Image Uploads
+    if files and files[0].filename != '':
+        # Clear existing images if editing? 
+        # Actually, user might want to ADD to them. 
+        # But for simplicity, we'll handle the first as primary if not set.
+        
+        for i, file in enumerate(files):
+            if file and file.filename != '':
+                filename = secure_filename(f"{product.code}_{uuid.uuid4().hex[:8]}_{file.filename}")
+                upload_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(upload_path)
+                
+                img_url = f"/static/images/uploads/{filename}"
+                
+                # Detect media type
+                ext = filename.split('.')[-1].lower()
+                m_type = 'video' if ext in ['mp4', 'webm', 'ogg', 'mov', 'avi'] else 'image'
+                
+                # Set first image as primary if no image_url yet and it's an image
+                if i == 0 and not product.image_url and m_type == 'image':
+                    product.image_url = img_url
+                
+                # Add to ProductImage gallery
+                img_record = ProductImage(product=product, image_url=img_url, media_type=m_type, display_order=i)
+                db.session.add(img_record)
+                
+    # Handle Pasted Image URLs
+    pasted_urls = form.get('additional_image_urls', '').split('\n')
+    for i, url in enumerate(pasted_urls):
+        url = url.strip()
+        if url:
+            if url != product.image_url:
+                img_record = ProductImage(product=product, image_url=url, media_type='image', display_order=100+i)
+                db.session.add(img_record)
+                
+    # Handle Video URLs
+    video_urls = form.get('video_urls', '').split('\n')
+    for i, url in enumerate(video_urls):
+        url = url.strip()
+        if url:
+            # Simple YouTube embed conversion
+            if 'youtube.com/watch?v=' in url:
+                video_id = url.split('v=')[1].split('&')[0]
+                url = f"https://www.youtube.com/embed/{video_id}"
+            elif 'youtu.be/' in url:
+                video_id = url.split('/')[-1]
+                url = f"https://www.youtube.com/embed/{video_id}"
+                
+            img_record = ProductImage(product=product, image_url=url, media_type='video', display_order=200+i)
+            db.session.add(img_record)
     
     db.session.commit()
     
@@ -765,10 +1018,20 @@ def admin_save_product(product_id=None):
 @admin_required
 def admin_delete_product(product_id):
     product = Product.query.get_or_404(product_id)
-    product.is_active = False  # Soft delete
+    db.session.delete(product)
     db.session.commit()
-    return jsonify({'success': True, 'message': 'Product deleted!'})
+    return jsonify({'success': True, 'message': 'Product permanently removed!'})
 
+
+@app.route('/oriflame-admin-panel-x9k2/products/<int:product_id>/toggle-status', methods=['POST'])
+@login_required
+@admin_required
+def admin_toggle_product_status(product_id):
+    product = Product.query.get_or_404(product_id)
+    product.is_active = not product.is_active
+    db.session.commit()
+    status = "Active" if product.is_active else "Inactive"
+    return jsonify({'success': True, 'message': f'Product is now {status}!', 'is_active': product.is_active})
 
 @app.route('/oriflame-admin-panel-x9k2/orders', methods=['GET'])
 @login_required
@@ -795,6 +1058,104 @@ def admin_update_order_status(order_id):
 def admin_users():
     users_list = User.query.order_by(User.join_date.desc()).all()
     return render_template('admin/users.html', users=users_list)
+
+
+@app.route('/oriflame-admin-panel-x9k2/catalogues', methods=['GET'])
+@login_required
+@admin_required
+def admin_catalogues():
+    catalogues_list = Catalogue.query.order_by(Catalogue.created_at.desc()).all()
+    return render_template('admin/catalogues.html', catalogues=catalogues_list)
+
+@app.route('/oriflame-admin-panel-x9k2/messages', methods=['GET'])
+@login_required
+@admin_required
+def admin_messages():
+    messages_list = ContactMessage.query.order_by(ContactMessage.created_at.desc()).all()
+    return render_template('admin/messages.html', messages=messages_list)
+
+@app.route('/oriflame-admin-panel-x9k2/messages/<int:msg_id>/toggle-read', methods=['POST'])
+@login_required
+@admin_required
+def admin_toggle_message_read(msg_id):
+    msg = ContactMessage.query.get_or_404(msg_id)
+    msg.is_read = not msg.is_read
+    db.session.commit()
+    return jsonify({'success': True, 'is_read': msg.is_read})
+
+@app.route('/oriflame-admin-panel-x9k2/catalogues/<int:cat_id>/delete', methods=['POST'])
+
+@login_required
+@admin_required
+def admin_delete_catalogue(cat_id):
+    cat = Catalogue.query.get_or_404(cat_id)
+    db.session.delete(cat)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Catalogue deleted!'})
+
+@app.route('/oriflame-admin-panel-x9k2/catalogues', methods=['POST'])
+@login_required
+@admin_required
+def admin_save_catalogue():
+    form = request.form
+    cat_id = form.get('id')
+    
+    if cat_id:
+        cat = Catalogue.query.get_or_404(int(cat_id))
+    else:
+        cat = Catalogue()
+        db.session.add(cat)
+        
+    cat.title = form.get('title')
+    cat.month_year = form.get('month_year')
+    cat.is_active = bool(form.get('is_active'))
+    cat.is_coming_soon = bool(form.get('is_coming_soon'))
+    
+    # Handle Cover Image Upload
+    cover_file = request.files.get('cover_file')
+    if cover_file and cover_file.filename:
+        filename = secure_filename(cover_file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        unique_filename = f"{timestamp}_{filename}"
+        
+        dir_path = os.path.join(BASE_DIR, 'static', 'images', 'uploads')
+        filepath = os.path.join(dir_path, unique_filename)
+        cover_file.save(filepath)
+        cat.cover_image = f"/static/images/uploads/{unique_filename}"
+    else:
+        new_cover_url = form.get('cover_image', '').strip()
+        if new_cover_url:
+            cat.cover_image = new_cover_url
+        elif not getattr(cat, 'cover_image', None):
+            return jsonify({'success': False, 'message': 'Cover Image is required. Please upload a file or provide a URL.'})
+
+    # Handle PDF Upload
+    pdf_file = request.files.get('pdf_file')
+    if pdf_file and pdf_file.filename:
+        filename = secure_filename(pdf_file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        unique_filename = f"{timestamp}_{filename}"
+        
+        dir_path = os.path.join(BASE_DIR, 'static', 'catalogues')
+        os.makedirs(dir_path, exist_ok=True)
+        
+        filepath = os.path.join(dir_path, unique_filename)
+        pdf_file.save(filepath)
+        cat.file_url = f"/static/catalogues/{unique_filename}"
+    else:
+        # Fallback to text link if provided
+        new_url = form.get('file_url', '').strip()
+        if new_url:
+            cat.file_url = new_url
+        elif not getattr(cat, 'file_url', None) and not cat.is_coming_soon:
+            return jsonify({'success': False, 'message': 'PDF File is required for active catalogues. (Optional for Coming Soon)'})
+    
+    try:
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Catalogue saved successfully!'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f"Database Error: {str(e)}"})
 
 
 @app.route('/oriflame-admin-panel-x9k2/users/<int:user_id>/role', methods=['POST'])
@@ -837,6 +1198,82 @@ def admin_mlm():
                            total_network_sales=total_network_sales,
                            pending_commissions=pending_commissions,
                            commissions=commissions)
+
+
+@app.route('/oriflame-admin-panel-x9k2/blog', methods=['GET'])
+@login_required
+@admin_required
+def admin_blog():
+    posts = BlogPost.query.order_by(BlogPost.created_at.desc()).all()
+    return render_template('admin/blog.html', posts=posts)
+
+
+@app.route('/oriflame-admin-panel-x9k2/blog', methods=['POST'])
+@login_required
+@admin_required
+def admin_save_blog():
+    form = request.form
+    post_id = form.get('id')
+
+    if post_id:
+        post = BlogPost.query.get_or_404(int(post_id))
+    else:
+        post = BlogPost()
+        db.session.add(post)
+
+    post.title = form.get('title', 'Untitled')
+    post.slug = slugify(post.title) or uuid.uuid4().hex[:10]
+    post.summary = form.get('summary', '')
+    post.content = form.get('content', '')
+    post.is_active = bool(form.get('is_active'))
+
+    # Handle Cover Image Upload
+    cover_file = request.files.get('cover_file')
+    if cover_file and cover_file.filename:
+        filename = secure_filename(cover_file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        unique_filename = f"blog_{timestamp}_{filename}"
+        dir_path = os.path.join(BASE_DIR, 'static', 'images', 'uploads')
+        filepath = os.path.join(dir_path, unique_filename)
+        cover_file.save(filepath)
+        post.cover_image = f"/static/images/uploads/{unique_filename}"
+    else:
+        cover_url = form.get('cover_image', '').strip()
+        if cover_url:
+            post.cover_image = cover_url
+
+    # Check slug uniqueness
+    existing = BlogPost.query.filter(BlogPost.slug == post.slug, BlogPost.id != post.id).first()
+    if existing:
+        post.slug = f"{post.slug}-{uuid.uuid4().hex[:6]}"
+
+    try:
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Blog post saved successfully!'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+
+@app.route('/oriflame-admin-panel-x9k2/blog/<int:post_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def admin_delete_blog(post_id):
+    post = BlogPost.query.get_or_404(post_id)
+    db.session.delete(post)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Blog post deleted!'})
+
+
+@app.route('/oriflame-admin-panel-x9k2/blog/<int:post_id>/toggle', methods=['POST'])
+@login_required
+@admin_required
+def admin_toggle_blog(post_id):
+    post = BlogPost.query.get_or_404(post_id)
+    post.is_active = not post.is_active
+    db.session.commit()
+    status = 'published' if post.is_active else 'hidden'
+    return jsonify({'success': True, 'message': f'Post is now {status}!', 'is_active': post.is_active})
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

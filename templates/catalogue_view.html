@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ cat.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .catalogue-viewer-container {
+    width: 100%;
+    height: calc(100vh - var(--header-height));
+    min-height: 600px;
+    background-color: #f3f3f3;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .catalogue-viewer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md) var(--space-xl);
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-border-light);
+  }
+  
+  .catalogue-viewer-header h1 {
+    font-size: var(--font-size-md);
+    margin: 0;
+    color: var(--color-primary);
+  }
+
+  .catalogue-viewer-header .back-link {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color var(--transition-fast);
+  }
+  
+  .catalogue-viewer-header .back-link:hover {
+    color: var(--color-accent-dark);
+  }
+
+  .catalogue-iframe {
+    width: 100%;
+    flex: 1;
+    border: none;
+    box-shadow: inset 0px 4px 10px rgba(0,0,0,0.05);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="catalogue-viewer-container">
+  <div class="catalogue-viewer-header">
+    <a href="/catalogue" class="back-link">
+      <span>←</span> Back to all Catalogues
+    </a>
+    <h1>{{ cat.title }} ({{ cat.month_year }})</h1>
+    <a href="{{ cat.file_url }}" target="_blank" class="btn btn-outline btn-sm">
+      Open in new tab
+    </a>
+  </div>
+  
+  <iframe src="{{ cat.file_url }}" class="catalogue-iframe" title="{{ cat.title }}" allowfullscreen></iframe>
+</div>
+{% endblock %}

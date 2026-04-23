@@ -100,14 +100,14 @@ class Product(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
-    code = db.Column(db.String(20), unique=True, nullable=False)
+    code = db.Column(db.String(20), unique=True, nullable=True)
     slug = db.Column(db.String(200), unique=True, nullable=False)
     short_description = db.Column(db.String(300))
     description = db.Column(db.Text)
-    price = db.Column(db.Float, nullable=False)
-    mrp = db.Column(db.Float, nullable=False)
+    price = db.Column(db.Float, nullable=True)
+    mrp = db.Column(db.Float, nullable=True)
     weight = db.Column(db.String(50))
-    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
     image_url = db.Column(db.String(256))
     image_url_2 = db.Column(db.String(256))
     stock = db.Column(db.Integer, default=100)
@@ -119,7 +119,15 @@ class Product(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     brand = db.Column(db.String(100))
+    shade_name = db.Column(db.String(100))
+    shade_color = db.Column(db.String(20)) # Hex color code or CSS color name
     tags = db.Column(db.String(500))  # Comma-separated tags
+    how_to_use = db.Column(db.Text)
+    ingredients = db.Column(db.Text)
+
+    # Relationships
+    images = db.relationship('ProductImage', backref='product', lazy='dynamic', cascade='all, delete-orphan')
+    reviews = db.relationship('Review', backref='product', lazy='dynamic', cascade='all, delete-orphan')
 
     @property
     def discount_percent(self):
@@ -133,6 +141,37 @@ class Product(db.Model):
 
     def __repr__(self):
         return f'<Product {self.name}>'
+
+
+class ProductImage(db.Model):
+    """Additional images for a product gallery."""
+    __tablename__ = 'product_images'
+
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    image_url = db.Column(db.String(512), nullable=False)
+    media_type = db.Column(db.String(20), default='image') # 'image' or 'video'
+    display_order = db.Column(db.Integer, default=0)
+
+    def __repr__(self):
+        return f'<ProductImage {self.image_url}>'
+
+
+class Catalogue(db.Model):
+    """Monthly eCatalogue."""
+    __tablename__ = 'catalogues'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(150), nullable=False)
+    month_year = db.Column(db.String(50), nullable=False)  # e.g., 'April 2026'
+    cover_image = db.Column(db.String(256), nullable=False)
+    file_url = db.Column(db.String(256), nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    is_coming_soon = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Catalogue {self.title}>'
 
 
 class Cart(db.Model):
@@ -322,3 +361,54 @@ class Wishlist(db.Model):
 
     def __repr__(self):
         return f'<Wishlist user={self.user_id} product={self.product_id}>'
+
+
+class BlogPost(db.Model):
+    """Daily blog post managed by admin."""
+    __tablename__ = 'blog_posts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(300), nullable=False)
+    slug = db.Column(db.String(300), unique=True, nullable=False)
+    summary = db.Column(db.String(500))
+    content = db.Column(db.Text, nullable=False)
+    cover_image = db.Column(db.String(512))
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<BlogPost {self.title}>'
+class ContactMessage(db.Model):
+    """Messages from the contact form."""
+    __tablename__ = 'contact_messages'
+
+    id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(100), nullable=False)
+    last_name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
+    subject = db.Column(db.String(200))
+    message = db.Column(db.Text, nullable=False)
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<ContactMessage from {self.email}>'
+
+
+class Review(db.Model):
+    """Product ratings and feedback from users."""
+    __tablename__ = 'reviews'
+
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    rating = db.Column(db.Integer, nullable=False, default=5)
+    comment = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    author = db.relationship('User', backref=db.backref('reviews', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<Review {self.rating}* by User {self.user_id} for Product {self.product_id}>'

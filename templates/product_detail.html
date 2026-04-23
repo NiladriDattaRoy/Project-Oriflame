@@ -19,27 +19,82 @@
     <!-- Gallery -->
     <div class="product-gallery">
       <div class="product-gallery-main">
+        <button class="gallery-nav prev" onclick="navigateGallery(-1)">‹</button>
         <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="{{ product.name }}" id="main-image">
+        <div id="main-video-container" style="display: none; width: 100%; height: 100%;">
+          <iframe id="main-iframe" width="100%" height="100%" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          <video id="main-video" width="100%" height="100%" controls style="display: none;"></video>
+        </div>
+        <button class="gallery-nav next" onclick="navigateGallery(1)">›</button>
       </div>
-      <div class="product-gallery-thumbs">
-        <div class="product-gallery-thumb active" onclick="changeImage(this, '{{ product.image_url or '/static/images/placeholder.png' }}')">
-          <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="">
+      <div class="product-gallery-thumbs-wrapper">
+        <div class="product-gallery-thumbs" id="thumb-slider">
+          {# Add main image as first thumb #}
+          <div class="product-gallery-thumb active" data-type="image" data-src="{{ product.image_url or '/static/images/placeholder.png' }}" onclick="changeImage(this, '{{ product.image_url or '/static/images/placeholder.png' }}')">
+            <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="">
+          </div>
+          {# Add additional gallery images/videos #}
+          {% for img in product.images.all() %}
+            {% if img.image_url != product.image_url %}
+            <div class="product-gallery-thumb" data-type="{{ img.media_type }}" data-src="{{ img.image_url }}" onclick="changeImage(this, '{{ img.image_url }}')">
+              {% if img.media_type == 'video' %}
+                <div class="video-thumb-overlay">▶</div>
+                {# Try to show YT thumbnail if it's an embed #}
+                {% if 'youtube.com/embed/' in img.image_url %}
+                  {% set yt_id = img.image_url.split('/')[-1] %}
+                  <img src="https://img.youtube.com/vi/{{ yt_id }}/0.jpg" alt="">
+                {% else %}
+                  <div style="width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; color: #fff;">Video</div>
+                {% endif %}
+              {% else %}
+                <img src="{{ img.image_url }}" alt="">
+              {% endif %}
+            </div>
+            {% endif %}
+          {% endfor %}
         </div>
-        {% if product.image_url_2 %}
-        <div class="product-gallery-thumb" onclick="changeImage(this, '{{ product.image_url_2 }}')">
-          <img src="{{ product.image_url_2 }}" alt="">
-        </div>
-        {% endif %}
       </div>
     </div>
 
     <!-- Product Info -->
     <div class="product-info">
       {% if product.brand %}
-      <span class="product-brand">{{ product.brand }}</span>
+      <a href="/products?brand={{ product.brand|urlencode }}" class="product-brand" style="text-decoration: none;">{{ product.brand }}</a>
       {% endif %}
       
       <h1>{{ product.name }}</h1>
+
+      <!-- Variants / Shades -->
+      {% if variants or product.shade_name %}
+      <div class="product-variants">
+        <span style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">
+          Select Shade / Variant:
+        </span>
+        <div class="variant-list">
+          <a href="/products/{{ product.slug }}" class="variant-item active" title="{{ product.shade_name or product.code }}">
+            {% if product.shade_color %}
+              <div class="shade-circle" style="background-color: {{ product.shade_color }};"></div>
+            {% else %}
+              <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="{{ product.code }}">
+            {% endif %}
+          </a>
+          {% for variant in variants %}
+          <a href="/products/{{ variant.slug }}" class="variant-item" title="{{ variant.shade_name or variant.code }}">
+            {% if variant.shade_color %}
+              <div class="shade-circle" style="background-color: {{ variant.shade_color }};"></div>
+            {% else %}
+              <img src="{{ variant.image_url or '/static/images/placeholder.png' }}" alt="{{ variant.code }}">
+            {% endif %}
+          </a>
+          {% endfor %}
+        </div>
+        {% if product.shade_name %}
+        <div class="active-shade-name" style="margin-top: 10px; font-size: 14px; color: var(--color-text-secondary);">
+          Selected: <strong style="color: var(--color-primary);">{{ product.shade_name }}</strong>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
       
       <div class="product-card-rating" style="margin-bottom: 16px;">
         <span class="stars" style="font-size: 18px;">{% for i in range(5) %}{% if i < product.rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
@@ -66,9 +121,11 @@
       <!-- Quantity Selector -->
       <div class="product-qty-selector">
         <span style="font-weight: 600; font-size: 14px;">Quantity:</span>
-        <button class="qty-btn" onclick="adjustQty(-1)">−</button>
-        <span class="qty-value" id="product-qty">1</span>
-        <button class="qty-btn" onclick="adjustQty(1)">+</button>
+        <div class="premium-qty">
+          <button onclick="adjustQty(-1)">−</button>
+          <span class="qty-val" id="product-qty">1</span>
+          <button onclick="adjustQty(1)">+</button>
+        </div>
         {% if product.stock <= 10 and product.stock > 0 %}
         <span style="color: var(--color-warning); font-size: 13px; margin-left: 12px;">Only {{ product.stock }} left!</span>
         {% endif %}
@@ -77,16 +134,21 @@
       <!-- Actions -->
       <div class="product-actions">
         {% if product.in_stock %}
-        <button class="btn btn-primary btn-lg add-to-cart-btn" data-product-id="{{ product.id }}" data-qty="1" id="add-cart-btn" style="flex: 2;">
+        <button class="btn btn-primary add-to-cart-btn" data-product-id="{{ product.id }}" data-qty="1" id="add-cart-btn" style="flex: 1.5; padding: 12px 16px; font-size: 14px;">
           Add to Cart
         </button>
-        <button class="btn btn-outline btn-lg" onclick="addToCart({{ product.id }}, document.getElementById('product-qty').textContent); window.location.href='/checkout';" style="flex: 1;">
+        <button class="btn btn-outline" onclick="addToCart({{ product.id }}, document.getElementById('product-qty').textContent); window.location.href='/checkout';" style="flex: 1; padding: 12px 16px; font-size: 14px;">
           Buy Now
         </button>
         {% else %}
-        <button class="btn btn-secondary btn-lg" disabled style="flex: 1; opacity: 0.5;">Out of Stock</button>
+        <button class="btn btn-secondary" disabled style="flex: 1; opacity: 0.5; padding: 12px 16px; font-size: 14px;">Out of Stock</button>
         {% endif %}
-        <button class="btn btn-outline btn-icon btn-lg" title="Wishlist" style="font-size: 20px;">♡</button>
+        <button class="btn btn-outline btn-icon wishlist-btn {% if is_in_wishlist %}active{% endif %}" 
+                onclick="toggleWishlist(this, {{ product.id }})" 
+                title="Wishlist" 
+                style="font-size: 18px; width: 44px; height: 44px; color: {% if is_in_wishlist %}var(--color-accent-dark){% else %}inherit{% endif %};">
+          {% if is_in_wishlist %}♥{% else %}♡{% endif %}
+        </button>
       </div>
 
       <!-- Product Meta -->
@@ -103,8 +165,50 @@
         {% endif %}
         <div class="product-meta-item">
           <span>Category</span>
-          <span>{{ product.category.name if product.category else 'N/A' }}</span>
+          <span>{{ product.category.name if product.category else 'Uncategorized' }}</span>
         </div>
+      </div>
+
+      <!-- Product Accordion -->
+      <div class="product-accordion">
+        {% if product.description %}
+        <div class="accordion-item active">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            About the Product
+            <span class="accordion-icon">▾</span>
+          </div>
+          <div class="accordion-content">
+            {{ product.description }}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if product.how_to_use %}
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            How to Use
+            <span class="accordion-icon">▾</span>
+          </div>
+          <div class="accordion-content">
+            {{ product.how_to_use }}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if product.ingredients %}
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            Ingredients
+            <span class="accordion-icon">▾</span>
+          </div>
+          <div class="accordion-content">
+            {{ product.ingredients }}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="product-meta">
         <div class="product-meta-item">
           <span>Availability</span>
           <span style="color: {% if product.in_stock %}var(--color-success){% else %}var(--color-danger){% endif %}">
@@ -121,6 +225,120 @@
     </div>
   </div>
 </div>
+<!-- Ratings & Reviews -->
+<section class="section" id="reviews">
+  <div class="container">
+    <div class="section-title fade-in">
+      <h2>Ratings & Reviews</h2>
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px;">
+        <div style="color: var(--color-accent); font-size: 24px;">
+          {% for i in range(5) %}
+            {% if product.rating >= i + 1 %}★{% else %}☆{% endif %}
+          {% endfor %}
+        </div>
+        <span style="font-weight: 700; font-size: 20px;">{{ product.rating }}</span>
+        <span style="color: var(--color-text-secondary);">({{ product.review_count }} reviews)</span>
+      </div>
+    </div>
+
+    <div style="max-width: 800px; margin: 0 auto;">
+      <!-- Review Summary & Action -->
+      <div class="fade-in" style="background: var(--color-bg-alt); padding: 40px; border-radius: 24px; text-align: center; margin-bottom: 48px; border: 1px solid var(--color-border-light);">
+        <h3 style="margin-bottom: 8px;">Customer Feedback</h3>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 24px;">
+          <div style="color: var(--color-accent); font-size: 32px;">
+            {% for i in range(5) %}
+              {% if product.rating >= i + 1 %}★{% else %}☆{% endif %}
+            {% endfor %}
+          </div>
+          <span style="font-weight: 800; font-size: 36px; color: var(--color-text);">{{ product.rating }}</span>
+        </div>
+        <p style="color: var(--color-text-secondary); margin-bottom: 32px;">Based on {{ product.review_count }} verified customer reviews</p>
+        
+        {% if current_user.is_authenticated %}
+        <button class="btn btn-primary btn-lg" onclick="openReviewModal()">Write a Review</button>
+        {% else %}
+        <a href="/login" class="btn btn-outline btn-lg">Login to Write a Review</a>
+        {% endif %}
+      </div>
+
+      <!-- Review Form Modal -->
+      <div id="review-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+        <div style="background: var(--color-white); width: 90%; max-width: 500px; border-radius: 24px; overflow: hidden; box-shadow: var(--shadow-lg); animation: slideUp 0.4s ease;">
+          <div style="padding: 24px; border-bottom: 1px solid var(--color-border-light); display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0;">Share Your Experience</h3>
+            <button onclick="closeReviewModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--color-text-muted);">✕</button>
+          </div>
+          <form action="/product/{{ product.id }}/review" method="POST" style="padding: 32px;">
+            <div style="margin-bottom: 24px;">
+              <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 12px; color: var(--color-text);">Your Rating</label>
+              <div class="star-rating" style="justify-content: center; gap: 8px;">
+                <input type="radio" id="modal-star5" name="rating" value="5" required /><label for="modal-star5" style="font-size: 36px;">★</label>
+                <input type="radio" id="modal-star4" name="rating" value="4" /><label for="modal-star4" style="font-size: 36px;">★</label>
+                <input type="radio" id="modal-star3" name="rating" value="3" /><label for="modal-star3" style="font-size: 36px;">★</label>
+                <input type="radio" id="modal-star2" name="rating" value="2" /><label for="modal-star2" style="font-size: 36px;">★</label>
+                <input type="radio" id="modal-star1" name="rating" value="1" /><label for="modal-star1" style="font-size: 36px;">★</label>
+              </div>
+            </div>
+            <div style="margin-bottom: 32px;">
+              <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 12px; color: var(--color-text);">Your Feedback</label>
+              <textarea name="comment" rows="5" style="width: 100%; padding: 16px; border: 1px solid var(--color-border); border-radius: 12px; font-family: inherit; resize: none; font-size: 15px;" placeholder="Tell us what you liked or disliked about this product..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; height: 56px; font-size: 16px;">Submit Review</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Reviews List -->
+      <div class="fade-in">
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+          {% for review in product.reviews.order_by(Review.created_at.desc()).all() %}
+          <div style="padding-bottom: 24px; border-bottom: 1px solid var(--color-border-light);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+              <div>
+                <div style="font-weight: 700;">{{ review.author.full_name }}</div>
+                <div style="color: var(--color-accent); font-size: 14px;">
+                  {% for i in range(5) %}
+                    {% if review.rating >= i + 1 %}★{% else %}☆{% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              <span style="font-size: 12px; color: var(--color-text-secondary);">{{ review.created_at.strftime('%d %b, %Y') }}</span>
+            </div>
+            <p style="font-size: 15px; line-height: 1.6; color: var(--color-text-secondary);">{{ review.comment }}</p>
+          </div>
+          {% else %}
+          <div style="text-align: center; padding: 48px; background: var(--color-bg-alt); border-radius: 20px;">
+            <p style="color: var(--color-text-secondary);">No reviews yet. Be the first to rate this product!</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+  .star-rating input { display: none; }
+  .star-rating label {
+    font-size: 28px;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  .star-rating input:checked ~ label,
+  .star-rating label:hover,
+  .star-rating label:hover ~ label {
+    color: var(--color-accent);
+  }
+</style>
+
 
 <!-- Related Products -->
 {% if related_products %}
@@ -141,7 +359,7 @@
           </div>
         </a>
         <div class="product-card-info">
-          {% if product.brand %}<span class="product-card-brand">{{ product.brand }}</span>{% endif %}
+          {% if product.brand %}<a href="/products?brand={{ product.brand|urlencode }}" class="product-card-brand" style="text-decoration: none; z-index: 2; position: relative;">{{ product.brand }}</a>{% endif %}
           <a href="/products/{{ product.slug }}"><h3 class="product-card-name">{{ product.name }}</h3></a>
           <div class="product-card-price">
             <span class="price-current">₹{{ "%.0f"|format(product.price) }}</span>
@@ -162,7 +380,7 @@
 function adjustQty(delta) {
   const el = document.getElementById('product-qty');
   let qty = parseInt(el.textContent) + delta;
-  if (qty < 1) qty = 1;
+  if (qty < 0) qty = 0;
   if (qty > {{ product.stock }}) qty = {{ product.stock }};
   el.textContent = qty;
   
@@ -172,9 +390,142 @@ function adjustQty(delta) {
 }
 
 function changeImage(thumb, src) {
-  document.getElementById('main-image').src = src;
+  const type = thumb.dataset.type || 'image';
+  const mainImg = document.getElementById('main-image');
+  const videoContainer = document.getElementById('main-video-container');
+  const iframe = document.getElementById('main-iframe');
+  const video = document.getElementById('main-video');
+  
+  // Reset
+  mainImg.style.display = 'none';
+  videoContainer.style.display = 'none';
+  iframe.style.display = 'none';
+  video.style.display = 'none';
+  iframe.src = '';
+  video.src = '';
+  
+  if (type === 'video') {
+    videoContainer.style.display = 'block';
+    if (src.includes('youtube.com/embed/')) {
+      iframe.style.display = 'block';
+      iframe.src = src;
+    } else {
+      video.style.display = 'block';
+      video.src = src;
+    }
+  } else {
+    mainImg.style.display = 'block';
+    mainImg.src = src;
+  }
+  
   document.querySelectorAll('.product-gallery-thumb').forEach(t => t.classList.remove('active'));
   thumb.classList.add('active');
+}
+
+function toggleAccordion(header) {
+  const item = header.parentElement;
+  const isActive = item.classList.contains('active');
+  
+  // Close all other items
+  document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active'));
+  
+  if (!isActive) {
+    item.classList.add('active');
+  }
+}
+
+function navigateGallery(delta) {
+  const thumbs = Array.from(document.querySelectorAll('.product-gallery-thumb'));
+  const activeIndex = thumbs.findIndex(t => t.classList.contains('active'));
+  const slider = document.getElementById('thumb-slider');
+  
+  let nextIndex = activeIndex + delta;
+  
+  // Wrap around
+  if (nextIndex < 0) nextIndex = thumbs.length - 1;
+  if (nextIndex >= thumbs.length) nextIndex = 0;
+  
+  const targetThumb = thumbs[nextIndex];
+  
+  // Change the main image
+  const src = targetThumb.dataset.src || targetThumb.querySelector('img').src;
+  changeImage(targetThumb, src);
+  
+  // Update slider scroll position (keep active thumb in view)
+  // We want the window of 4 to shift if the nextIndex is outside it
+  const visibleCount = 4;
+  let scrollIndex = Math.floor(nextIndex / 1); // Basic shift
+  
+  // To keep it simple and match the "only 4" requirement:
+  // If we have 6 images and we are at index 4 (5th image), 
+  // we should scroll so index 4 is visible.
+  // The max scroll index is total - 4
+  const maxScroll = Math.max(0, thumbs.length - visibleCount);
+  let targetScrollIndex = Math.min(nextIndex, maxScroll);
+  
+  const thumbWidth = thumbs[0].offsetWidth + 10;
+  slider.style.transform = `translateX(-${targetScrollIndex * thumbWidth}px)`;
+}
+
+function toggleWishlist(btn, productId) {
+  fetch(`/wishlist/toggle/${productId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => {
+    if (response.status === 401) {
+      window.location.href = '/login?next=' + window.location.pathname;
+      return;
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data && data.success) {
+      if (data.status === 'added') {
+        btn.innerHTML = '♥';
+        btn.style.color = 'var(--color-accent-dark)';
+        btn.classList.add('active');
+        if (typeof showToast === 'function') showToast('Added to wishlist', 'success');
+      } else {
+        btn.innerHTML = '♡';
+        btn.style.color = 'inherit';
+        btn.classList.remove('active');
+        if (typeof showToast === 'function') showToast('Removed from wishlist', 'info');
+      }
+    }
+  })
+  .catch(err => console.error('Wishlist error:', err));
+}
+
+function adjustQty(delta) {
+  const qtyEl = document.getElementById('product-qty');
+  const btn = document.getElementById('add-cart-btn');
+  let qty = parseInt(qtyEl.textContent) + delta;
+  if (qty < 1) qty = 1;
+  qtyEl.textContent = qty;
+  if (btn) btn.dataset.qty = qty;
+}
+
+// Ensure qty starts at 1
+document.addEventListener('DOMContentLoaded', () => {
+  adjustQty(0);
+});
+function closeReviewModal() {
+  document.getElementById('review-modal').style.display = 'none';
+}
+
+function openReviewModal() {
+  document.getElementById('review-modal').style.display = 'flex';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+  const modal = document.getElementById('review-modal');
+  if (event.target == modal) {
+    modal.style.display = 'none';
+  }
 }
 </script>
 {% endblock %}

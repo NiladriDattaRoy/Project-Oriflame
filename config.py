@@ -17,7 +17,6 @@ class Config:
 
     # Upload settings
     UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'images', 'uploads')
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max upload
 
     # Admin settings
     ADMIN_URL_PREFIX = '/oriflame-admin-panel-x9k2'
