@@ -35,6 +35,10 @@ os.makedirs(os.path.join(BASE_DIR, 'static', 'catalogues'), exist_ok=True)
 db.init_app(app)
 migrate = Migrate(app, db)
 
+# Create tables on startup (Self-healing for new deployments)
+with app.app_context():
+    db.create_all()
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
