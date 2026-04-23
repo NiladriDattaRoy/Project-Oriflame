@@ -23,8 +23,9 @@
         <h4>Categories</h4>
         {% for cat in categories %}
         <label class="filter-option">
-          <input type="checkbox" name="category" value="{{ cat.slug }}" {% if request.args.get('category') == cat.slug %}checked{% endif %}
-            onchange="window.location.href='/category/{{ cat.slug }}'">
+          <input type="checkbox" name="category" value="{{ cat.slug }}" 
+            {% if category and category.slug == cat.slug %}checked{% endif %}
+            onchange="this.checked ? window.location.href='/category/{{ cat.slug }}' : window.location.href='/products'">
           <span>{{ cat.name }} ({{ cat.products.count() }})</span>
         </label>
         {% endfor %}

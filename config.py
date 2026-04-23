@@ -9,10 +9,11 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 class Config:
     """Base configuration."""
     SECRET_KEY = os.environ.get('SECRET_KEY', 'oriflame-secret-key-x9k2-2026')
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DATABASE_URL',
-        f'sqlite:///{os.path.join(BASE_DIR, "database", "oriflame.db")}'
-    )
+    db_url = os.environ.get('DATABASE_URL')
+    if db_url and db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+    
+    SQLALCHEMY_DATABASE_URI = db_url or f'sqlite:///{os.path.join(BASE_DIR, "database", "oriflame.db")}'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Upload settings

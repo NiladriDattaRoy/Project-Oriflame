@@ -17,6 +17,7 @@ from flask_login import (
 )
 
 from config import Config, BASE_DIR
+from flask_migrate import Migrate
 from models import (
     db, User, Category, Product, ProductImage, Catalogue, Cart, CartItem,
     Address, Order, OrderItem, Transaction, MLMCommission, Wishlist, BlogPost, ContactMessage, Review
@@ -32,6 +33,7 @@ os.makedirs(os.path.join(BASE_DIR, 'static', 'images', 'uploads'), exist_ok=True
 os.makedirs(os.path.join(BASE_DIR, 'static', 'catalogues'), exist_ok=True)
 
 db.init_app(app)
+migrate = Migrate(app, db)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
