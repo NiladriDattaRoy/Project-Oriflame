@@ -189,7 +189,7 @@ def products():
         query = query.filter(Product.price <= max_price)
     
     # Sort
-    sort = request.args.get('sort', 'newest')
+    sort = request.args.get('sort', 'random')
     if sort == 'price_low':
         query = query.order_by(Product.price.asc())
     elif sort == 'price_high':
@@ -198,8 +198,10 @@ def products():
         query = query.order_by(Product.rating.desc())
     elif sort == 'popular':
         query = query.order_by(Product.review_count.desc())
-    else:
+    elif sort == 'newest':
         query = query.order_by(Product.created_at.desc())
+    else:
+        query = query.order_by(db.func.random())
     
     # Pagination
     page = request.args.get('page', 1, type=int)
@@ -229,15 +231,17 @@ def category_page(slug):
     if max_price is not None:
         query = query.filter(Product.price <= max_price)
 
-    sort = request.args.get('sort', 'newest')
+    sort = request.args.get('sort', 'random')
     if sort == 'price_low':
         query = query.order_by(Product.price.asc())
     elif sort == 'price_high':
         query = query.order_by(Product.price.desc())
     elif sort == 'rating':
         query = query.order_by(Product.rating.desc())
-    else:
+    elif sort == 'newest':
         query = query.order_by(Product.created_at.desc())
+    else:
+        query = query.order_by(db.func.random())
     
     page = request.args.get('page', 1, type=int)
     per_page = Config.PRODUCTS_PER_PAGE

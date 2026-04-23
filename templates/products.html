@@ -76,6 +76,7 @@
         <span class="result-count">Showing <strong>{{ products|length }}</strong> products</span>
         <div style="display: flex; gap: 12px; align-items: center;">
           <select class="sort-select" onchange="window.location.href=updateQueryParam('sort', this.value)">
+            <option value="random" {% if not request.args.get('sort') or request.args.get('sort') == 'random' %}selected{% endif %}>Random Mix</option>
             <option value="newest" {% if request.args.get('sort') == 'newest' %}selected{% endif %}>Newest First</option>
             <option value="price_low" {% if request.args.get('sort') == 'price_low' %}selected{% endif %}>Price: Low to High</option>
             <option value="price_high" {% if request.args.get('sort') == 'price_high' %}selected{% endif %}>Price: High to Low</option>
