@@ -35,10 +35,6 @@ os.makedirs(os.path.join(BASE_DIR, 'static', 'catalogues'), exist_ok=True)
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# Create tables on startup (Self-healing for new deployments)
-with app.app_context():
-    db.create_all()
-
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -1473,6 +1469,14 @@ def seed_database():
     db.session.commit()
     print(f"[OK] Seeded {len(products_data)} products, {len(categories_data)} categories, 4 users")
 
+
+# ─── Self-Healing Database (Run on every start) ───────────────────────────────
+with app.app_context():
+    db.create_all()
+    # Seed if empty
+    if User.query.count() == 0:
+        print("[SEED] No users found. Seeding initial data...")
+        seed_database()
 
 # ─── Main Entry ───────────────────────────────────────────────────────────────
 if __name__ == '__main__':
