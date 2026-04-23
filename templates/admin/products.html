@@ -242,16 +242,16 @@ function adminDuplicateProduct(btn) {
   
   // Populate with same data but CLEAR id and code
   form.querySelector('[name="id"]').value = '';
-  form.querySelector('[name="name"]').value = data.name;
-  form.querySelector('[name="category_id"]').value = data.category_id;
-  form.querySelector('[name="brand"]').value = data.brand;
-  form.querySelector('[name="price"]').value = data.price;
-  form.querySelector('[name="mrp"]').value = data.mrp;
-  form.querySelector('[name="description"]').value = data.description;
-  form.querySelector('[name="weight"]').value = data.weight;
-  form.querySelector('[name="shade_name"]').value = data.shade_name || '';
-  form.querySelector('[name="shade_color"]').value = data.shade_color || '';
-  form.querySelector('#shade-color-text').value = data.shade_color || '';
+  form.querySelector('[name="name"]').value = data.name || '';
+  form.querySelector('[name="category_id"]').value = data.categoryId || '';
+  form.querySelector('[name="brand"]').value = data.brand || '';
+  form.querySelector('[name="price"]').value = data.price || '';
+  form.querySelector('[name="mrp"]').value = data.mrp || '';
+  form.querySelector('[name="description"]').value = data.description || '';
+  form.querySelector('[name="weight"]').value = data.weight || '';
+  form.querySelector('[name="shade_name"]').value = data.shadeName || '';
+  form.querySelector('[name="shade_color"]').value = data.shadeColor || '';
+  form.querySelector('#shade-color-text').value = data.shadeColor || '';
   form.querySelector('[name="code"]').value = ''; // Important: must be different code
   form.querySelector('[name="code"]').focus();
   

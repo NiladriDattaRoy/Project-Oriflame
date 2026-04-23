@@ -53,7 +53,9 @@ function initAdminModals() {
 function populateForm(modal, data) {
   Object.keys(data).forEach(key => {
     if (key === 'modal' || key === 'id') return;
-    const input = modal.querySelector(`[name="${key}"]`);
+    // Convert camelCase to snake_case for input names (e.g. categoryId -> category_id)
+    const nameAttr = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+    const input = modal.querySelector(`[name="${nameAttr}"]`);
     if (input) {
       input.value = data[key];
     }
@@ -63,9 +65,9 @@ function populateForm(modal, data) {
   if (idInput) idInput.value = data.id;
 
   // Special handling for color picker sync
-  if (data.shade_color) {
+  if (data.shadeColor) {
     const picker = modal.querySelector('#shade-color-picker');
-    if (picker) picker.value = data.shade_color;
+    if (picker) picker.value = data.shadeColor;
   }
 }
 
