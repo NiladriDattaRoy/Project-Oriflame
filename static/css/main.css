@@ -1978,8 +1978,8 @@ textarea.form-control {
   background: var(--color-bg-alt);
   aspect-ratio: 1;
   margin-bottom: var(--space-md);
-  max-width: 450px;
-  max-height: 450px;
+  max-width: 350px;
+  max-height: 350px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -1998,7 +1998,7 @@ textarea.form-control {
 .product-gallery-thumbs-wrapper {
   position: relative;
   width: 100%;
-  max-width: 450px;
+  max-width: 350px;
   margin: 0 auto;
   overflow: hidden;
   padding: 0 5px;
