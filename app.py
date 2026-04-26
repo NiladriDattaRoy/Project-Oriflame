@@ -29,8 +29,13 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 # Razorpay Client
-razorpay_client = razorpay.Client(auth=(Config.RAZORPAY_KEY_ID, Config.RAZORPAY_KEY_SECRET))
-razorpay_client.set_app_details({"title": "Oriflame-E-Commerce", "version": "1.0.0"})
+try:
+    razorpay_client = razorpay.Client(auth=(Config.RAZORPAY_KEY_ID, Config.RAZORPAY_KEY_SECRET))
+    razorpay_client.set_app_details({"title": "Oriflame-E-Commerce", "version": "1.0.0"})
+    print(f"[RAZORPAY] Initialized with Key ID: {Config.RAZORPAY_KEY_ID[:8]}...")
+except Exception as e:
+    print(f"[RAZORPAY] Error initializing client: {str(e)}")
+    razorpay_client = None
 
 # Ensure database directory exists
 os.makedirs(os.path.join(BASE_DIR, 'database'), exist_ok=True)
@@ -813,16 +818,26 @@ def process_payment():
 @app.route('/api/create-order', methods=['POST'])
 @login_required
 def create_razorpay_order():
+    """Create a Razorpay order for the frontend modal."""
+    print("[RAZORPAY] Received request to create order")
     data = request.get_json()
     order_id = data.get('order_id')
     
+    if not order_id:
+        print("[RAZORPAY] Error: No order_id provided in request")
+        return jsonify({'success': False, 'message': 'No order_id provided'}), 400
+        
     order = Order.query.get(order_id)
     if not order or order.user_id != current_user.id:
+        print(f"[RAZORPAY] Error: Order {order_id} not found for user {current_user.id}")
         return jsonify({'success': False, 'message': 'Order not found'}), 404
         
     amount = int(order.total * 100) # amount in paise
-    if amount < 100:
-        return jsonify({'success': False, 'message': 'Amount too small'}), 400
+    print(f"[RAZORPAY] Creating order for amount: {amount} paise (Order #{order.order_number})")
+    
+    if not razorpay_client:
+        print("[RAZORPAY] Error: Razorpay client not initialized")
+        return jsonify({'success': False, 'message': 'Razorpay service unavailable'}), 500
         
     try:
         razorpay_order = razorpay_client.order.create({
@@ -831,18 +846,22 @@ def create_razorpay_order():
             'receipt': order.order_number,
             'payment_capture': '1'
         })
+        print(f"[RAZORPAY] Order created successfully: {razorpay_order['id']}")
         return jsonify({
             'order_id': razorpay_order['id'],
             'amount': razorpay_order['amount'],
             'currency': razorpay_order['currency']
         })
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
+        print(f"[RAZORPAY] Exception during order creation: {str(e)}")
+        return jsonify({'success': False, 'message': f"Razorpay Error: {str(e)}"}), 500
 
 
 @app.route('/api/verify-payment', methods=['POST'])
 @login_required
 def verify_payment():
+    """Verify the Razorpay payment signature."""
+    print("[RAZORPAY] Received request to verify payment")
     data = request.get_json()
     
     razorpay_payment_id = data.get('razorpay_payment_id')
@@ -851,8 +870,13 @@ def verify_payment():
     local_order_id = data.get('order_id')
     
     if not all([razorpay_payment_id, razorpay_order_id, razorpay_signature, local_order_id]):
+        print("[RAZORPAY] Error: Missing payment verification fields")
         return jsonify({'success': False, 'message': 'Missing payment details'}), 400
         
+    if not razorpay_client:
+        print("[RAZORPAY] Error: Razorpay client not initialized for verification")
+        return jsonify({'success': False, 'message': 'Razorpay service unavailable'}), 500
+
     # Verify signature
     params_dict = {
         'razorpay_order_id': razorpay_order_id,
@@ -861,11 +885,13 @@ def verify_payment():
     }
     
     try:
+        print(f"[RAZORPAY] Verifying signature for Payment ID: {razorpay_payment_id}")
         razorpay_client.utility.verify_payment_signature(params_dict)
         
         # If verification is successful, update the order
         order = Order.query.get(local_order_id)
         if order and order.user_id == current_user.id:
+            print(f"[RAZORPAY] Success: Signature verified. Confirming Order {local_order_id}")
             # Create transaction record
             transaction = Transaction(
                 order_id=order.id,
@@ -888,6 +914,7 @@ def verify_payment():
             calculate_mlm_commissions(order)
             
             db.session.commit()
+            print(f"[RAZORPAY] Order confirmed successfully: {order.order_number}")
             
             return jsonify({
                 'success': True,
@@ -895,12 +922,15 @@ def verify_payment():
                 'transaction_ref': razorpay_payment_id
             })
         else:
+            print(f"[RAZORPAY] Error: Order {local_order_id} not found during verification")
             return jsonify({'success': False, 'message': 'Order not found'}), 404
             
-    except razorpay.errors.SignatureVerificationError:
-        return jsonify({'success': False, 'message': 'Invalid signature'}), 400
+    except razorpay.errors.SignatureVerificationError as e:
+        print(f"[RAZORPAY] Error: Signature verification failed - {str(e)}")
+        return jsonify({'success': False, 'message': 'Payment verification failed'}), 400
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
+        print(f"[RAZORPAY] Exception during verification: {str(e)}")
+        return jsonify({'success': False, 'message': f"Verification error: {str(e)}"}), 500
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
