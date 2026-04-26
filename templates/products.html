@@ -16,9 +16,18 @@
     {% endif %}
   </div>
 
-  <div class="shop-layout">
+    <!-- Mobile Filter Toggle -->
+    <button class="mobile-filter-btn" id="filter-toggle">
+        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path></svg>
+        Filters
+    </button>
+
     <!-- Filters Sidebar -->
-    <aside class="filters-sidebar">
+    <aside class="filters-sidebar" id="products-sidebar">
+      <div class="filters-sidebar-header mobile-only">
+        <h3>Filters</h3>
+        <button class="modal-close" id="filter-close">✕</button>
+      </div>
       <div class="filter-section">
         <h4>Categories</h4>
         {% for cat in categories %}
@@ -162,5 +171,26 @@ function updateQueryParam(key, value) {
   url.searchParams.set(key, value);
   return url.toString();
 }
+
+// Mobile Filter Toggle
+document.addEventListener('DOMContentLoaded', () => {
+  const toggle = document.getElementById('filter-toggle');
+  const sidebar = document.getElementById('products-sidebar');
+  const close = document.getElementById('filter-close');
+  
+  if (toggle && sidebar) {
+    toggle.addEventListener('click', () => {
+      sidebar.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+  }
+  
+  if (close && sidebar) {
+    close.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  }
+});
 </script>
 {% endblock %}
