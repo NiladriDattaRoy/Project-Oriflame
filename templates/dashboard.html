@@ -13,16 +13,16 @@
 <div class="container">
   <!-- Stats Cards -->
   <div class="dashboard-stats">
-    <div class="stat-card fade-in">
+    <a href="/orders" class="stat-card fade-in" style="text-decoration: none; display: block; color: inherit;">
       <div class="stat-card-icon accent">🛍️</div>
       <div class="stat-card-value">{{ order_count }}</div>
       <div class="stat-card-label">Total Orders</div>
-    </div>
-    <div class="stat-card fade-in">
+    </a>
+    <a href="/orders" class="stat-card fade-in" style="text-decoration: none; display: block; color: inherit;">
       <div class="stat-card-icon success">💰</div>
       <div class="stat-card-value">₹{{ "%.0f"|format(total_spent) }}</div>
       <div class="stat-card-label">Total Spent</div>
-    </div>
+    </a>
     {% if current_user.is_partner %}
     <div class="stat-card fade-in">
       <div class="stat-card-icon info">👥</div>
