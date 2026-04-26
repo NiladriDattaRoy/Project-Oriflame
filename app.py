@@ -819,41 +819,47 @@ def process_payment():
 @login_required
 def create_razorpay_order():
     """Create a Razorpay order for the frontend modal."""
-    print("[RAZORPAY] Received request to create order")
-    data = request.get_json()
-    order_id = data.get('order_id')
-    
-    if not order_id:
-        print("[RAZORPAY] Error: No order_id provided in request")
-        return jsonify({'success': False, 'message': 'No order_id provided'}), 400
-        
-    order = Order.query.get(order_id)
-    if not order or order.user_id != current_user.id:
-        print(f"[RAZORPAY] Error: Order {order_id} not found for user {current_user.id}")
-        return jsonify({'success': False, 'message': 'Order not found'}), 404
-        
-    amount = int(order.total * 100) # amount in paise
-    print(f"[RAZORPAY] Creating order for amount: {amount} paise (Order #{order.order_number})")
-    
-    if not razorpay_client:
-        print("[RAZORPAY] Error: Razorpay client not initialized")
-        return jsonify({'success': False, 'message': 'Razorpay service unavailable'}), 500
-        
     try:
+        print("[RAZORPAY] Received request to create order", flush=True)
+        data = request.get_json()
+        order_id = data.get('order_id')
+        
+        if not order_id:
+            print("[RAZORPAY] Error: No order_id provided in request", flush=True)
+            return jsonify({'success': False, 'message': 'No order_id provided'}), 400
+            
+        order = Order.query.get(order_id)
+        if not order or order.user_id != current_user.id:
+            print(f"[RAZORPAY] Error: Order {order_id} not found for user {current_user.id}", flush=True)
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+            
+        if order.total is None:
+            print(f"[RAZORPAY] Error: Order {order_id} has no total amount", flush=True)
+            return jsonify({'success': False, 'message': 'Order total is missing'}), 400
+
+        amount = int(order.total * 100) # amount in paise
+        print(f"[RAZORPAY] Creating order for amount: {amount} paise (Order #{order.order_number})", flush=True)
+        
+        if not razorpay_client:
+            print("[RAZORPAY] Error: Razorpay client not initialized", flush=True)
+            return jsonify({'success': False, 'message': 'Razorpay service unavailable'}), 500
+            
         razorpay_order = razorpay_client.order.create({
             'amount': amount,
             'currency': 'INR',
-            'receipt': order.order_number,
+            'receipt': str(order.order_number),
             'payment_capture': '1'
         })
-        print(f"[RAZORPAY] Order created successfully: {razorpay_order['id']}")
+        print(f"[RAZORPAY] Order created successfully: {razorpay_order['id']}", flush=True)
         return jsonify({
             'order_id': razorpay_order['id'],
             'amount': razorpay_order['amount'],
             'currency': razorpay_order['currency']
         })
     except Exception as e:
-        print(f"[RAZORPAY] Exception during order creation: {str(e)}")
+        import traceback
+        print(f"[RAZORPAY] Exception during order creation: {str(e)}", flush=True)
+        print(traceback.format_exc(), flush=True)
         return jsonify({'success': False, 'message': f"Razorpay Error: {str(e)}"}), 500
 
 

@@ -4,7 +4,7 @@ Configuration settings for the Oriflame E-Commerce & MLM Platform.
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
