@@ -36,16 +36,25 @@
     </div>
 
     <!-- Order Status Steps -->
+    {% if order.status != 'cancelled' %}
     <div class="order-status-steps">
       {% set statuses = ['pending', 'confirmed', 'shipped', 'delivered'] %}
       {% set status_icons = {'pending': '📋', 'confirmed': '✓', 'shipped': '🚚', 'delivered': '📦'} %}
       {% for s in statuses %}
-      <div class="order-step {% if statuses.index(order.status) >= loop.index0 %}completed{% endif %} {% if order.status == s %}active{% endif %}">
+      {% set s_index = statuses.index(s) %}
+      {% set current_status_index = statuses.index(order.status) if order.status in statuses else -1 %}
+      <div class="order-step {% if current_status_index >= s_index %}completed{% endif %} {% if order.status == s %}active{% endif %}">
         <div class="order-step-dot">{{ status_icons[s] }}</div>
         <span class="order-step-label">{{ s|capitalize }}</span>
       </div>
       {% endfor %}
     </div>
+    {% else %}
+    <div style="padding: 16px; background: var(--color-danger-bg); border-radius: 8px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; color: var(--color-danger);">
+      <span style="font-size: 20px;">✕</span>
+      <span style="font-weight: 600;">This order has been cancelled.</span>
+    </div>
+    {% endif %}
 
     <!-- Order Items -->
     {% for item in order.items %}
