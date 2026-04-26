@@ -772,25 +772,34 @@ def process_payment():
     if not order or order.user_id != current_user.id:
         return jsonify({'success': False, 'message': 'Order not found'})
     
+    # Handle Wallet payment specifically
+    if order.payment_method == 'wallet':
+        if current_user.total_commission < order.total:
+            return jsonify({'success': False, 'message': 'Insufficient wallet balance'})
+        
+        current_user.total_commission -= order.total
+    
     # Create transaction record
     transaction = Transaction(
         order_id=order.id,
         transaction_ref=generate_transaction_ref(),
         amount=order.total,
         method=order.payment_method,
-        status='success'
+        status='success' if order.payment_method != 'cod' else 'pending'
     )
     db.session.add(transaction)
     
     # Update order status
     order.status = 'confirmed'
-    order.payment_status = 'paid'
     
-    # Update user's total sales
-    current_user.total_sales += order.total
-    
-    # Calculate MLM commissions
-    calculate_mlm_commissions(order)
+    if order.payment_method != 'cod':
+        order.payment_status = 'paid'
+        # Update user's total sales for paid orders
+        current_user.total_sales += order.total
+        # Calculate MLM commissions
+        calculate_mlm_commissions(order)
+    else:
+        order.payment_status = 'pending'
     
     db.session.commit()
     

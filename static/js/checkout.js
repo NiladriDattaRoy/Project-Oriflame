@@ -166,7 +166,7 @@ async function handleRazorpayPayment(orderData, overlay) {
         "name": document.querySelector('[name="shipping_name"]').value,
         "contact": document.querySelector('[name="shipping_phone"]').value
       },
-      "theme": { "color": "#000000" },
+      "theme": { "color": "#d32f2f" },
       "modal": {
         "ondismiss": function() {
           overlay.remove();
