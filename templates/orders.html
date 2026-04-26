@@ -64,7 +64,11 @@
     <!-- Order Total -->
     <div style="display: flex; justify-content: space-between; padding: 16px 0 0; border-top: 2px solid var(--color-border-light); margin-top: 8px;">
       <span style="font-weight: 700;">Total</span>
+      {% if order.status == 'cancelled' %}
+      <span style="font-size: 20px; font-weight: 700; color: var(--color-text-muted); text-decoration: line-through;">₹{{ "%.0f"|format(order.total) }}</span>
+      {% else %}
       <span style="font-size: 20px; font-weight: 700; color: var(--color-primary);">₹{{ "%.0f"|format(order.total) }}</span>
+      {% endif %}
     </div>
   </div>
   {% endfor %}

@@ -93,7 +93,13 @@
           <td><strong>{{ order.order_number }}</strong></td>
           <td>{{ order.created_at.strftime('%d %b %Y') }}</td>
           <td>{{ order.items.count() }} items</td>
-          <td><strong>₹{{ "%.0f"|format(order.total) }}</strong></td>
+          <td>
+            {% if order.status == 'cancelled' %}
+            <span style="text-decoration: line-through; color: var(--color-text-muted);">₹{{ "%.0f"|format(order.total) }}</span>
+            {% else %}
+            <strong>₹{{ "%.0f"|format(order.total) }}</strong>
+            {% endif %}
+          </td>
           <td><span class="status-badge status-{{ order.status }}">{{ order.status }}</span></td>
           <td><span class="status-badge status-{{ order.payment_status }}">{{ order.payment_status }}</span></td>
           <td>

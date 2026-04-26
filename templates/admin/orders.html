@@ -29,7 +29,13 @@
           <div style="font-size: 11px; color: rgba(255,255,255,0.4);">{{ order.user.email }}</div>
         </td>
         <td>{{ order.items.count() }}</td>
-        <td><strong>₹{{ "{:,.0f}".format(order.total) }}</strong></td>
+        <td>
+          {% if order.status == 'cancelled' %}
+          <span style="text-decoration: line-through; opacity: 0.5;">₹{{ "{:,.0f}".format(order.total) }}</span>
+          {% else %}
+          <strong>₹{{ "{:,.0f}".format(order.total) }}</strong>
+          {% endif %}
+        </td>
         <td>
           <span class="admin-badge {% if order.payment_status == 'paid' %}success{% elif order.payment_status == 'pending' %}warning{% else %}danger{% endif %}">
             {{ order.payment_status }}
