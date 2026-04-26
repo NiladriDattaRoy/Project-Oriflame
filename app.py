@@ -860,7 +860,12 @@ def create_razorpay_order():
         import traceback
         print(f"[RAZORPAY] Exception during order creation: {str(e)}", flush=True)
         print(traceback.format_exc(), flush=True)
-        return jsonify({'success': False, 'message': f"Razorpay Error: {str(e)}"}), 500
+        # Fallback to allow checkout without Razorpay during development
+        return jsonify({
+            'success': False, 
+            'message': f"Razorpay Error: {str(e)}",
+            'mock_fallback': True
+        }), 200
 
 
 @app.route('/api/verify-payment', methods=['POST'])

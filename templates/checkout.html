@@ -24,7 +24,7 @@
           <div style="margin-bottom: 20px;">
             <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 12px;">Select a saved address or enter a new one</p>
             {% for addr in addresses %}
-            <div class="payment-method saved-address" data-address='{"shipping_name":"{{ addr.full_name }}","shipping_phone":"{{ addr.phone }}","shipping_address":"{{ addr.address_line1 }}{% if addr.address_line2 %}, {{ addr.address_line2 }}{% endif %}","shipping_city":"{{ addr.city }}","shipping_state":"{{ addr.state }}","shipping_pincode":"{{ addr.pincode }}"}'>
+            <div class="payment-method saved-address" data-address="{{ {'shipping_name': addr.full_name, 'shipping_phone': addr.phone, 'shipping_address': addr.address_line1 ~ (', ' ~ addr.address_line2 if addr.address_line2 else ''), 'shipping_city': addr.city, 'shipping_state': addr.state, 'shipping_pincode': addr.pincode} | tojson | forceescape }}">
               <input type="radio" name="address_id" value="{{ addr.id }}" {% if addr.is_default %}checked{% endif %}>
               <div class="payment-method-info">
                 <h4>{{ addr.full_name }}</h4>

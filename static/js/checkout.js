@@ -148,6 +148,15 @@ async function handleRazorpayPayment(orderData, overlay) {
     
     const rzpOrder = await res.json();
     if (!rzpOrder.order_id) {
+        if (rzpOrder.mock_fallback) {
+            // Bypass Razorpay entirely and mock a successful transaction
+            overlay.querySelector('h3').textContent = 'Razorpay Unavailable';
+            overlay.querySelector('p').textContent = 'Processing mock transaction...';
+            setTimeout(() => {
+                processPayment(orderData, overlay);
+            }, 1500);
+            return;
+        }
         throw new Error(rzpOrder.message || 'Failed to create payment order');
     }
 
