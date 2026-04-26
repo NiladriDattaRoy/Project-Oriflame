@@ -11,7 +11,10 @@
     <span>Orders</span>
   </div>
 
-  <h1 style="margin-bottom: var(--space-2xl);">My Orders</h1>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2xl);">
+    <h1>My Orders</h1>
+    <a href="/dashboard" class="btn btn-outline btn-sm">← Back to Dashboard</a>
+  </div>
 
   {% if orders %}
   {% for order in orders %}
