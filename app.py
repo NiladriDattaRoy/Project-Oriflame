@@ -6,6 +6,7 @@ import os
 import uuid
 from datetime import datetime
 from functools import wraps
+import razorpay
 
 from flask import (
     Flask, render_template, request, redirect, url_for,
@@ -26,6 +27,10 @@ from models import (
 # ─── App Factory ──────────────────────────────────────────────────────────────
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Razorpay Client
+razorpay_client = razorpay.Client(auth=(Config.RAZORPAY_KEY_ID, Config.RAZORPAY_KEY_SECRET))
+razorpay_client.set_app_details({"title": "Oriflame-E-Commerce", "version": "1.0.0"})
 
 # Ensure database directory exists
 os.makedirs(os.path.join(BASE_DIR, 'database'), exist_ok=True)
@@ -725,7 +730,8 @@ def checkout():
     return render_template('checkout.html',
                            cart_items=cart_items,
                            cart_total=cart_total,
-                           addresses=addresses)
+                           addresses=addresses,
+                           razorpay_key_id=Config.RAZORPAY_KEY_ID)
 
 
 @app.route('/wishlist/toggle/<int:product_id>', methods=['POST'])
@@ -787,6 +793,99 @@ def process_payment():
         'order_number': order.order_number,
         'transaction_ref': transaction.transaction_ref
     })
+
+
+@app.route('/api/create-order', methods=['POST'])
+@login_required
+def create_razorpay_order():
+    data = request.get_json()
+    order_id = data.get('order_id')
+    
+    order = Order.query.get(order_id)
+    if not order or order.user_id != current_user.id:
+        return jsonify({'success': False, 'message': 'Order not found'}), 404
+        
+    amount = int(order.total * 100) # amount in paise
+    if amount < 100:
+        return jsonify({'success': False, 'message': 'Amount too small'}), 400
+        
+    try:
+        razorpay_order = razorpay_client.order.create({
+            'amount': amount,
+            'currency': 'INR',
+            'receipt': order.order_number,
+            'payment_capture': '1'
+        })
+        return jsonify({
+            'order_id': razorpay_order['id'],
+            'amount': razorpay_order['amount'],
+            'currency': razorpay_order['currency']
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/api/verify-payment', methods=['POST'])
+@login_required
+def verify_payment():
+    data = request.get_json()
+    
+    razorpay_payment_id = data.get('razorpay_payment_id')
+    razorpay_order_id = data.get('razorpay_order_id')
+    razorpay_signature = data.get('razorpay_signature')
+    local_order_id = data.get('order_id')
+    
+    if not all([razorpay_payment_id, razorpay_order_id, razorpay_signature, local_order_id]):
+        return jsonify({'success': False, 'message': 'Missing payment details'}), 400
+        
+    # Verify signature
+    params_dict = {
+        'razorpay_order_id': razorpay_order_id,
+        'razorpay_payment_id': razorpay_payment_id,
+        'razorpay_signature': razorpay_signature
+    }
+    
+    try:
+        razorpay_client.utility.verify_payment_signature(params_dict)
+        
+        # If verification is successful, update the order
+        order = Order.query.get(local_order_id)
+        if order and order.user_id == current_user.id:
+            # Create transaction record
+            transaction = Transaction(
+                order_id=order.id,
+                transaction_ref=razorpay_payment_id,
+                amount=order.total,
+                method=order.payment_method,
+                status='success',
+                gateway_response=str(data)
+            )
+            db.session.add(transaction)
+            
+            # Update order status
+            order.status = 'confirmed'
+            order.payment_status = 'paid'
+            
+            # Update user's total sales
+            current_user.total_sales += order.total
+            
+            # Calculate MLM commissions
+            calculate_mlm_commissions(order)
+            
+            db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'order_number': order.order_number,
+                'transaction_ref': razorpay_payment_id
+            })
+        else:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+            
+    except razorpay.errors.SignatureVerificationError:
+        return jsonify({'success': False, 'message': 'Invalid signature'}), 400
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

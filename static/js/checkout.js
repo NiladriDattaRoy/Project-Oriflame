@@ -114,21 +114,125 @@ function validateCheckoutForm(form) {
 
 /* ==================== PAYMENT PROCESSING ==================== */
 function showPaymentProcessing(data) {
+  const method = document.querySelector('input[name="payment_method"]:checked').value;
+  
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay active';
   overlay.innerHTML = `
     <div class="modal" style="text-align:center; padding: 48px;">
       <div class="spinner" style="margin: 0 auto 24px;"></div>
-      <h3 style="margin-bottom: 8px;">Processing Payment</h3>
-      <p style="color: var(--color-text-secondary);">Please wait while we process your payment...</p>
+      <h3 style="margin-bottom: 8px;">Processing Order</h3>
+      <p style="color: var(--color-text-secondary);">Please wait...</p>
     </div>
   `;
   document.body.appendChild(overlay);
   
-  // Simulate payment processing
-  setTimeout(() => {
-    processPayment(data, overlay);
-  }, 2000);
+  if (method === 'card' || method === 'upi') {
+    handleRazorpayPayment(data, overlay);
+  } else {
+    // COD or Wallet
+    setTimeout(() => {
+      processPayment(data, overlay);
+    }, 1500);
+  }
+}
+
+async function handleRazorpayPayment(orderData, overlay) {
+  try {
+    // 1. Create Razorpay Order
+    const res = await fetch('/api/create-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order_id: orderData.order_id })
+    });
+    
+    const rzpOrder = await res.json();
+    if (!rzpOrder.order_id) {
+        throw new Error(rzpOrder.message || 'Failed to create payment order');
+    }
+
+    // 2. Open Razorpay Modal
+    const options = {
+      "key": window.RAZORPAY_KEY_ID,
+      "amount": rzpOrder.amount,
+      "currency": rzpOrder.currency,
+      "name": "Oriflame",
+      "description": "Order #" + orderData.order_number,
+      "order_id": rzpOrder.order_id,
+      "handler": function (response) {
+        verifyRazorpayPayment(response, orderData.order_id, overlay);
+      },
+      "prefill": {
+        "name": document.querySelector('[name="shipping_name"]').value,
+        "contact": document.querySelector('[name="shipping_phone"]').value
+      },
+      "theme": { "color": "#000000" },
+      "modal": {
+        "ondismiss": function() {
+          overlay.remove();
+          const submitBtn = document.querySelector('.btn-place-order');
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Place Order';
+          }
+        }
+      }
+    };
+    
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', function (response) {
+        showToast(response.error.description, 'error');
+    });
+    rzp.open();
+    
+  } catch (err) {
+    overlay.remove();
+    showToast(err.message || 'Razorpay initialization failed', 'error');
+    const submitBtn = document.querySelector('.btn-place-order');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Place Order';
+    }
+  }
+}
+
+async function verifyRazorpayPayment(rzpResponse, localOrderId, overlay) {
+  try {
+    overlay.querySelector('h3').textContent = 'Verifying Payment';
+    
+    const response = await fetch('/api/verify-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        razorpay_payment_id: rzpResponse.razorpay_payment_id,
+        razorpay_order_id: rzpResponse.razorpay_order_id,
+        razorpay_signature: rzpResponse.razorpay_signature,
+        order_id: localOrderId
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      overlay.querySelector('.modal').innerHTML = `
+        <div style="font-size: 64px; margin-bottom: 16px;">✓</div>
+        <h3 style="color: var(--color-success); margin-bottom: 8px;">Payment Successful!</h3>
+        <p style="color: var(--color-text-secondary); margin-bottom: 8px;">Order #${data.order_number}</p>
+        <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Transaction Ref: ${data.transaction_ref}</p>
+        <a href="/dashboard" class="btn btn-primary">View Dashboard</a>
+      `;
+    } else {
+      overlay.querySelector('.modal').innerHTML = `
+        <div style="font-size: 64px; margin-bottom: 16px;">✕</div>
+        <h3 style="color: var(--color-danger); margin-bottom: 8px;">Verification Failed</h3>
+        <p style="color: var(--color-text-secondary); margin-bottom: 24px;">${data.message || 'Please contact support'}</p>
+        <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()">Close</button>
+      `;
+    }
+  } catch (err) {
+    overlay.remove();
+    showToast('Payment verification failed', 'error');
+  }
 }
 
 async function processPayment(orderData, overlay) {
@@ -144,15 +248,15 @@ async function processPayment(orderData, overlay) {
     if (data.success) {
       overlay.querySelector('.modal').innerHTML = `
         <div style="font-size: 64px; margin-bottom: 16px;">✓</div>
-        <h3 style="color: var(--color-success); margin-bottom: 8px;">Payment Successful!</h3>
+        <h3 style="color: var(--color-success); margin-bottom: 8px;">Order Placed!</h3>
         <p style="color: var(--color-text-secondary); margin-bottom: 8px;">Order #${data.order_number}</p>
-        <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Transaction Ref: ${data.transaction_ref}</p>
-        <a href="/orders" class="btn btn-primary">View Orders</a>
+        <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Method: Cash on Delivery</p>
+        <a href="/dashboard" class="btn btn-primary">View Dashboard</a>
       `;
     } else {
       overlay.querySelector('.modal').innerHTML = `
         <div style="font-size: 64px; margin-bottom: 16px;">✕</div>
-        <h3 style="color: var(--color-danger); margin-bottom: 8px;">Payment Failed</h3>
+        <h3 style="color: var(--color-danger); margin-bottom: 8px;">Order Failed</h3>
         <p style="color: var(--color-text-secondary); margin-bottom: 24px;">${data.message || 'Please try again'}</p>
         <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()">Try Again</button>
       `;
