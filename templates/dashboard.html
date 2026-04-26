@@ -84,6 +84,7 @@
           <th>Total</th>
           <th>Status</th>
           <th>Payment</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -95,6 +96,15 @@
           <td><strong>₹{{ "%.0f"|format(order.total) }}</strong></td>
           <td><span class="status-badge status-{{ order.status }}">{{ order.status }}</span></td>
           <td><span class="status-badge status-{{ order.payment_status }}">{{ order.payment_status }}</span></td>
+          <td>
+            {% if order.status in ['pending', 'confirmed'] %}
+            <form action="{{ url_for('cancel_order', order_id=order.id) }}" method="POST" onsubmit="return confirm('Cancel this order?');">
+              <button type="submit" style="background: none; border: none; color: var(--color-danger); cursor: pointer; font-size: 12px; padding: 0; font-weight: 600;">Cancel</button>
+            </form>
+            {% else %}
+            <span style="font-size: 12px; color: var(--color-text-muted);">--</span>
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>

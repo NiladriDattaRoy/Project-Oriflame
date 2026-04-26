@@ -90,7 +90,13 @@ def slugify(text):
 
 def calculate_mlm_commissions(order):
     """Calculate and create MLM commissions for an order."""
+    if not order or order.payment_status != 'paid':
+        return
+
     buyer = order.user
+    if not buyer:
+        return
+
     commission_rates = Config.MLM_COMMISSION_RATES
     
     current = buyer
@@ -926,6 +932,56 @@ def user_orders():
     return render_template('orders.html', orders=orders)
 
 
+@app.route('/orders/<int:order_id>/cancel', methods=['POST'])
+@login_required
+def cancel_order(order_id):
+    order = Order.query.get_or_404(order_id)
+    
+    # Security check: ensure the order belongs to the current user
+    if order.user_id != current_user.id:
+        abort(403)
+    
+    # Check if the order can be cancelled
+    if order.status not in ['pending', 'confirmed']:
+        flash('This order cannot be cancelled as it has already been processed or shipped.', 'warning')
+        return redirect(url_for('user_orders'))
+    
+    try:
+        # Update order status
+        order.status = 'cancelled'
+        
+        # Restore stock
+        for item in order.items:
+            item.product.stock += item.quantity
+        
+        # Reverse sales and commissions if already processed
+        if order.payment_status == 'paid':
+            # Subtract from user's total sales
+            current_user.total_sales = max(0, current_user.total_sales - order.total)
+            
+            # Handle Transactions
+            for txn in order.transactions:
+                txn.status = 'refunded'
+            
+            # Handle Commissions
+            commissions = MLMCommission.query.filter_by(order_id=order.id).all()
+            for comm in commissions:
+                sponsor = User.query.get(comm.user_id)
+                if sponsor:
+                    sponsor.total_commission = max(0, sponsor.total_commission - comm.amount)
+                db.session.delete(comm)
+            
+            order.payment_status = 'refunded'
+            
+        db.session.commit()
+        flash(f'Order #{order.order_number} has been cancelled successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error cancelling order: {str(e)}', 'danger')
+        
+    return redirect(url_for('user_orders'))
+
+
 @app.route('/mlm/network')
 @login_required
 def mlm_network():
@@ -1391,55 +1447,6 @@ def admin_toggle_blog(post_id):
     return jsonify({'success': True, 'message': f'Post is now {status}!', 'is_active': post.is_active})
 
 
-# ─── Helper Functions ─────────────────────────────────────────────────────────
-
-def generate_order_number():
-    """Generate a unique order number."""
-    import random
-    import string
-    timestamp = datetime.now().strftime('%Y%m%d')
-    random_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-    return f"ORD-{timestamp}-{random_str}"
-
-
-def generate_transaction_ref():
-    """Generate a unique transaction reference."""
-    return f"TRX-{uuid.uuid4().hex[:12].upper()}"
-
-
-def calculate_mlm_commissions(order):
-    """Calculate and create commission records for sponsors based on order total."""
-    if not order or order.payment_status != 'paid':
-        return
-    
-    buyer = User.query.get(order.user_id)
-    if not buyer or not buyer.sponsor_id:
-        return
-    
-    current_sponsor_id = buyer.sponsor_id
-    rates = Config.MLM_COMMISSION_RATES
-    
-    for level in range(1, 4): # Levels 1, 2, 3
-        sponsor = User.query.get(current_sponsor_id)
-        if not sponsor:
-            break
-            
-        rate = rates.get(level, 0)
-        if rate > 0:
-            amount = (order.total * rate) / 100
-            commission = MLMCommission(
-                user_id=sponsor.id,
-                order_id=order.id,
-                amount=amount,
-                level=level,
-                status='pending'
-            )
-            db.session.add(commission)
-            sponsor.total_earnings += amount
-            
-        if not sponsor.sponsor_id:
-            break
-        current_sponsor_id = sponsor.sponsor_id
 
 
 def slugify(text):
