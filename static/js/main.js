@@ -34,7 +34,20 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileNav();
   initLeftSidebar();
   initSearch();
+  initMobileBottomNav();
 });
+
+function initMobileBottomNav() {
+  const cartToggle = document.getElementById('mobile-cart-toggle');
+  const mainCartToggle = document.getElementById('cart-toggle');
+  
+  if (cartToggle && mainCartToggle) {
+    cartToggle.addEventListener('click', () => {
+      mainCartToggle.click(); // Trigger the existing cart toggle logic
+    });
+  }
+}
+
 
 /* ==================== HEADER ==================== */
 function initHeader() {

@@ -225,6 +225,42 @@
     </div>
   </div>
 </div>
+
+<!-- Mobile Sticky Action Bar -->
+<div class="mobile-product-bar" id="mobile-action-bar" style="display: none;">
+  {% if product.in_stock %}
+  <button class="btn btn-outline" onclick="addToCart({{ product.id }}, document.getElementById('product-qty').textContent); window.location.href='/checkout';">
+    Buy Now
+  </button>
+  <button class="btn btn-primary add-to-cart-btn" data-product-id="{{ product.id }}" data-qty="1">
+    Add to Cart
+  </button>
+  {% else %}
+  <button class="btn btn-secondary" disabled style="flex: 1; opacity: 0.5;">Out of Stock</button>
+  {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const mobileBar = document.getElementById('mobile-action-bar');
+  const mainActions = document.querySelector('.product-actions');
+  
+  if (mobileBar && mainActions && window.innerWidth <= 768) {
+    window.addEventListener('scroll', () => {
+      const rect = mainActions.getBoundingClientRect();
+      // Show sticky bar if main buttons are scrolled out of view
+      if (rect.bottom < 0) {
+        mobileBar.style.display = 'flex';
+        document.body.classList.add('has-mobile-bar');
+      } else {
+        mobileBar.style.display = 'none';
+        document.body.classList.remove('has-mobile-bar');
+      }
+    });
+  }
+});
+</script>
+
 <!-- Ratings & Reviews -->
 <section class="section" id="reviews">
   <div class="container">

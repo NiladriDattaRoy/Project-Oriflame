@@ -40,7 +40,7 @@
             <input type="text" class="form-control" name="shipping_name" required value="{{ current_user.full_name }}">
             <div class="form-error"></div>
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-row-mobile">
             <div class="form-group">
               <label class="form-label">Phone *</label>
               <input type="tel" class="form-control" name="shipping_phone" required value="{{ current_user.phone or '' }}">
@@ -54,7 +54,7 @@
             <label class="form-label">Address Line 1 *</label>
             <input type="text" class="form-control" name="shipping_address" required placeholder="House no., Building, Street">
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-row-mobile">
             <div class="form-group">
               <label class="form-label">City *</label>
               <input type="text" class="form-control" name="shipping_city" required>

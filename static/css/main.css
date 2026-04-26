@@ -1312,6 +1312,13 @@ textarea.form-control {
   margin-top: var(--space-xs);
 }
 
+.form-row-mobile {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+
 /* ---------- Toasts ---------- */
 .toast-container {
   position: fixed;
@@ -2340,83 +2347,8 @@ textarea.form-control {
 }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 1200px) {
-  .products-grid { grid-template-columns: repeat(3, 1fr); }
-  .categories-grid { grid-template-columns: repeat(3, 1fr); }
-}
+/* Media queries consolidated at bottom */
 
-@media (max-width: 992px) {
-  h1 { font-size: var(--font-size-2xl); }
-  h2 { font-size: var(--font-size-xl); }
-
-  .hero-carousel { height: 400px; }
-  .hero-slide-content h1 { font-size: var(--font-size-2xl); }
-  
-  .products-grid { grid-template-columns: repeat(2, 1fr); }
-  .categories-grid { grid-template-columns: repeat(3, 1fr); }
-  .features-grid { grid-template-columns: repeat(2, 1fr); }
-  .footer-grid { grid-template-columns: repeat(2, 1fr); }
-  .dashboard-stats { grid-template-columns: repeat(2, 1fr); }
-  .checkout-layout { grid-template-columns: 1fr; }
-  .product-detail { grid-template-columns: 1fr; }
-  .shop-layout { grid-template-columns: 1fr; }
-  .join-benefits { grid-template-columns: repeat(2, 1fr); }
-
-  .search-bar { width: 200px; }
-  
-  .promo-stats { gap: var(--space-xl); }
-}
-
-@media (max-width: 768px) {
-  .nav-main {
-    position: fixed;
-    top: var(--header-height);
-    left: 0;
-    right: 0;
-    background: var(--color-white);
-    flex-direction: column;
-    padding: var(--space-lg);
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-100%);
-    opacity: 0;
-    visibility: hidden;
-    transition: all var(--transition-base);
-    z-index: var(--z-overlay);
-  }
-
-  .nav-main.open {
-    transform: translateY(0);
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .nav-toggle { display: flex; }
-
-  .search-bar { display: none; }
-
-  .hero-carousel { height: 320px; }
-  .hero-slide-content h1 { font-size: var(--font-size-xl); }
-  .hero-slide-content p { font-size: var(--font-size-sm); }
-  
-  .products-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-md); }
-  .categories-grid { grid-template-columns: repeat(2, 1fr); }
-  .features-grid { grid-template-columns: 1fr; }
-  
-  .cart-sidebar { width: 100%; right: -100%; }
-  
-  .promo-banner .container { flex-direction: column; text-align: center; }
-  .promo-stats { justify-content: center; }
-
-  .section { padding: var(--space-2xl) 0; }
-  .container { padding: 0 var(--space-md); }
-}
-
-@media (max-width: 480px) {
-  .products-grid { grid-template-columns: 1fr; }
-  .categories-grid { grid-template-columns: 1fr; }
-  .dashboard-stats { grid-template-columns: 1fr; }
-  .join-benefits { grid-template-columns: 1fr; }
-}
 
 /* ---------- Animations ---------- */
 .fade-in {
@@ -3310,13 +3242,22 @@ textarea.form-control {
   }
 
   /* Checkout Layout */
-  .checkout-grid {
-    grid-template-columns: 1fr;
+  .checkout-layout, .checkout-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--space-xl) !important;
   }
 
-  .checkout-sidebar {
+  .form-row-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .checkout-sidebar, .order-summary-card {
     order: -1; /* Move order summary to top on mobile */
   }
+
 
   /* Product Detail */
   .product-detail-grid {
@@ -3406,9 +3347,149 @@ textarea.form-control {
 
   .btn {
     width: 100%; /* Make buttons full width on mobile */
-    padding: 12px 16px;
+    padding: 14px 20px !important; /* Larger hit area */
+    font-size: 15px !important;
   }
+
+  /* Form Control Optimizations */
+  .form-control {
+    padding: 14px 16px !important;
+    font-size: 16px !important; /* Prevent iOS auto-zoom */
+  }
+
+  /* Full Screen Sidebars on Mobile */
+  .cart-sidebar {
+    width: 100% !important;
+    right: -100% !important;
+  }
+  
+  .cart-sidebar.open {
+    right: 0 !important;
+  }
+
+  /* Mobile Bottom Nav */
+  .mobile-bottom-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--color-white);
+    height: 64px;
+    border-top: 1px solid var(--color-border-light);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 10px;
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 600;
+    gap: 4px;
+    background: none;
+    border: none;
+    flex: 1;
+    transition: all var(--transition-base);
+  }
+
+  .mobile-nav-item .icon-svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+  }
+
+  .mobile-nav-item.active {
+    color: var(--color-accent-dark);
+  }
+
+  .mobile-badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    width: 16px !important;
+    height: 16px !important;
+    font-size: 9px !important;
+  }
+
+  /* Hide header actions that are now in bottom nav */
+  .header-actions .header-action-btn:not(#cart-toggle) {
+    display: none;
+  }
+
+  /* Add padding to body to account for bottom nav */
+  body {
+    padding-bottom: 64px;
+  }
+
+  /* Auth Card Mobile */
+  .auth-card {
+    padding: var(--space-xl) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    min-height: calc(100vh - 128px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .auth-page {
+    padding: 0 !important;
+    background: var(--color-white) !important;
+  }
+
+  /* Sticky Product Bar */
+  .mobile-product-bar {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--color-white);
+    padding: 12px 16px;
+    border-top: 1px solid var(--color-border-light);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    z-index: 1001; /* Above bottom nav */
+    gap: 12px;
+    align-items: center;
+    animation: slideUp 0.3s ease;
+  }
+
+  .mobile-product-bar .btn {
+    flex: 1;
+    margin: 0;
+    padding: 12px !important;
+    font-size: 14px !important;
+  }
+
+  .mobile-product-bar .product-info-mini {
+    display: none; /* Can show price if needed */
+  }
+
+  /* Adjust body padding if sticky bar is present */
+  body.has-mobile-bar {
+    padding-bottom: 140px; /* Account for both navs */
+  }
+
+  /* Improved Typography Scaling */
+  h1 { font-size: 1.8rem !important; }
+  h2 { font-size: 1.5rem !important; }
+  h3 { font-size: 1.3rem !important; }
 }
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+
 
 
 /* Sidebar Mobile Link visibility */
