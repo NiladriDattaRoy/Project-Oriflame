@@ -901,7 +901,7 @@ def verify_payment():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    order_count = Order.query.filter_by(user_id=current_user.id).count()
+    order_count = Order.query.filter_by(user_id=current_user.id).filter(Order.status != 'cancelled').count()
     total_spent = db.session.query(db.func.sum(Order.total)).filter_by(
         user_id=current_user.id, payment_status='paid'
     ).scalar() or 0
@@ -1035,7 +1035,7 @@ def mlm_user_details(user_id):
 @admin_required
 def admin_dashboard():
     total_revenue = db.session.query(db.func.sum(Order.total)).filter_by(payment_status='paid').scalar() or 0
-    total_orders = Order.query.count()
+    total_orders = Order.query.filter(Order.status != 'cancelled').count()
     total_users = User.query.count()
     total_partners = User.query.filter_by(role='partner').count()
     
