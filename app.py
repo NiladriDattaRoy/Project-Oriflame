@@ -1391,6 +1391,66 @@ def admin_toggle_blog(post_id):
     return jsonify({'success': True, 'message': f'Post is now {status}!', 'is_active': post.is_active})
 
 
+# ─── Helper Functions ─────────────────────────────────────────────────────────
+
+def generate_order_number():
+    """Generate a unique order number."""
+    import random
+    import string
+    timestamp = datetime.now().strftime('%Y%m%d')
+    random_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    return f"ORD-{timestamp}-{random_str}"
+
+
+def generate_transaction_ref():
+    """Generate a unique transaction reference."""
+    return f"TRX-{uuid.uuid4().hex[:12].upper()}"
+
+
+def calculate_mlm_commissions(order):
+    """Calculate and create commission records for sponsors based on order total."""
+    if not order or order.payment_status != 'paid':
+        return
+    
+    buyer = User.query.get(order.user_id)
+    if not buyer or not buyer.sponsor_id:
+        return
+    
+    current_sponsor_id = buyer.sponsor_id
+    rates = Config.MLM_COMMISSION_RATES
+    
+    for level in range(1, 4): # Levels 1, 2, 3
+        sponsor = User.query.get(current_sponsor_id)
+        if not sponsor:
+            break
+            
+        rate = rates.get(level, 0)
+        if rate > 0:
+            amount = (order.total * rate) / 100
+            commission = MLMCommission(
+                user_id=sponsor.id,
+                order_id=order.id,
+                amount=amount,
+                level=level,
+                status='pending'
+            )
+            db.session.add(commission)
+            sponsor.total_earnings += amount
+            
+        if not sponsor.sponsor_id:
+            break
+        current_sponsor_id = sponsor.sponsor_id
+
+
+def slugify(text):
+    """Create a URL-friendly slug from text."""
+    import re
+    text = text.lower()
+    text = re.sub(r'[^\w\s-]', '', text)
+    text = re.sub(r'[\s_-]+', '-', text).strip('-')
+    return text
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 #  ERROR HANDLERS
 # ═══════════════════════════════════════════════════════════════════════════════
