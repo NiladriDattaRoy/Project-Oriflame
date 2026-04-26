@@ -93,6 +93,28 @@
   </header>
 
   <!-- Flash Messages -->
+  <!-- Search Overlay -->
+  <div class="search-overlay" id="search-overlay">
+    <div class="search-overlay-header">
+      <form action="/products" method="GET" class="search-overlay-form">
+        <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" name="search" placeholder="Search for products, brands..." autofocus>
+      </form>
+      <button class="search-overlay-close" onclick="closeSearchOverlay()">✕</button>
+    </div>
+    <div class="search-overlay-content">
+      <div class="search-suggestions">
+        <h4>Popular Searches</h4>
+        <ul>
+          <li><a href="/products?search=Face+Cream">Face Cream</a></li>
+          <li><a href="/products?search=Lipstick">Lipstick</a></li>
+          <li><a href="/products?search=Perfume">Perfume</a></li>
+          <li><a href="/products?search=Wellness">Wellness</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
   {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
   <div class="toast-container">
@@ -123,6 +145,14 @@
       <button class="modal-close" id="left-sidebar-close">✕</button>
     </div>
     <div class="left-sidebar-content">
+      <!-- Sidebar Search -->
+      <div class="sidebar-search mobile-only-link" style="padding: 16px; border-bottom: 1px solid var(--color-border-light);">
+        <form action="/products" method="GET" style="display: flex; background: var(--color-bg-alt); padding: 10px 16px; border-radius: var(--radius-full); gap: 12px; align-items: center;">
+          <svg class="icon-svg" style="width: 18px; height: 18px; color: var(--color-text-muted);" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" name="search" placeholder="Search Oriflame..." style="background: none; border: none; outline: none; font-size: 15px; flex: 1;">
+        </form>
+      </div>
+      
       <ul class="left-menu-list">
         <li>
           <a href="/catalogue" class="left-menu-link">

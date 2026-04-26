@@ -402,6 +402,10 @@ button {
   color: var(--color-accent-dark);
 }
 
+.mobile-search-toggle {
+    display: none;
+}
+
 .header-action-btn .badge {
   position: absolute;
   top: 2px;
@@ -2384,6 +2388,91 @@ textarea.form-control {
   transform: scale(1);
 }
 
+/* ---------- Search Overlay ---------- */
+.search-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--color-white);
+    z-index: 10000;
+    display: none;
+    flex-direction: column;
+    animation: fadeIn 0.3s ease;
+}
+
+.search-overlay.active {
+    display: flex;
+}
+
+.search-overlay-header {
+    display: flex;
+    align-items: center;
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--color-border-light);
+    gap: var(--space-md);
+}
+
+.search-overlay-form {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: var(--color-bg-alt);
+    padding: 10px 16px;
+    border-radius: var(--radius-full);
+    gap: 12px;
+}
+
+.search-overlay-form input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: var(--color-text);
+}
+
+.search-overlay-close {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--color-text-muted);
+}
+
+.search-overlay-content {
+    padding: var(--space-xl) var(--space-lg);
+}
+
+.search-suggestions h4 {
+    font-size: 14px;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: var(--space-lg);
+}
+
+.search-suggestions ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.search-suggestions li a {
+    display: block;
+    padding: 8px 16px;
+    background: var(--color-bg-alt);
+    border-radius: var(--radius-full);
+    font-size: 14px;
+    color: var(--color-text);
+    transition: all var(--transition-base);
+}
+
+.search-suggestions li a:hover {
+    background: var(--color-accent);
+    color: var(--color-white);
+}
+
 /* ---------- Breadcrumb ---------- */
 .breadcrumb {
   display: flex;
@@ -3419,15 +3508,20 @@ textarea.form-control {
     font-size: 9px !important;
   }
 
-  /* Hide header actions that are now in bottom nav */
-  .header-actions .header-action-btn:not(#cart-toggle) {
-    display: none;
+  /* Hide header actions that are now in bottom nav, EXCEPT search and cart */
+  .header-actions .header-action-btn:not(#cart-toggle):not(.mobile-search-toggle) {
+    display: none !important;
   }
 
-  /* Add padding to body to account for bottom nav */
-  body {
-    padding-bottom: 64px;
+  .mobile-search-toggle {
+    display: flex !important;
+    order: -1; /* Place before cart */
   }
+
+  .header-actions {
+    gap: var(--space-sm) !important;
+  }
+ }
 
   /* Auth Card Mobile */
   .auth-card {
@@ -3443,6 +3537,10 @@ textarea.form-control {
   .auth-page {
     padding: 0 !important;
     background: var(--color-white) !important;
+  }
+
+  .mobile-search-toggle {
+    display: flex !important;
   }
 
   /* Sticky Product Bar */
