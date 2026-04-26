@@ -255,11 +255,13 @@ async function processPayment(orderData, overlay) {
     const data = await response.json();
     
     if (data.success) {
+      const method = document.querySelector('input[name="payment_method"]:checked').value;
+      const methodDisplay = method === 'cod' ? 'Cash on Delivery' : (method === 'wallet' ? 'Wallet' : 'Card/UPI (Mocked)');
       overlay.querySelector('.modal').innerHTML = `
         <div style="font-size: 64px; margin-bottom: 16px;">✓</div>
         <h3 style="color: var(--color-success); margin-bottom: 8px;">Order Placed!</h3>
         <p style="color: var(--color-text-secondary); margin-bottom: 8px;">Order #${data.order_number}</p>
-        <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Method: Cash on Delivery</p>
+        <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Method: ${methodDisplay}</p>
         <a href="/dashboard" class="btn btn-primary">View Dashboard</a>
       `;
     } else {
