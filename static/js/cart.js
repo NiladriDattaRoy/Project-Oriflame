@@ -192,9 +192,13 @@ async function removeCartItem(itemId) {
 
 /* ==================== UPDATE CART BADGE ==================== */
 function updateCartBadge(count) {
-  const badges = document.querySelectorAll('.cart-badge');
+  const badges = document.querySelectorAll('#cart-badge-count, .mobile-cart-badge');
   badges.forEach(badge => {
     badge.textContent = count;
-    badge.style.display = count > 0 ? 'flex' : 'none';
+    if (count > 0) {
+      badge.classList.remove('d-none');
+    } else {
+      badge.classList.add('d-none');
+    }
   });
 }
