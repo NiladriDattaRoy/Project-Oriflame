@@ -2160,31 +2160,46 @@ textarea.form-control {
 /* ---------- Filters Sidebar ---------- */
 .shop-layout {
   display: grid;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 240px 1fr;
   gap: var(--space-xl);
-  padding: var(--space-xl) 0;
+  padding: 40px 0;
+  border-top: 1px solid var(--color-border-light);
 }
 
 .filters-sidebar {
   position: sticky;
-  top: calc(var(--header-height) + var(--space-xl));
+  top: calc(var(--header-height) + 20px);
   align-self: start;
-  max-height: calc(100vh - var(--header-height) - var(--space-2xl));
+  max-height: calc(100vh - var(--header-height) - 40px);
   overflow-y: auto;
+  padding-right: 20px;
+  border-right: 1px solid var(--color-border-light);
 }
 
 .filter-section {
-  margin-bottom: var(--space-lg);
+  padding: 20px 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.filter-section:first-child {
+  padding-top: 0;
+}
+
+.filter-section:last-child {
+  border-bottom: none;
 }
 
 .filter-section h4 {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: var(--space-sm);
+  letter-spacing: 1px;
+  margin-bottom: 16px;
   color: var(--color-text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .filter-option {
@@ -2205,7 +2220,9 @@ textarea.form-control {
 .filter-option input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: var(--color-accent);
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  border-radius: 4px;
 }
 
 .price-range-slider {
@@ -2869,6 +2886,28 @@ textarea.form-control {
 
 .accordion-item {
   border-bottom: 1px solid var(--color-border-light);
+}
+
+.shop-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.sort-select {
+  padding: 8px 32px 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: var(--color-white);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 5 3 3 3-3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
 }
 
 .accordion-header {
