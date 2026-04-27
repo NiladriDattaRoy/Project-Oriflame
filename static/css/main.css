@@ -433,6 +433,7 @@ button {
   border: 1px solid var(--color-border);
   transition: all var(--transition-base);
 }
+.mobile-search-bar { display:none; }
 
 .search-bar:focus-within {
   border-color: var(--color-accent);

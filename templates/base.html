@@ -91,6 +91,18 @@
       <!-- No redundant nav-toggle here -->
     </div>
   </header>
+    <!-- Mobile Search Bar (visible on mobile view) -->
+    <div class="mobile-search-bar">
+      <form action="/products" method="GET" class="mobile-search-form" style="display: flex; width: 100%; align-items: center; padding: var(--space-sm) var(--space-md); background: var(--color-bg); border-radius: var(--radius-full); border: 1px solid var(--color-border);">
+        <button type="submit" class="search-btn" style="display: flex; align-items: center;">
+          <svg class="icon-svg" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+        <input type="text" name="search" placeholder="Search products..." class="search-input" value="{{ request.args.get('search', '') }}" style="flex:1; border:none; outline:none; background:transparent; font-size: var(--font-size-sm); padding: var(--space-xs);">
+      </form>
+    </div>
 
   <!-- Flash Messages -->
   <!-- Search Overlay -->
