@@ -1280,6 +1280,21 @@ def admin_update_order_status(order_id):
     return jsonify({'success': True})
 
 
+@app.route('/oriflame-admin-panel-x9k2/orders/<int:order_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def admin_delete_order(order_id):
+    order = Order.query.get_or_404(order_id)
+    try:
+        # Note: OrderItem and Transaction should be deleted via cascade in models
+        db.session.delete(order)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Order deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
 @app.route('/oriflame-admin-panel-x9k2/users', methods=['GET'])
 @login_required
 @admin_required

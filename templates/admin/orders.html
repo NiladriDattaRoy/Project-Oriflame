@@ -57,6 +57,9 @@
           <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="alert('Shipping: {{ order.shipping_name }}, {{ order.shipping_address }}, {{ order.shipping_city }}, {{ order.shipping_state }} - {{ order.shipping_pincode }}')">
             View
           </button>
+          <button class="admin-btn admin-btn-danger admin-btn-sm" onclick="adminDeleteOrder({{ order.id }})" style="margin-left: 4px;">
+            Delete
+          </button>
         </td>
       </tr>
       {% endfor %}

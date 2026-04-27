@@ -148,6 +148,27 @@ async function adminUpdateOrderStatus(orderId, status) {
   }
 }
 
+async function adminDeleteOrder(orderId) {
+  if (!confirm('Are you sure you want to delete this order? This action is permanent.')) return;
+  
+  try {
+    const response = await fetch(`/oriflame-admin-panel-x9k2/orders/${orderId}/delete`, {
+      method: 'POST'
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast('Order deleted successfully!', 'success');
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      showToast(data.message || 'Failed to delete order', 'error');
+    }
+  } catch (err) {
+    showToast('Something went wrong', 'error');
+  }
+}
+
 async function adminUpdateUserRole(userId, role) {
   try {
     const response = await fetch(`/oriflame-admin-panel-x9k2/users/${userId}/role`, {
