@@ -924,16 +924,18 @@ button {
   padding: 10px;
   background: var(--color-primary);
   color: var(--color-white);
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   font-weight: 600;
-  font-size: var(--font-size-sm);
+  font-size: 13px;
   transition: all var(--transition-base);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .product-card .btn-add-cart:hover {
-  background: var(--color-accent);
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ---------- Category Grid ---------- */
@@ -2160,10 +2162,9 @@ textarea.form-control {
 /* ---------- Filters Sidebar ---------- */
 .shop-layout {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 260px 1fr;
   gap: var(--space-xl);
   padding: 40px 0;
-  border-top: 1px solid var(--color-border-light);
 }
 
 .filters-sidebar {
@@ -2191,7 +2192,7 @@ textarea.form-control {
 
 .filter-section h4 {
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -3454,6 +3455,17 @@ textarea.form-control {
   /* Mobile Filter Toggle and Sidebar */
   .mobile-filter-btn {
     display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: var(--space-lg);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
   }
   
   .filters-sidebar {
@@ -3463,28 +3475,43 @@ textarea.form-control {
     z-index: 2000 !important;
     transform: translateX(-100%) !important;
     transition: transform 0.3s ease-in-out !important;
-    padding: 0 !important;
+    padding: 24px !important;
     margin: 0 !important;
     overflow-y: auto !important;
     display: block !important;
+    border-right: none !important;
   }
   
   .filters-sidebar.open {
     transform: translateX(0) !important;
   }
-  
+
   .filters-sidebar-header.mobile-only {
     display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-border-light);
   }
   
   .filters-sidebar .filter-section {
-    padding: 20px !important;
+    padding: 20px 0 !important;
     border-bottom: 1px solid var(--color-border-light) !important;
   }
   
   .shop-layout {
     display: block !important;
+    padding: 0 !important;
   }
+
+/* Hide mobile-only elements on desktop */
+@media (min-width: 1025px) {
+  .mobile-filter-btn,
+  .filters-sidebar-header.mobile-only {
+    display: none !important;
+  }
+}
 
   .promo-banner .container {
     flex-direction: column;
