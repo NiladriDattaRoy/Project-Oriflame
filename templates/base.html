@@ -67,6 +67,10 @@
 
       <!-- Actions -->
       <div class="header-actions">
+        <!-- Mobile Search Toggle -->
+        <button class="header-action-btn mobile-search-toggle" onclick="openSearchOverlay()" title="Search">
+          <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
         {% if current_user.is_authenticated %}
         <a href="/dashboard" class="header-action-btn" title="My Account">
           <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -79,30 +83,19 @@
 
         <a href="/wishlist" class="header-action-btn" title="Wishlist" style="position: relative;">
           <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-          <span class="cart-badge" style="{% if not wishlist_count %}display:none{% endif %}; background: var(--color-accent);">{{ wishlist_count or 0 }}</span>
+          <span class="cart-badge {% if not wishlist_count %}d-none{% endif %}" style="background: var(--color-accent);">{{ wishlist_count or 0 }}</span>
         </a>
 
         <button class="header-action-btn" id="cart-toggle" title="Cart" style="position: relative;">
           <svg class="icon-svg" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-          <span class="cart-badge" style="{% if not cart_count %}display:none{% endif %}">{{ cart_count or 0 }}</span>
+          <span class="cart-badge {% if not cart_count %}d-none{% endif %}">{{ cart_count or 0 }}</span>
         </button>
       </div>
 
       <!-- No redundant nav-toggle here -->
     </div>
   </header>
-    <!-- Mobile Search Bar (visible on mobile view) -->
-    <div class="mobile-search-bar">
-      <form action="/products" method="GET" class="mobile-search-form">
-        <button type="submit" class="search-btn">
-          <svg class="icon-svg" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </button>
-        <input type="text" name="search" placeholder="Search products..." class="search-input" value="{{ request.args.get('search', '') }}">
-      </form>
-    </div>
+    <!-- Flash Messages (Moved back up) -->
 
   <!-- Flash Messages -->
   <!-- Search Overlay -->
@@ -393,7 +386,7 @@
     <button class="mobile-nav-item" id="mobile-cart-toggle">
       <div style="position: relative; display: inline-block;">
         <svg class="icon-svg" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-        <span class="cart-badge mobile-badge" style="{% if not cart_count %}display:none{% endif %}">{{ cart_count or 0 }}</span>
+        <span class="cart-badge mobile-badge {% if not cart_count %}d-none{% endif %}">{{ cart_count or 0 }}</span>
       </div>
       <span>Cart</span>
     </button>

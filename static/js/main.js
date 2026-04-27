@@ -134,7 +134,12 @@ function initScrollAnimations() {
     rootMargin: '0px 0px -50px 0px'
   });
   
-  elements.forEach(el => observer.observe(el));
+  elements.forEach(el => {
+    if (el.dataset.delay) {
+      el.style.transitionDelay = el.dataset.delay + 'ms';
+    }
+    observer.observe(el);
+  });
 }
 
 /* ==================== PRODUCT TABS ==================== */

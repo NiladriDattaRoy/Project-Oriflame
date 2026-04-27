@@ -114,7 +114,7 @@
   {% if catalogues %}
     <div class="catalogue-grid fade-in">
       {% for cat in catalogues %}
-      <div class="catalogue-card scale-in {% if cat.is_coming_soon %}coming-soon{% endif %}" style="transition-delay: {{ loop.index0 * 100 }}ms">
+      <div class="catalogue-card scale-in {% if cat.is_coming_soon %}coming-soon{% endif %}" data-delay="{{ loop.index0 * 100 }}">
         <div style="position: relative; overflow: hidden;">
           {% if cat.is_coming_soon %}
           <div class="coming-soon-badge">Coming Soon</div>

@@ -2,6 +2,18 @@
 {% block title %}Home — Beauty, Skincare & Business Opportunity{% endblock %}
 
 {% block content %}
+<!-- Mobile Home Search (Prominent on Home Screen) -->
+<div class="mobile-home-search">
+  <div class="container">
+    <form action="/products" method="GET" class="mobile-search-form">
+      <button type="submit" class="search-btn">
+        <svg class="icon-svg" viewBox="0 0 24 24" style="width: 20px; height: 20px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </button>
+      <input type="text" name="search" placeholder="Search for products, brands..." class="search-input">
+    </form>
+  </div>
+</div>
+
 <!-- Hero Carousel -->
 <section class="hero-carousel">
   <div class="hero-slide active" data-index="0">
@@ -232,7 +244,7 @@
         'https://images.unsplash.com/photo-1596462502278-27bfaf433394?auto=format&fit=crop&w=600&q=80'
       ] %}
       {% for cat in categories[:5] %}
-      <a href="/category/{{ cat.slug }}" class="category-card scale-in" style="transition-delay: {{ loop.index0 * 100 }}ms">
+      <a href="/category/{{ cat.slug }}" class="category-card scale-in" data-delay="{{ loop.index0 * 100 }}">
         <div class="category-card-bg" style="background-image: url('{{ cat_images[loop.index0] }}');"></div>
         <div class="category-card-overlay">
           <span class="category-card-name">{{ cat.name }}</span>

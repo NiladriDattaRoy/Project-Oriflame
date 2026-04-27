@@ -122,7 +122,7 @@
   {% if items %}
     <div class="wishlist-list fade-in">
       {% for item in items %}
-      <div class="wishlist-item scale-in" style="transition-delay: {{ loop.index0 * 100 }}ms" id="wishlist-item-{{ item.product.id }}">
+      <div class="wishlist-item scale-in" data-delay="{{ loop.index0 * 100 }}" id="wishlist-item-{{ item.product.id }}">
         <a href="/products/{{ item.product.slug }}">
           <div class="wishlist-img-wrapper">
             <img src="{{ item.product.image_url or '/static/images/placeholder.png' }}" alt="{{ item.product.name }}">
