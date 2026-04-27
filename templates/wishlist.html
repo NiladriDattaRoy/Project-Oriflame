@@ -137,9 +137,9 @@
         </div>
         
         <div class="wishlist-actions">
-          <button class="btn btn-primary" onclick="addToCart({{ item.product.id }}, 1); showToast('Added to cart!');">Add to Cart</button>
+          <button class="btn btn-primary" data-id="{{ item.product.id }}" onclick="addToCart(this.dataset.id, 1); showToast('Added to cart!');">Add to Cart</button>
           <a href="/products/{{ item.product.slug }}" class="btn btn-outline" style="text-align: center;">View Detail</a>
-          <button class="remove-btn" onclick="removeWishlistItem({{ item.product.id }})">Remove from List</button>
+          <button class="remove-btn" data-id="{{ item.product.id }}" onclick="removeWishlistItem(this.dataset.id)">Remove from List</button>
         </div>
       </div>
       {% endfor %}
