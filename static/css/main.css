@@ -3256,11 +3256,11 @@ textarea.form-control {
 /* Mobile (768px and below) */
 @media (max-width: 768px) {
   :root {
-    --space-4xl: 5rem; /* 80px */
-    --space-3xl: 3rem;
-    --font-size-4xl: 2.25rem; /* 36px */
-    --font-size-3xl: 1.875rem; /* 30px */
-    --font-size-2xl: 1.5rem; /* 24px */
+    --space-4xl: 4rem; /* 64px */
+    --space-3xl: 2rem;
+    --font-size-4xl: 1.875rem; /* 30px */
+    --font-size-3xl: 1.25rem; /* 20px */
+    --font-size-2xl: 1.125rem;
     --header-height: 70px;
   }
 
@@ -3301,7 +3301,7 @@ textarea.form-control {
   }
 
   .hero-slide-content h1 {
-    font-size: 36px;
+    font-size: 30px;
     line-height: 1.2;
   }
 
@@ -3532,13 +3532,21 @@ textarea.form-control {
   /* Auth Card Mobile */
   .auth-card {
     padding: 24px !important;
-    border-radius: 24px !important;
-    box-shadow: var(--shadow-lg) !important;
+    border-radius: 16px !important;
+    box-shadow: var(--shadow-md) !important;
     min-height: auto;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin: 24px auto;
+    margin: 16px auto;
+  }
+
+  .auth-card .btn {
+    padding: 10px 20px !important;
+  }
+
+  .form-group input {
+    padding: 10px 16px !important;
   }
 
   .auth-page {
@@ -3584,9 +3592,24 @@ textarea.form-control {
   }
 
   /* Improved Typography Scaling */
-  h1 { font-size: 36px !important; }
-  h2 { font-size: 30px !important; }
-  h3 { font-size: 20px !important; }
+  h1 { font-size: 30px !important; }
+  h2 { font-size: 20px !important; }
+  h3 { font-size: 18px !important; }
+  
+  /* Dashboard Compactness */
+  .stat-card {
+    padding: 16px !important;
+    border-radius: 16px !important;
+  }
+  
+  .stat-card-value {
+    font-size: 20px !important;
+  }
+  
+  .data-table th, .data-table td {
+    padding: 10px 8px !important;
+    font-size: 13px !important;
+  }
 }
 
 @keyframes slideUp {
