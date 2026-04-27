@@ -2160,9 +2160,9 @@ textarea.form-control {
 /* ---------- Filters Sidebar ---------- */
 .shop-layout {
   display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: var(--space-2xl);
-  padding: var(--space-2xl) 0;
+  grid-template-columns: 220px 1fr;
+  gap: var(--space-xl);
+  padding: var(--space-xl) 0;
 }
 
 .filters-sidebar {
@@ -2174,16 +2174,16 @@ textarea.form-control {
 }
 
 .filter-section {
-  margin-bottom: var(--space-xl);
+  margin-bottom: var(--space-lg);
 }
 
 .filter-section h4 {
   font-family: var(--font-body);
-  font-size: var(--font-size-sm);
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-sm);
   color: var(--color-text);
 }
 
@@ -2191,9 +2191,9 @@ textarea.form-control {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  padding: var(--space-sm) 0;
+  padding: 6px 0;
   cursor: pointer;
-  font-size: var(--font-size-sm);
+  font-size: 13px;
   color: var(--color-text-secondary);
   transition: color var(--transition-fast);
 }
