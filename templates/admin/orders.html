@@ -44,7 +44,8 @@
         </td>
         <td>
           <select class="admin-form-control" style="width: auto; padding: 4px 8px; font-size: 12px;"
-            onchange="adminUpdateOrderStatus({{ order.id }}, this.value)">
+            data-order-id="{{ order.id }}"
+            onchange="adminUpdateOrderStatus(this.dataset.orderId, this.value)">
             <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
             <option value="confirmed" {% if order.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
             <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
@@ -57,7 +58,9 @@
           <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="alert('Shipping: {{ order.shipping_name }}, {{ order.shipping_address }}, {{ order.shipping_city }}, {{ order.shipping_state }} - {{ order.shipping_pincode }}')">
             View
           </button>
-          <button class="admin-btn admin-btn-danger admin-btn-sm" onclick="adminDeleteOrder({{ order.id }})" style="margin-left: 4px;">
+          <button class="admin-btn admin-btn-danger admin-btn-sm" 
+            data-order-id="{{ order.id }}"
+            onclick="adminDeleteOrder(this.dataset.orderId)" style="margin-left: 4px;">
             Delete
           </button>
         </td>
