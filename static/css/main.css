@@ -434,41 +434,6 @@ button {
   border: 1px solid var(--color-border);
   transition: all var(--transition-base);
 }
-.mobile-home-search { display: none; }
-
-@media (max-width: 1024px) {
-  .mobile-home-search {
-    display: block;
-    padding: var(--space-md) 0;
-    background: var(--color-white);
-    border-bottom: 1px solid var(--color-border-light);
-  }
-  
-  .mobile-home-search .mobile-search-form {
-    display: flex;
-    align-items: center;
-    background: var(--color-bg-alt);
-    padding: 10px 18px;
-    border-radius: var(--radius-full);
-    border: 1px solid var(--color-border);
-    box-shadow: var(--shadow-sm);
-  }
-  
-  .mobile-home-search .search-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 15px;
-    padding: 0 10px;
-    color: var(--color-text);
-  }
-  
-  .mobile-home-search .search-btn {
-    display: flex;
-    align-items: center;
-    color: var(--color-text-muted);
-  }
 }
 
 
