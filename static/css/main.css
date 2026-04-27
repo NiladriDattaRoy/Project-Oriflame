@@ -3257,19 +3257,21 @@ textarea.form-control {
 /* Mobile (768px and below) */
 @media (max-width: 768px) {
   :root {
-    --space-4xl: 2.5rem;
-    --space-3xl: 2rem;
-    --font-size-4xl: 2.2rem;
-    --font-size-3xl: 1.8rem;
-    --font-size-2xl: 1.5rem;
+    --space-4xl: 5rem; /* 80px */
+    --space-3xl: 3rem;
+    --font-size-4xl: 2.25rem; /* 36px */
+    --font-size-3xl: 1.875rem; /* 30px */
+    --font-size-2xl: 1.5rem; /* 24px */
+    --header-height: 70px;
   }
 
   .container, .container-wide {
-    padding: 0 var(--space-lg);
+    padding: 0 24px;
   }
 
   .header-inner {
-    padding: 0 var(--space-lg);
+    padding: 0 24px;
+    height: 70px;
   }
 
   .logo-text {
@@ -3300,7 +3302,8 @@ textarea.form-control {
   }
 
   .hero-slide-content h1 {
-    font-size: var(--font-size-2xl);
+    font-size: 36px;
+    line-height: 1.2;
   }
 
   .hero-slide-content p {
@@ -3581,9 +3584,9 @@ textarea.form-control {
   }
 
   /* Improved Typography Scaling */
-  h1 { font-size: 1.8rem !important; }
-  h2 { font-size: 1.5rem !important; }
-  h3 { font-size: 1.3rem !important; }
+  h1 { font-size: 36px !important; }
+  h2 { font-size: 30px !important; }
+  h3 { font-size: 20px !important; }
 }
 
 @keyframes slideUp {
