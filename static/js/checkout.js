@@ -128,7 +128,7 @@ function showPaymentProcessing(data) {
   document.body.appendChild(overlay);
   
   if (method === 'card' || method === 'upi' || method === 'wallets') {
-    handleRazorpayPayment(data, overlay);
+    handleRazorpayPayment(data, overlay, method);
   } else {
     // COD or Wallet
     setTimeout(() => {
@@ -137,8 +137,12 @@ function showPaymentProcessing(data) {
   }
 }
 
-async function handleRazorpayPayment(orderData, overlay) {
+async function handleRazorpayPayment(orderData, overlay, method) {
   try {
+    // 0. Check if Razorpay is loaded
+    if (typeof Razorpay === 'undefined') {
+      throw new Error('Razorpay SDK failed to load. Please check your internet connection.');
+    }
     // 1. Create Razorpay Order
     const res = await fetch('/api/create-order', {
       method: 'POST',
@@ -174,7 +178,7 @@ async function handleRazorpayPayment(orderData, overlay) {
       "prefill": {
         "name": document.querySelector('[name="shipping_name"]').value,
         "contact": document.querySelector('[name="shipping_phone"]').value,
-        "method": method === 'wallets' ? 'wallet' : (method === 'upi' ? 'upi' : (method === 'card' ? 'card' : ''))
+        "method": method === 'wallets' ? 'wallet' : (method === 'upi' ? 'upi' : '')
       },
       "theme": { "color": "#d32f2f" },
       "modal": {
