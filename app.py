@@ -914,8 +914,10 @@ def verify_payment():
             )
             db.session.add(transaction)
             
-            # Update order status
-            order.status = 'confirmed'
+            # Update order status ONLY if it wasn't already cancelled
+            if order.status != 'cancelled':
+                order.status = 'confirmed'
+            
             order.payment_status = 'paid'
             
             # Update user's total sales
@@ -1268,7 +1270,12 @@ def admin_orders():
 def admin_update_order_status(order_id):
     data = request.get_json()
     order = Order.query.get_or_404(order_id)
-    order.status = data.get('status', order.status)
+    new_status = data.get('status')
+    
+    if order.status == 'cancelled' and new_status != 'cancelled':
+        return jsonify({'success': False, 'message': 'Cannot change status of a cancelled order.'}), 400
+        
+    order.status = new_status or order.status
     db.session.commit()
     return jsonify({'success': True})
 
