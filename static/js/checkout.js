@@ -127,7 +127,7 @@ function showPaymentProcessing(data) {
   `;
   document.body.appendChild(overlay);
   
-  if (method === 'card' || method === 'upi') {
+  if (method === 'card' || method === 'upi' || method === 'wallets') {
     handleRazorpayPayment(data, overlay);
   } else {
     // COD or Wallet
@@ -173,7 +173,8 @@ async function handleRazorpayPayment(orderData, overlay) {
       },
       "prefill": {
         "name": document.querySelector('[name="shipping_name"]').value,
-        "contact": document.querySelector('[name="shipping_phone"]').value
+        "contact": document.querySelector('[name="shipping_phone"]').value,
+        "method": method === 'wallets' ? 'wallet' : (method === 'upi' ? 'upi' : (method === 'card' ? 'card' : ''))
       },
       "theme": { "color": "#d32f2f" },
       "modal": {

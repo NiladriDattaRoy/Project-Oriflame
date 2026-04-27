@@ -103,10 +103,17 @@
               </div>
             </label>
             <label class="payment-method">
+              <input type="radio" name="payment_method" value="wallets">
+              <div class="payment-method-info">
+                <h4>📱 Digital Wallets</h4>
+                <p>Pay using Paytm, Amazon Pay, PhonePe Wallets</p>
+              </div>
+            </label>
+            <label class="payment-method">
               <input type="radio" name="payment_method" value="wallet">
               <div class="payment-method-info">
-                <h4>👛 Wallet</h4>
-                <p>Pay using your commission wallet balance</p>
+                <h4>👛 Commission Wallet</h4>
+                <p>Pay using your Oriflame commission balance (₹{{ "%.2f"|format(current_user.total_commission) }})</p>
               </div>
             </label>
           </div>
