@@ -956,7 +956,7 @@ def dashboard():
     order_count = Order.query.filter_by(user_id=current_user.id).filter(Order.status != 'cancelled').count()
     total_spent = db.session.query(db.func.sum(Order.total)).filter_by(
         user_id=current_user.id, payment_status='paid'
-    ).scalar() or 0
+    ).filter(Order.status != 'cancelled').scalar() or 0
     
     downline_count = len(current_user.downlines) if current_user.is_partner else 0
     wishlist_count = Wishlist.query.filter_by(user_id=current_user.id).count()
@@ -1086,7 +1086,7 @@ def mlm_user_details(user_id):
 @login_required
 @admin_required
 def admin_dashboard():
-    total_revenue = db.session.query(db.func.sum(Order.total)).filter_by(payment_status='paid').scalar() or 0
+    total_revenue = db.session.query(db.func.sum(Order.total)).filter_by(payment_status='paid').filter(Order.status != 'cancelled').scalar() or 0
     total_orders = Order.query.filter(Order.status != 'cancelled').count()
     total_users = User.query.count()
     total_partners = User.query.filter_by(role='partner').count()
@@ -1275,6 +1275,29 @@ def admin_update_order_status(order_id):
     if order.status == 'cancelled' and new_status != 'cancelled':
         return jsonify({'success': False, 'message': 'Cannot change status of a cancelled order.'}), 400
         
+    if new_status == 'cancelled' and order.status != 'cancelled':
+        # Restore stock
+        for item in order.items:
+            item.product.stock += item.quantity
+            
+        # Reverse sales and commissions if already processed
+        if order.payment_status == 'paid':
+            user = order.user
+            if user:
+                user.total_sales = max(0, user.total_sales - order.total)
+                
+            for txn in order.transactions:
+                txn.status = 'refunded'
+                
+            commissions = MLMCommission.query.filter_by(order_id=order.id).all()
+            for comm in commissions:
+                sponsor = User.query.get(comm.user_id)
+                if sponsor:
+                    sponsor.total_commission = max(0, sponsor.total_commission - comm.amount)
+                db.session.delete(comm)
+                
+            order.payment_status = 'refunded'
+
     order.status = new_status or order.status
     db.session.commit()
     return jsonify({'success': True})
