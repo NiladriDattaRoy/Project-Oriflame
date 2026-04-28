@@ -1757,6 +1757,20 @@ with app.app_context():
     if User.query.count() == 0:
         print("[SEED] No users found. Seeding initial data...")
         seed_database()
+        
+    # Sync PostgreSQL sequences
+    if db.engine.name == 'postgresql':
+        tables = ['users', 'categories', 'products', 'product_images', 'catalogues', 'carts', 'cart_items', 'addresses', 'orders', 'order_items', 'transactions', 'mlm_commissions', 'wishlists', 'blog_posts', 'contact_messages', 'reviews']
+        try:
+            for table in tables:
+                max_id = db.session.execute(db.text(f"SELECT MAX(id) FROM {table}")).scalar()
+                if max_id is not None:
+                    db.session.execute(db.text(f"SELECT setval('{table}_id_seq', {max_id})"))
+            db.session.commit()
+            print("[DB] Synced PostgreSQL sequences successfully.", flush=True)
+        except Exception as e:
+            db.session.rollback()
+            print(f"[DB] Error syncing sequences: {e}", flush=True)
 
 # ─── Main Entry ───────────────────────────────────────────────────────────────
 if __name__ == '__main__':
