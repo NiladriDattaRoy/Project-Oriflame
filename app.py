@@ -1124,116 +1124,121 @@ def admin_products():
 @login_required
 @admin_required
 def admin_save_product(product_id=None):
-    form = request.form
-    files = request.files.getlist('product_images')
-    
-    product_name = form.get('name', 'Unnamed Product')
-    product_code = form.get('code')
-    if not product_code:
-        product_code = f"ORI{uuid.uuid4().hex[:6].upper()}"
+    try:
+        form = request.form
+        files = request.files.getlist('product_images')
         
-    initial_slug = slugify(product_name) if product_name else uuid.uuid4().hex[:10]
-    
-    if product_id:
-        product = Product.query.get_or_404(product_id)
-    else:
-        product = Product()
-        # Don't add to session yet to avoid premature flush
+        product_name = form.get('name', 'Unnamed Product').strip()
+        product_code = form.get('code', '').strip()
+        if not product_code:
+            product_code = f"ORI{uuid.uuid4().hex[:6].upper()}"
+            
+        initial_slug = slugify(product_name) if product_name else uuid.uuid4().hex[:10]
         
-    product.name = product_name
-    product.code = product_code
-    product.slug = initial_slug
-    
-    # Check for slug conflicts BEFORE any other DB operations
-    existing = Product.query.filter(Product.slug == product.slug, Product.id != product.id).first()
-    if existing:
-        product.slug = f"{initial_slug}-{product.code.lower()}"
-    
-    # Now we can safely add it to the session if it's new
-    if not product_id:
-        db.session.add(product)
-    
-    price_val = form.get('price')
-    product.price = float(price_val) if price_val else 0.0
-    
-    mrp_val = form.get('mrp')
-    product.mrp = float(mrp_val) if mrp_val else product.price
-    
-    cat_id = form.get('category_id')
-    if cat_id:
-        product.category_id = int(cat_id)
+        if product_id:
+            product = Product.query.get_or_404(product_id)
+        else:
+            product = Product()
+            
+        # Check if code already exists
+        existing_code = Product.query.filter(Product.code == product_code, Product.id != product.id).first()
+        if existing_code:
+            return jsonify({'success': False, 'message': f'Product code "{product_code}" already exists!'})
+            
+        product.name = product_name
+        product.code = product_code
+        product.slug = initial_slug
         
-    product.stock = int(form.get('stock', 100))
-    product.brand = form.get('brand')
-    product.weight = form.get('weight')
-    product.shade_name = form.get('shade_name')
-    product.shade_color = form.get('shade_color')
-    product.description = form.get('description')
-    product.how_to_use = form.get('how_to_use')
-    product.ingredients = form.get('ingredients')
-    
-    # Optional image URL fallback
-    if form.get('image_url'):
-        product.image_url = form.get('image_url')
-    
-    product.is_new = bool(form.get('is_new'))
-    product.is_bestseller = bool(form.get('is_bestseller'))
-    product.is_active = True
-    
-    # Handle Multiple Image Uploads
-    if files and files[0].filename != '':
-        # Clear existing images if editing? 
-        # Actually, user might want to ADD to them. 
-        # But for simplicity, we'll handle the first as primary if not set.
+        # Check for slug conflicts
+        existing_slug = Product.query.filter(Product.slug == product.slug, Product.id != product.id).first()
+        if existing_slug:
+            product.slug = f"{initial_slug}-{product.code.lower()}"
+            
+        # Ensure unique slug even after appending code
+        final_check = Product.query.filter(Product.slug == product.slug, Product.id != product.id).first()
+        if final_check:
+            product.slug = f"{product.slug}-{uuid.uuid4().hex[:4]}"
         
-        for i, file in enumerate(files):
-            if file and file.filename != '':
-                filename = secure_filename(f"{product.code}_{uuid.uuid4().hex[:8]}_{file.filename}")
-                upload_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(upload_path)
-                
-                img_url = f"/static/images/uploads/{filename}"
-                
-                # Detect media type
-                ext = filename.split('.')[-1].lower()
-                m_type = 'video' if ext in ['mp4', 'webm', 'ogg', 'mov', 'avi'] else 'image'
-                
-                # Set first image as primary if no image_url yet and it's an image
-                if i == 0 and not product.image_url and m_type == 'image':
-                    product.image_url = img_url
-                
-                # Add to ProductImage gallery
-                img_record = ProductImage(product=product, image_url=img_url, media_type=m_type, display_order=i)
-                db.session.add(img_record)
-                
-    # Handle Pasted Image URLs
-    pasted_urls = form.get('additional_image_urls', '').split('\n')
-    for i, url in enumerate(pasted_urls):
-        url = url.strip()
-        if url:
-            if url != product.image_url:
+        if not product_id:
+            db.session.add(product)
+        
+        price_val = form.get('price', '').strip()
+        product.price = float(price_val) if price_val else 0.0
+        
+        mrp_val = form.get('mrp', '').strip()
+        product.mrp = float(mrp_val) if mrp_val else product.price
+        
+        cat_id = form.get('category_id', '').strip()
+        if cat_id:
+            product.category_id = int(cat_id)
+            
+        stock_val = form.get('stock', '').strip()
+        product.stock = int(stock_val) if stock_val else 0
+        
+        product.brand = form.get('brand')
+        product.weight = form.get('weight')
+        product.shade_name = form.get('shade_name')
+        product.shade_color = form.get('shade_color')
+        product.description = form.get('description')
+        product.how_to_use = form.get('how_to_use')
+        product.ingredients = form.get('ingredients')
+        
+        if form.get('image_url'):
+            product.image_url = form.get('image_url')
+        
+        product.is_new = bool(form.get('is_new'))
+        product.is_bestseller = bool(form.get('is_bestseller'))
+        product.is_active = True
+        
+        if files and files[0].filename != '':
+            for i, file in enumerate(files):
+                if file and file.filename != '':
+                    filename = secure_filename(f"{product.code}_{uuid.uuid4().hex[:8]}_{file.filename}")
+                    upload_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(upload_path)
+                    
+                    img_url = f"/static/images/uploads/{filename}"
+                    ext = filename.split('.')[-1].lower()
+                    m_type = 'video' if ext in ['mp4', 'webm', 'ogg', 'mov', 'avi'] else 'image'
+                    
+                    if i == 0 and not product.image_url and m_type == 'image':
+                        product.image_url = img_url
+                    
+                    img_record = ProductImage(product=product, image_url=img_url, media_type=m_type, display_order=i)
+                    db.session.add(img_record)
+                    
+        pasted_urls = form.get('additional_image_urls', '').split('\n')
+        for i, url in enumerate(pasted_urls):
+            url = url.strip()
+            if url and url != product.image_url:
                 img_record = ProductImage(product=product, image_url=url, media_type='image', display_order=100+i)
                 db.session.add(img_record)
                 
-    # Handle Video URLs
-    video_urls = form.get('video_urls', '').split('\n')
-    for i, url in enumerate(video_urls):
-        url = url.strip()
-        if url:
-            # Simple YouTube embed conversion
-            if 'youtube.com/watch?v=' in url:
-                video_id = url.split('v=')[1].split('&')[0]
-                url = f"https://www.youtube.com/embed/{video_id}"
-            elif 'youtu.be/' in url:
-                video_id = url.split('/')[-1]
-                url = f"https://www.youtube.com/embed/{video_id}"
-                
-            img_record = ProductImage(product=product, image_url=url, media_type='video', display_order=200+i)
-            db.session.add(img_record)
-    
-    db.session.commit()
-    
-    return jsonify({'success': True, 'message': 'Product saved successfully!'})
+        video_urls = form.get('video_urls', '').split('\n')
+        for i, url in enumerate(video_urls):
+            url = url.strip()
+            if url:
+                if 'youtube.com/watch?v=' in url:
+                    video_id = url.split('v=')[1].split('&')[0]
+                    url = f"https://www.youtube.com/embed/{video_id}"
+                elif 'youtu.be/' in url:
+                    video_id = url.split('/')[-1]
+                    url = f"https://www.youtube.com/embed/{video_id}"
+                    
+                img_record = ProductImage(product=product, image_url=url, media_type='video', display_order=200+i)
+                db.session.add(img_record)
+        
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Product saved successfully!'})
+        
+    except ValueError as ve:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Invalid number format: {str(ve)}'})
+    except Exception as e:
+        db.session.rollback()
+        import traceback
+        print(f"[ERROR] saving product: {str(e)}\n{traceback.format_exc()}", flush=True)
+        return jsonify({'success': False, 'message': f'Server Error: {str(e)}'})
 
 
 @app.route('/oriflame-admin-panel-x9k2/products/<int:product_id>/delete', methods=['POST'])
