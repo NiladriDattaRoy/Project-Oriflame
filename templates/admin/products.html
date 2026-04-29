@@ -227,7 +227,15 @@
       <div class="admin-modal-body">
         <div id="tab-general" class="tab-content active">
           <input type="hidden" name="id" value="">
-          <input type="hidden" name="parent_id" value="">
+          <div class="admin-form-group">
+            <label class="admin-form-label">Parent Product (Leave empty if this is a main product)</label>
+            <select class="admin-form-control" name="parent_id">
+              <option value="">None (Main Product)</option>
+              {% for p in products %}
+              <option value="{{ p.id }}">{{ p.name }} ({{ p.code }})</option>
+              {% endfor %}
+            </select>
+          </div>
           
           <div class="admin-form-row">
             <div class="admin-form-group">
