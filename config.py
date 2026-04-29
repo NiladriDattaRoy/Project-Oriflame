@@ -18,6 +18,14 @@ class Config:
     
     SQLALCHEMY_DATABASE_URI = db_url or f'sqlite:///{os.path.join(BASE_DIR, "database", "oriflame.db")}'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # Connection pooling for cloud DBs (Aiven/Neon)
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_recycle": 3600,
+        "pool_pre_ping": True,
+        "pool_size": 10,
+        "max_overflow": 20,
+    }
 
     # Upload settings
     UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'images', 'uploads')
