@@ -286,9 +286,10 @@ def category_page(slug):
 def product_detail(slug):
     product = Product.query.filter_by(slug=slug, is_active=True).first_or_404()
     
-    # Find variants (same name, different code)
+    # Find variants (sharing the same parent or being children of this product)
+    root_id = product.parent_id if product.parent_id else product.id
     variants = Product.query.filter(
-        Product.name == product.name,
+        db.or_(Product.id == root_id, Product.parent_id == root_id),
         Product.id != product.id,
         Product.is_active == True
     ).all()
@@ -1114,7 +1115,8 @@ def admin_dashboard():
 @login_required
 @admin_required
 def admin_products():
-    products_list = Product.query.order_by(Product.created_at.desc()).all()
+    # Only top-level products for the main list, variants will be nested
+    products_list = Product.query.filter_by(parent_id=None).order_by(Product.created_at.desc()).all()
     categories_list = Category.query.all()
     return render_template('admin/products.html', products=products_list, categories=categories_list)
 
@@ -1179,6 +1181,14 @@ def admin_save_product(product_id=None):
         product.weight = form.get('weight')
         product.shade_name = form.get('shade_name')
         product.shade_color = form.get('shade_color')
+        product.shade_color_2 = form.get('shade_color_2')
+        
+        p_id = form.get('parent_id', '').strip()
+        if p_id:
+            product.parent_id = int(p_id)
+        else:
+            product.parent_id = None
+            
         product.description = form.get('description')
         product.how_to_use = form.get('how_to_use')
         product.ingredients = form.get('ingredients')

@@ -121,11 +121,14 @@ class Product(db.Model):
     brand = db.Column(db.String(100))
     shade_name = db.Column(db.String(100))
     shade_color = db.Column(db.String(20)) # Hex color code or CSS color name
+    shade_color_2 = db.Column(db.String(20)) # Second color for duo shades
+    parent_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=True)
     tags = db.Column(db.String(500))  # Comma-separated tags
     how_to_use = db.Column(db.Text)
     ingredients = db.Column(db.Text)
 
     # Relationships
+    variants = db.relationship('Product', backref=db.backref('parent', remote_side=[id]), lazy='dynamic')
     images = db.relationship('ProductImage', backref='product', lazy='dynamic', cascade='all, delete-orphan')
     reviews = db.relationship('Review', backref='product', lazy='dynamic', cascade='all, delete-orphan')
 

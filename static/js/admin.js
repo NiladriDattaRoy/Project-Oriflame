@@ -57,18 +57,46 @@ function populateForm(modal, data) {
     const nameAttr = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
     const input = modal.querySelector(`[name="${nameAttr}"]`);
     if (input) {
-      input.value = data[key];
+      if (input.type === 'checkbox') {
+        input.checked = data[key] === 'True' || data[key] === 'true' || data[key] === true;
+      } else {
+        input.value = data[key];
+      }
     }
   });
   
   const idInput = modal.querySelector('[name="id"]');
-  if (idInput) idInput.value = data.id;
+  if (idInput) idInput.value = data.id || '';
 
   // Special handling for color picker sync
   if (data.shadeColor) {
     const picker = modal.querySelector('#shade-color-picker');
     if (picker) picker.value = data.shadeColor;
   }
+  if (data.shadeColor2) {
+    const picker2 = modal.querySelector('#shade-color-picker-2');
+    if (picker2) picker2.value = data.shadeColor2;
+    const duoCheck = modal.querySelector('[name="is_duo"]');
+    if (duoCheck) duoCheck.checked = true;
+    const duoRow = modal.querySelector('#duo-color-row');
+    if (duoRow) duoRow.style.display = 'flex';
+  } else {
+    const duoCheck = modal.querySelector('[name="is_duo"]');
+    if (duoCheck) duoCheck.checked = false;
+    const duoRow = modal.querySelector('#duo-color-row');
+    if (duoRow) duoRow.style.display = 'none';
+  }
+}
+
+function toggleVariantRows(parentId, btn) {
+  const rows = document.querySelectorAll(`.variant-row-of-${parentId}`);
+  const isHidden = rows[0]?.style.display === 'none';
+  
+  rows.forEach(row => {
+    row.style.display = isHidden ? 'table-row' : 'none';
+  });
+  
+  btn.textContent = isHidden ? '▼' : '▶';
 }
 
 /* ==================== ADMIN CRUD ==================== */

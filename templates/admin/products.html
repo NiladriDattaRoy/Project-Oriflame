@@ -10,15 +10,57 @@
   </button>
 </div>
 
+<style>
+.swatch-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+.swatch-duo {
+  background: linear-gradient(90deg, var(--c1) 50%, var(--c2) 50%);
+}
+.variant-row {
+  background: rgba(255,255,255,0.02);
+  border-left: 3px solid #c9a96e;
+}
+.admin-table tr.variant-row td {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  font-size: 13px;
+}
+.expand-btn {
+  background: none;
+  border: none;
+  color: #c9a96e;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.expand-btn:hover {
+  background: rgba(201, 169, 110, 0.1);
+}
+</style>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+  <p style="color: rgba(255,255,255,0.5);">{{ products|length }} main products found</p>
+  <button class="admin-btn admin-btn-primary" data-modal="product-modal" onclick="document.getElementById('product-form').reset(); document.querySelector('#product-modal [name=id]').value=''; document.querySelector('#product-modal [name=parent_id]').value='';">
+    + Add Product
+  </button>
+</div>
+
 <div class="admin-card">
   <table class="admin-table">
     <thead>
       <tr>
+        <th style="width: 40px;"></th>
         <th>Product</th>
         <th>Code</th>
         <th>Category</th>
         <th>Price</th>
-        <th>MRP</th>
         <th>Stock</th>
         <th>Status</th>
         <th>Actions</th>
@@ -26,7 +68,12 @@
     </thead>
     <tbody>
       {% for product in products %}
-      <tr>
+      <tr class="parent-row">
+        <td>
+          {% if product.variants.count() > 0 %}
+          <button class="expand-btn" onclick="toggleVariantRows({{ product.id }}, this)">▶</button>
+          {% endif %}
+        </td>
         <td>
           <div class="product-cell">
             <div class="product-thumb">
@@ -34,7 +81,11 @@
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
               {% if product.shade_color %}
-              <div style="width: 16px; height: 16px; border-radius: 50%; background-color: {{ product.shade_color }}; border: 1px solid rgba(0,0,0,0.1);" title="{{ product.shade_name }}"></div>
+                {% if product.shade_color_2 %}
+                <div class="swatch-circle swatch-duo" style="--c1: {{ product.shade_color }}; --c2: {{ product.shade_color_2 }};" title="{{ product.shade_name }}"></div>
+                {% else %}
+                <div class="swatch-circle" style="background-color: {{ product.shade_color }};" title="{{ product.shade_name }}"></div>
+                {% endif %}
               {% endif %}
               <div>
                 <div style="font-weight: 600;">{{ product.name[:40] }}{% if product.name|length > 40 %}...{% endif %}</div>
@@ -46,7 +97,6 @@
         <td>{{ product.code }}</td>
         <td>{{ product.category.name if product.category else 'N/A' }}</td>
         <td>₹{{ "%.0f"|format(product.price) }}</td>
-        <td>₹{{ "%.0f"|format(product.mrp) }}</td>
         <td>
           <span class="admin-badge {% if product.stock > 10 %}success{% elif product.stock > 0 %}warning{% else %}danger{% endif %}">
             {{ product.stock }}
@@ -75,24 +125,14 @@
               data-image_url="{{ product.image_url or '' }}"
               data-weight="{{ product.weight or '' }}"
               data-shade_name="{{ product.shade_name or '' }}"
-              data-shade_color="{{ product.shade_color or '' }}">
+              data-shade_color="{{ product.shade_color or '' }}"
+              data-shade_color_2="{{ product.shade_color_2 or '' }}"
+              data-parent_id="">
               ✏️
             </button>
-            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Toggle Status" onclick="adminToggleProductStatus({{ product.id }})">
-              {% if product.is_active %}👁️{% else %}🕶️{% endif %}
-            </button>
-            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Duplicate as Variant"
-              onclick="adminDuplicateProduct(this)"
-              data-name="{{ product.name }}"
-              data-price="{{ product.price }}"
-              data-mrp="{{ product.mrp }}"
-              data-category_id="{{ product.category_id }}"
-              data-brand="{{ product.brand or '' }}"
-              data-description="{{ product.description or '' }}"
-              data-weight="{{ product.weight or '' }}"
-              data-shade_name="{{ product.shade_name or '' }}"
-              data-shade_color="{{ product.shade_color or '' }}">
-              📋
+            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Add Variant"
+              onclick="adminOpenVariantModal({{ product.id }}, '{{ product.name|escape }}', '{{ product.brand|escape }}')">
+              ➕
             </button>
             <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete" onclick="adminDeleteProduct({{ product.id }})">
               🗑️
@@ -100,6 +140,70 @@
           </div>
         </td>
       </tr>
+      
+      {# Render Variants #}
+      {% for variant in product.variants %}
+      <tr class="variant-row variant-row-of-{{ product.id }}" style="display: none;">
+        <td></td>
+        <td style="padding-left: 20px;">
+          <div class="product-cell">
+            <div class="product-thumb" style="width: 32px; height: 32px;">
+              <img src="{{ variant.image_url or '/static/images/placeholder.png' }}" alt="">
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              {% if variant.shade_color %}
+                {% if variant.shade_color_2 %}
+                <div class="swatch-circle swatch-duo" style="width: 16px; height: 16px; --c1: {{ variant.shade_color }}; --c2: {{ variant.shade_color_2 }};" title="{{ variant.shade_name }}"></div>
+                {% else %}
+                <div class="swatch-circle" style="width: 16px; height: 16px; background-color: {{ variant.shade_color }};" title="{{ variant.shade_name }}"></div>
+                {% endif %}
+              {% endif %}
+              <div>
+                <div style="font-weight: 500;">{{ variant.shade_name or variant.name }}</div>
+                <div style="font-size: 10px; color: rgba(255,255,255,0.4);">Variant of {{ product.name[:20] }}</div>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td>{{ variant.code }}</td>
+        <td>—</td>
+        <td>₹{{ "%.0f"|format(variant.price) }}</td>
+        <td>{{ variant.stock }}</td>
+        <td>
+          {% if variant.is_active %}
+          <span class="admin-badge success" style="padding: 2px 6px; font-size: 10px;">Active</span>
+          {% else %}
+          <span class="admin-badge danger" style="padding: 2px 6px; font-size: 10px;">Inactive</span>
+          {% endif %}
+        </td>
+        <td>
+          <div style="display: flex; gap: 4px;">
+            <button class="admin-btn admin-btn-secondary admin-btn-icon" style="padding: 2px 6px;" title="Edit Variant"
+              data-modal="product-modal"
+              data-id="{{ variant.id }}"
+              data-name="{{ variant.name }}"
+              data-code="{{ variant.code }}"
+              data-price="{{ variant.price }}"
+              data-mrp="{{ variant.mrp }}"
+              data-stock="{{ variant.stock }}"
+              data-category_id="{{ variant.category_id }}"
+              data-brand="{{ variant.brand or '' }}"
+              data-description="{{ variant.description or '' }}"
+              data-image_url="{{ variant.image_url or '' }}"
+              data-weight="{{ variant.weight or '' }}"
+              data-shade_name="{{ variant.shade_name or '' }}"
+              data-shade_color="{{ variant.shade_color or '' }}"
+              data-shade_color_2="{{ variant.shade_color_2 or '' }}"
+              data-parent_id="{{ product.id }}">
+              ✏️
+            </button>
+            <button class="admin-btn admin-btn-danger admin-btn-icon" style="padding: 2px 6px;" title="Delete" onclick="adminDeleteProduct({{ variant.id }})">
+              🗑️
+            </button>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
       {% endfor %}
     </tbody>
   </table>
@@ -107,156 +211,191 @@
 
 <!-- Product Modal -->
 <div class="admin-modal-overlay" id="product-modal">
-  <div class="admin-modal" style="max-width: 700px;">
+  <div class="admin-modal" style="max-width: 800px;">
     <div class="admin-modal-header">
-      <h3>Add / Edit Product</h3>
+      <h3 id="product-modal-title">Add / Edit Product</h3>
       <button class="admin-modal-close">✕</button>
     </div>
+    
+    <div class="admin-tabs" style="display: flex; gap: 20px; padding: 0 24px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+      <button class="admin-tab active" onclick="switchTab(this, 'tab-general')">General Info</button>
+      <button class="admin-tab" id="variant-tab-btn" onclick="switchTab(this, 'tab-variants')" style="display: none;">Variants</button>
+    </div>
+
     <form id="product-form" onsubmit="event.preventDefault(); adminSaveProduct(this);">
       <div class="admin-modal-body">
-        <input type="hidden" name="id" value="">
-        
-        <div class="admin-form-row">
-          <div class="admin-form-group">
-            <label class="admin-form-label">Product Name</label>
-            <input type="text" class="admin-form-control" name="name">
+        <div id="tab-general" class="tab-content active">
+          <input type="hidden" name="id" value="">
+          <input type="hidden" name="parent_id" value="">
+          
+          <div class="admin-form-row">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Product Name</label>
+              <input type="text" class="admin-form-control" name="name">
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Product Code</label>
+              <input type="text" class="admin-form-control" name="code">
+            </div>
           </div>
-          <div class="admin-form-group">
-            <label class="admin-form-label">Product Code</label>
-            <input type="text" class="admin-form-control" name="code">
+  
+          <div class="admin-form-row">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Price (₹)</label>
+              <input type="number" class="admin-form-control" name="price" step="0.01">
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">MRP (₹)</label>
+              <input type="number" class="admin-form-control" name="mrp" step="0.01">
+            </div>
           </div>
-        </div>
+  
+          <div class="admin-form-row">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Category</label>
+              <select class="admin-form-control" name="category_id">
+                <option value="">Select Category</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Stock</label>
+              <input type="number" class="admin-form-control" name="stock" value="100">
+            </div>
+          </div>
+  
+          <div class="admin-form-row">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Brand</label>
+              <input type="text" class="admin-form-control" name="brand">
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Weight</label>
+              <input type="text" class="admin-form-control" name="weight" placeholder="e.g., 50ml">
+            </div>
+          </div>
+  
+          <div class="admin-form-row">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Shade Name</label>
+              <input type="text" class="admin-form-control" name="shade_name" placeholder="e.g. Red Sunset">
+            </div>
+            <div class="admin-form-group" style="flex: 1.5;">
+              <label class="admin-form-label" style="display: flex; justify-content: space-between; align-items: center;">
+                Shade Color
+                <label style="font-size: 11px; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                  <input type="checkbox" name="is_duo" onchange="document.getElementById('duo-color-row').style.display = this.checked ? 'flex' : 'none'"> Duo Shade
+                </label>
+              </label>
+              <div style="display: flex; gap: 10px;">
+                <input type="text" class="admin-form-control" name="shade_color" placeholder="#000000" id="shade-color-text" oninput="document.getElementById('shade-color-picker').value = this.value">
+                <input type="color" class="admin-form-control" style="width: 40px; padding: 2px;" id="shade-color-picker" oninput="document.getElementById('shade-color-text').value = this.value">
+              </div>
+            </div>
+          </div>
 
-        <div class="admin-form-row">
-          <div class="admin-form-group">
-            <label class="admin-form-label">Price (₹)</label>
-            <input type="number" class="admin-form-control" name="price" step="0.01">
+          <div class="admin-form-row" id="duo-color-row" style="display: none; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 10px;">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Second Color (for Duo)</label>
+              <div style="display: flex; gap: 10px;">
+                <input type="text" class="admin-form-control" name="shade_color_2" placeholder="#000000" id="shade-color-text-2" oninput="document.getElementById('shade-color-picker-2').value = this.value">
+                <input type="color" class="admin-form-control" style="width: 40px; padding: 2px;" id="shade-color-picker-2" oninput="document.getElementById('shade-color-text-2').value = this.value">
+              </div>
+            </div>
           </div>
+  
           <div class="admin-form-group">
-            <label class="admin-form-label">MRP (₹)</label>
-            <input type="number" class="admin-form-control" name="mrp" step="0.01">
+            <label class="admin-form-label">Main Image URL</label>
+            <input type="text" class="admin-form-control" name="image_url" placeholder="https://...">
           </div>
-        </div>
-
-        <div class="admin-form-row">
+  
           <div class="admin-form-group">
-            <label class="admin-form-label">Category</label>
-            <select class="admin-form-control" name="category_id">
-              <option value="">Select Category</option>
-              {% for cat in categories %}
-              <option value="{{ cat.id }}">{{ cat.name }}</option>
-              {% endfor %}
-            </select>
+            <label class="admin-form-label">Description</label>
+            <textarea class="admin-form-control" name="description" rows="3"></textarea>
           </div>
-          <div class="admin-form-group">
-            <label class="admin-form-label">Stock</label>
-            <input type="number" class="admin-form-control" name="stock" value="100">
-          </div>
-        </div>
-
-        <div class="admin-form-row">
-          <div class="admin-form-group">
-            <label class="admin-form-label">Brand</label>
-            <input type="text" class="admin-form-control" name="brand">
-          </div>
-          <div class="admin-form-group">
-            <label class="admin-form-label">Weight</label>
-            <input type="text" class="admin-form-control" name="weight" placeholder="e.g., 50ml">
-          </div>
-        </div>
-
-        <div class="admin-form-row">
-          <div class="admin-form-group">
-            <label class="admin-form-label">Shade Name (e.g. Red Sunset)</label>
-            <input type="text" class="admin-form-control" name="shade_name">
-          </div>
-          <div class="admin-form-group">
-            <label class="admin-form-label">Shade Color (Hex)</label>
-            <div style="display: flex; gap: 10px;">
-              <input type="text" class="admin-form-control" name="shade_color" placeholder="#000000" id="shade-color-text" oninput="document.getElementById('shade-color-picker').value = this.value">
-              <input type="color" class="admin-form-control" style="width: 50px; padding: 2px;" id="shade-color-picker" oninput="document.getElementById('shade-color-text').value = this.value">
+  
+          <div class="admin-form-row">
+            <div class="admin-form-group">
+              <label style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.6); font-size: 13px;">
+                <input type="checkbox" name="is_new" style="accent-color: #c9a96e;"> Mark as New
+              </label>
+            </div>
+            <div class="admin-form-group">
+              <label style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.6); font-size: 13px;">
+                <input type="checkbox" name="is_bestseller" style="accent-color: #c9a96e;"> Mark as Bestseller
+              </label>
             </div>
           </div>
         </div>
 
-        <div class="admin-form-group">
-          <label class="admin-form-label">Product Media (Images or Videos)</label>
-          <input type="file" class="admin-form-control" name="product_images" multiple accept="image/*,video/*" style="padding: 8px;">
-          <small style="color: rgba(255,255,255,0.4); font-size: 11px;">You can select multiple images and videos to upload.</small>
-        </div>
-
-        <div class="admin-form-group">
-          <label class="admin-form-label">Main Image URL</label>
-          <input type="text" class="admin-form-control" name="image_url" placeholder="https://...">
-        </div>
-
-        <div class="admin-form-group">
-          <label class="admin-form-label">Additional Image URLs (One per line)</label>
-          <textarea class="admin-form-control" name="additional_image_urls" rows="3" placeholder="https://image1.jpg&#10;https://image2.jpg"></textarea>
-          <small style="color: rgba(255,255,255,0.4); font-size: 11px;">Paste multiple image links here, each on a new line.</small>
-        </div>
-
-        <div class="admin-form-group">
-          <label class="admin-form-label">Video URLs (One per line)</label>
-          <textarea class="admin-form-control" name="video_urls" rows="2" placeholder="https://youtube.com/watch?v=...&#10;https://mysite.com/video.mp4"></textarea>
-          <small style="color: rgba(255,255,255,0.4); font-size: 11px;">YouTube links or direct MP4 links are supported.</small>
-        </div>
-
-        <div class="admin-form-group">
-          <label class="admin-form-label">Description</label>
-          <textarea class="admin-form-control" name="description" rows="4"></textarea>
-        </div>
-
-        <div class="admin-form-row">
-          <div class="admin-form-group">
-            <label style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.6); font-size: 13px;">
-              <input type="checkbox" name="is_new" style="accent-color: #c9a96e;"> Mark as New
-            </label>
-          </div>
-          <div class="admin-form-group">
-            <label style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.6); font-size: 13px;">
-              <input type="checkbox" name="is_bestseller" style="accent-color: #c9a96e;"> Mark as Bestseller
-            </label>
+        <div id="tab-variants" class="tab-content" style="display: none; padding: 20px 0;">
+          <div class="variant-manager-placeholder" style="text-align: center; color: rgba(255,255,255,0.4); padding: 40px;">
+            <p>You can manage variants for this product here.</p>
+            <button type="button" class="admin-btn admin-btn-secondary" onclick="adminOpenVariantModalFromTab()">+ Add New Shade Variant</button>
           </div>
         </div>
       </div>
       <div class="admin-modal-footer">
         <button type="button" class="admin-btn admin-btn-secondary" onclick="this.closest('.admin-modal-overlay').classList.remove('active')">Cancel</button>
-        <button type="submit" class="admin-btn admin-btn-secondary" onclick="this.form.dataset.stayOpen='true'">Save & Add Variant</button>
-        <button type="submit" class="admin-btn admin-btn-primary">Save Product</button>
+        <button type="submit" class="admin-btn admin-btn-primary">Save Changes</button>
       </div>
     </form>
+  </div>
+</div>
   </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function adminDuplicateProduct(btn) {
-  const data = btn.dataset;
+function switchTab(btn, tabId) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+  
+  btn.classList.add('active');
+  document.getElementById(tabId).style.display = 'block';
+}
+
+function adminOpenVariantModal(parentId, productName, brand) {
   const modal = document.getElementById('product-modal');
   const form = document.getElementById('product-form');
   
   form.reset();
   modal.classList.add('active');
+  document.getElementById('product-modal-title').textContent = `Add Variant for ${productName}`;
+  document.getElementById('variant-tab-btn').style.display = 'none'; // Hide variant tab when adding a new variant
   
-  // Populate with same data but CLEAR id and code
+  switchTab(document.querySelector('.admin-tab'), 'tab-general');
+  
   form.querySelector('[name="id"]').value = '';
-  form.querySelector('[name="name"]').value = data.name || '';
-  form.querySelector('[name="category_id"]').value = data.categoryId || '';
-  form.querySelector('[name="brand"]').value = data.brand || '';
-  form.querySelector('[name="price"]').value = data.price || '';
-  form.querySelector('[name="mrp"]').value = data.mrp || '';
-  form.querySelector('[name="description"]').value = data.description || '';
-  form.querySelector('[name="weight"]').value = data.weight || '';
-  form.querySelector('[name="shade_name"]').value = data.shadeName || '';
-  form.querySelector('[name="shade_color"]').value = data.shadeColor || '';
-  form.querySelector('#shade-color-text').value = data.shadeColor || '';
-  form.querySelector('[name="code"]').value = ''; // Important: must be different code
+  form.querySelector('[name="parent_id"]').value = parentId;
+  form.querySelector('[name="name"]').value = productName;
+  form.querySelector('[name="brand"]').value = brand;
   form.querySelector('[name="code"]').focus();
   
-  showToast('Clone created. Please enter a new Product Code.', 'info');
+  showToast('Adding new variant. Please enter a unique Product Code.', 'info');
 }
+
+function adminOpenVariantModalFromTab() {
+  const form = document.getElementById('product-form');
+  const parentId = form.querySelector('[name="id"]').value;
+  const productName = form.querySelector('[name="name"]').value;
+  const brand = form.querySelector('[name="brand"]').value;
+  
+  adminOpenVariantModal(parentId, productName, brand);
+}
+
+// Override modal open to handle tabs and title
+document.querySelectorAll('[data-modal="product-modal"]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const isEdit = !!btn.dataset.id;
+    document.getElementById('product-modal-title').textContent = isEdit ? 'Edit Product' : 'Add New Product';
+    document.getElementById('variant-tab-btn').style.display = (isEdit && !btn.dataset.parentId) ? 'block' : 'none';
+    switchTab(document.querySelector('.admin-tab'), 'tab-general');
+  });
+});
 
 async function adminDeleteProduct(productId) {
   if (!confirm('Are you sure you want to PERMANENTLY remove this product? This cannot be undone.')) return;
