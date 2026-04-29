@@ -287,9 +287,10 @@ def product_detail(slug):
     product = Product.query.filter_by(slug=slug, is_active=True).first_or_404()
     
     # Find variants (sharing the same parent or being children of this product)
+    from sqlalchemy import or_
     root_id = product.parent_id if product.parent_id else product.id
     variants = Product.query.filter(
-        db.or_(Product.id == root_id, Product.parent_id == root_id),
+        or_(Product.id == root_id, Product.parent_id == root_id),
         Product.id != product.id,
         Product.is_active == True
     ).all()
