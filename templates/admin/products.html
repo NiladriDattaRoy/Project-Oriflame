@@ -219,6 +219,7 @@
     
     <div class="admin-tabs" style="display: flex; gap: 20px; padding: 0 24px; border-bottom: 1px solid rgba(255,255,255,0.1);">
       <button class="admin-tab active" onclick="switchTab(this, 'tab-general')">General Info</button>
+      <button class="admin-tab" onclick="switchTab(this, 'tab-media')">Media & Gallery</button>
       <button class="admin-tab" id="variant-tab-btn" onclick="switchTab(this, 'tab-variants')" style="display: none;">Variants</button>
     </div>
 
@@ -327,6 +328,24 @@
                 <input type="checkbox" name="is_bestseller" style="accent-color: #c9a96e;"> Mark as Bestseller
               </label>
             </div>
+          </div>
+        </div>
+
+        <div id="tab-media" class="tab-content" style="display: none; padding: 20px 0;">
+          <div class="admin-form-group">
+            <label class="admin-form-label">Upload Additional Images/Videos</label>
+            <input type="file" class="admin-form-control" name="product_images" multiple accept="image/*,video/*">
+            <small style="color: rgba(255,255,255,0.4);">You can select multiple files at once.</small>
+          </div>
+
+          <div class="admin-form-group" style="margin-top: 20px;">
+            <label class="admin-form-label">Additional Image URLs (One per line)</label>
+            <textarea class="admin-form-control" name="additional_image_urls" rows="4" placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"></textarea>
+          </div>
+
+          <div class="admin-form-group" style="margin-top: 20px;">
+            <label class="admin-form-label">Video URLs (YouTube or Direct Link)</label>
+            <textarea class="admin-form-control" name="video_urls" rows="2" placeholder="https://www.youtube.com/watch?v=..."></textarea>
           </div>
         </div>
 
