@@ -1116,8 +1116,9 @@ def admin_dashboard():
 @login_required
 @admin_required
 def admin_products():
-    # Only top-level products for the main list, variants will be nested
-    products_list = Product.query.filter_by(parent_id=None).order_by(Product.created_at.desc()).all()
+    # Fetch all products to avoid multiple nested queries in the template for now
+    # We will handle the grouping logic carefully
+    products_list = Product.query.order_by(Product.created_at.desc()).all()
     categories_list = Category.query.all()
     return render_template('admin/products.html', products=products_list, categories=categories_list)
 
