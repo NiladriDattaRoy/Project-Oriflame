@@ -131,7 +131,7 @@
               ✏️
             </button>
             <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Add Variant"
-              onclick="adminOpenVariantModal({{ product.id }}, '{{ product.name|escape }}', '{{ product.brand|escape }}')">
+              onclick='adminOpenVariantModal({{ product.id }}, "{{ product.name|replace("\"", "\\\"")|replace("\n", " ") }}", "{{ product.brand|replace("\"", "\\\"") }}")'>
               ➕
             </button>
             <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete" onclick="adminDeleteProduct({{ product.id }})">
@@ -142,7 +142,7 @@
       </tr>
       
       {# Render Variants #}
-      {% for variant in product.variants %}
+      {% for variant in product.variants.all() %}
       <tr class="variant-row variant-row-of-{{ product.id }}" style="display: none;">
         <td></td>
         <td style="padding-left: 20px;">
