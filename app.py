@@ -282,18 +282,6 @@ def category_page(slug):
                            total_pages=total_pages)
 
 
-@app.route('/oriflame-admin-panel-x9k2/products/<int:id>/toggle-status', methods=['POST'])
-@login_required
-@admin_required
-def admin_toggle_product_status(id):
-    product = Product.query.get_or_404(id)
-    product.is_active = not product.is_active
-    db.session.commit()
-    return jsonify({
-        'success': True,
-        'message': f'Product {"activated" if product.is_active else "deactivated"} successfully'
-    })
-
 @app.route('/products/<slug>')
 def product_detail(slug):
     product = Product.query.filter_by(slug=slug, is_active=True).first_or_404()
