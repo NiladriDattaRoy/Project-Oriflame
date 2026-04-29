@@ -68,10 +68,9 @@
     </thead>
     <tbody>
       {% for product in products %}
-      {% if not product.parent_id %}
       <tr class="parent-row">
         <td>
-          {% if product.variants.count() > 0 %}
+          {% if variants_map.get(product.id) %}
           <button class="expand-btn" onclick="toggleVariantRows({{ product.id }}, this)">▶</button>
           {% endif %}
         </td>
@@ -143,7 +142,7 @@
       </tr>
       
       {# Render Variants #}
-      {% for variant in product.variants.all() %}
+      {% for variant in variants_map.get(product.id, []) %}
       <tr class="variant-row variant-row-of-{{ product.id }}" style="display: none;">
         <td></td>
         <td style="padding-left: 20px;">
@@ -205,7 +204,6 @@
         </td>
       </tr>
       {% endfor %}
-      {% endif %}
       {% endfor %}
     </tbody>
   </table>

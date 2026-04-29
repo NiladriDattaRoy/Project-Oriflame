@@ -1116,11 +1116,23 @@ def admin_dashboard():
 @login_required
 @admin_required
 def admin_products():
-    # Fetch all products to avoid multiple nested queries in the template for now
-    # We will handle the grouping logic carefully
-    products_list = Product.query.order_by(Product.created_at.desc()).all()
+    # Fetch all products in one single query to be super fast
+    all_products = Product.query.order_by(Product.created_at.desc()).all()
+    
+    # Separate parents and group variants
+    parents = [p for p in all_products if not p.parent_id]
+    variants_map = {}
+    for p in all_products:
+        if p.parent_id:
+            if p.parent_id not in variants_map:
+                variants_map[p.parent_id] = []
+            variants_map[p.parent_id].append(p)
+            
     categories_list = Category.query.all()
-    return render_template('admin/products.html', products=products_list, categories=categories_list)
+    return render_template('admin/products.html', 
+                           products=parents, 
+                           variants_map=variants_map,
+                           categories=categories_list)
 
 
 @app.route('/oriflame-admin-panel-x9k2/products', methods=['POST'])
