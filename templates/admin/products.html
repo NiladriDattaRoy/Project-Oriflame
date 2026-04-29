@@ -3,12 +3,6 @@
 {% block page_title %}Products{% endblock %}
 
 {% block admin_content %}
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-  <p style="color: rgba(255,255,255,0.5);">{{ products|length }} products found</p>
-  <button class="admin-btn admin-btn-primary" data-modal="product-modal" onclick="document.getElementById('product-form').reset(); document.querySelector('#product-modal [name=id]').value='';">
-    + Add Product
-  </button>
-</div>
 
 <style>
 .swatch-circle {
