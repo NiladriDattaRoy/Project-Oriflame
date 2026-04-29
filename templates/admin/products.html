@@ -124,6 +124,9 @@
               data-parent_id="">
               ✏️
             </button>
+            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Toggle Status" onclick="adminToggleProductStatus({{ product.id }})">
+              {% if product.is_active %}👁️{% else %}🚫{% endif %}
+            </button>
             <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Add Variant"
               onclick='adminOpenVariantModal({{ product.id }}, "{{ product.name|replace("\"", "\\\"")|replace("\n", " ") }}", "{{ product.brand|replace("\"", "\\\"") }}")'>
               ➕
@@ -190,6 +193,9 @@
               data-shade_color_2="{{ variant.shade_color_2 or '' }}"
               data-parent_id="{{ product.id }}">
               ✏️
+            </button>
+            <button class="admin-btn admin-btn-secondary admin-btn-icon" style="padding: 2px 6px;" title="Toggle Status" onclick="adminToggleProductStatus({{ variant.id }})">
+              {% if variant.is_active %}👁️{% else %}🚫{% endif %}
             </button>
             <button class="admin-btn admin-btn-danger admin-btn-icon" style="padding: 2px 6px;" title="Delete" onclick="adminDeleteProduct({{ variant.id }})">
               🗑️
