@@ -62,18 +62,17 @@
   }
 </style>
 
-<div style="background: rgba(201, 169, 110, 0.1); border: 1px solid #c9a96e; padding: 16px; border-radius: 8px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+<div style="background: rgba(201, 169, 110, 0.1); border: 1px solid #c9a96e; padding: 20px; border-radius: 12px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
   <div>
-    <h4 style="margin: 0; color: #c9a96e;">Product Management View</h4>
-    <p style="margin: 5px 0 0; font-size: 13px; color: rgba(255,255,255,0.6);">
-      Switch between <strong>Grouped</strong> (Clean) and <strong>All Products</strong> (Full List).
-    </p>
+    <h2 style="margin: 0; color: #c9a96e; font-size: 24px;">Product Dashboard</h2>
+    <div style="display: flex; gap: 15px; margin-top: 10px;">
+      <button class="admin-btn" id="btn-view-all" onclick="switchProductTab('all')" style="background: #c9a96e; color: #000; font-weight: 700; padding: 8px 20px;">All Products ({{ all_products|length }})</button>
+      <button class="admin-btn" id="btn-view-grouped" onclick="switchProductTab('grouped')" style="background: rgba(255,255,255,0.1); color: #fff; padding: 8px 20px;">Grouped View ({{ products|length }})</button>
+      <button class="admin-btn" onclick="runSmartScan()" style="background: #2ecc71; color: #fff; font-weight: 700; padding: 8px 20px;">🔄 Scan & Link Variants</button>
+    </div>
   </div>
-  <div style="display: flex; gap: 10px;">
-    <button class="admin-btn" id="btn-view-grouped" onclick="switchProductTab('grouped')" style="background: #c9a96e; color: #000; font-weight: 700;">Grouped ({{ products|length }})</button>
-    <button class="admin-btn" id="btn-view-all" onclick="switchProductTab('all')" style="background: rgba(255,255,255,0.1); color: #fff;">All Products ({{ all_products|length }})</button>
-    <button class="admin-btn" onclick="runSmartScan()" style="background: #2ecc71; color: #fff; font-weight: 700;">🔄 Scan & Link Variants</button>
-    <button class="admin-btn admin-btn-primary" style="margin-left: 20px;" data-modal="product-modal" onclick="document.getElementById('product-form').reset(); document.querySelector('#product-modal [name=id]').value='';">
+  <div>
+    <button class="admin-btn admin-btn-primary" style="padding: 12px 25px; font-size: 16px; font-weight: 700; box-shadow: 0 4px 15px rgba(201, 169, 110, 0.3);" data-modal="product-modal" onclick="document.getElementById('product-form').reset(); document.querySelector('#product-modal [name=id]').value='';">
       + Add New Product
     </button>
   </div>
