@@ -78,7 +78,86 @@
   </div>
 </div>
 
-<div class="admin-card" id="view-grouped">
+<div class="admin-card" id="view-all">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Code</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in all_products %}
+      <tr>
+        <td>
+          <div class="product-cell">
+            <div class="product-thumb">
+              <img src="{{ p.image_url or '/static/images/placeholder.png' }}" alt="">
+            </div>
+            <div>
+              <div style="font-weight: 600;">{{ p.name[:40] }}</div>
+              {% if p.shade_name %}
+              <div style="font-size: 11px; color: #c9a96e;">Shade: {{ p.shade_name }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </td>
+        <td>{{ p.code }}</td>
+        <td>{{ p.category.name if p.category else 'N/A' }}</td>
+        <td>₹{{ "%.0f"|format(p.price or 0) }}</td>
+        <td>{{ p.stock }}</td>
+        <td>
+          {% if p.parent_id %}
+            <span style="font-size: 11px; color: rgba(255,255,255,0.4);">Linked</span>
+          {% else %}
+            <span style="font-size: 11px; color: #2ecc71;">Main</span>
+          {% endif %}
+        </td>
+        <td>
+          <div class="admin-table-actions">
+            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Edit"
+              data-modal="product-modal"
+              data-id="{{ p.id }}"
+              data-name="{{ p.name }}"
+              data-code="{{ p.code or '' }}"
+              data-slug="{{ p.slug }}"
+              data-category="{{ p.category_id or '' }}"
+              data-brand="{{ p.brand or '' }}"
+              data-price="{{ p.price or '' }}"
+              data-mrp="{{ p.mrp or '' }}"
+              data-stock="{{ p.stock or 0 }}"
+              data-weight="{{ p.weight or '' }}"
+              data-short-desc="{{ p.short_description or '' }}"
+              data-desc="{{ p.description or '' }}"
+              data-image="{{ p.image_url or '' }}"
+              data-image2="{{ p.image_url_2 or '' }}"
+              data-shade-name="{{ p.shade_name or '' }}"
+              data-shade-color="{{ p.shade_color or '' }}"
+              data-shade-color2="{{ p.shade_color_2 or '' }}"
+              data-is-new="{{ 'true' if p.is_new else 'false' }}"
+              data-is-bestseller="{{ 'true' if p.is_bestseller else 'false' }}"
+              data-is-featured="{{ 'true' if p.is_featured else 'false' }}"
+              data-is-active="{{ 'true' if p.is_active else 'false' }}"
+              data-how-to-use="{{ p.how_to_use or '' }}"
+              data-ingredients="{{ p.ingredients or '' }}"
+              data-parent-id="{{ p.parent_id or '' }}"
+              onclick="populateForm(this)">
+              ✏️
+            </button>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="admin-card" id="view-grouped" style="display: none;">
   <table class="admin-table">
     <thead>
       <tr>
@@ -242,7 +321,6 @@
           </div>
         </td>
       </tr>
-      {% endfor %}
       {% endfor %}
     </tbody>
   </table>
@@ -562,87 +640,6 @@ async function adminToggleProductStatus(productId) {
   }
 }
 </script>
-<div class="admin-card" id="view-all" style="display: none;">
-  <table class="admin-table">
-    <thead>
-      <tr>
-        <th>Product</th>
-        <th>Code</th>
-        <th>Category</th>
-        <th>Price</th>
-        <th>Stock</th>
-        <th>Parent</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for p in all_products %}
-      <tr>
-        <td>
-          <div class="product-cell">
-            <div class="product-thumb">
-              <img src="{{ p.image_url or '/static/images/placeholder.png' }}" alt="">
-            </div>
-            <div>
-              <div style="font-weight: 600;">{{ p.name[:40] }}</div>
-              {% if p.shade_name %}
-              <div style="font-size: 11px; color: #c9a96e;">Shade: {{ p.shade_name }}</div>
-              {% endif %}
-            </div>
-          </div>
-        </td>
-        <td>{{ p.code }}</td>
-        <td>{{ p.category.name if p.category else 'N/A' }}</td>
-        <td>₹{{ "%.0f"|format(p.price or 0) }}</td>
-        <td>{{ p.stock }}</td>
-        <td>
-          {% if p.parent_id %}
-            <span style="font-size: 11px; color: rgba(255,255,255,0.4);">Linked (ID: {{ p.parent_id }})</span>
-          {% else %}
-            <span style="font-size: 11px; color: #2ecc71;">Main</span>
-          {% endif %}
-        </td>
-        <td>
-          <div class="admin-table-actions">
-            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Edit"
-              data-modal="product-modal"
-              data-id="{{ p.id }}"
-              data-name="{{ p.name }}"
-              data-code="{{ p.code or '' }}"
-              data-slug="{{ p.slug }}"
-              data-category="{{ p.category_id or '' }}"
-              data-brand="{{ p.brand or '' }}"
-              data-price="{{ p.price or '' }}"
-              data-mrp="{{ p.mrp or '' }}"
-              data-stock="{{ p.stock or 0 }}"
-              data-weight="{{ p.weight or '' }}"
-              data-short-desc="{{ p.short_description or '' }}"
-              data-desc="{{ p.description or '' }}"
-              data-image="{{ p.image_url or '' }}"
-              data-image2="{{ p.image_url_2 or '' }}"
-              data-shade-name="{{ p.shade_name or '' }}"
-              data-shade-color="{{ p.shade_color or '' }}"
-              data-shade-color2="{{ p.shade_color_2 or '' }}"
-              data-is-new="{{ 'true' if p.is_new else 'false' }}"
-              data-is-bestseller="{{ 'true' if p.is_bestseller else 'false' }}"
-              data-is-featured="{{ 'true' if p.is_featured else 'false' }}"
-              data-is-active="{{ 'true' if p.is_active else 'false' }}"
-              data-how-to-use="{{ p.how_to_use or '' }}"
-              data-ingredients="{{ p.ingredients or '' }}"
-              data-parent-id="{{ p.parent_id or '' }}"
-              onclick="populateForm(this)">
-              ✏️
-            </button>
-            <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete" onclick="adminDeleteProduct({{ p.id }})">
-              🗑️
-            </button>
-          </div>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
 
 <script>
 function switchProductTab(tab) {
