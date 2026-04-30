@@ -37,16 +37,42 @@
 .expand-btn:hover {
   background: rgba(201, 169, 110, 0.1);
 }
+  .admin-tabs {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 0;
+  }
+  .admin-tab {
+    padding: 12px 20px;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s;
+    border-bottom: 2px solid transparent;
+  }
+  .admin-tab:hover {
+    color: #fff;
+  }
+  .admin-tab.active {
+    color: #c9a96e;
+    border-bottom-color: #c9a96e;
+  }
 </style>
 
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-  <p style="color: rgba(255,255,255,0.5);">{{ products|length }} main products found</p>
-  <button class="admin-btn admin-btn-primary" data-modal="product-modal" onclick="document.getElementById('product-form').reset(); document.querySelector('#product-modal [name=id]').value=''; document.querySelector('#product-modal [name=parent_id]').value='';">
-    + Add Product
-  </button>
+<div class="admin-tabs">
+  <div class="admin-tab active" id="tab-grouped" onclick="switchProductTab('grouped')">Grouped View ({{ products|length }})</div>
+  <div class="admin-tab" id="tab-all" onclick="switchProductTab('all')">All Products ({{ all_products|length }})</div>
+  <div style="margin-left: auto;">
+    <button class="admin-btn admin-btn-primary" data-modal="product-modal" onclick="document.getElementById('product-form').reset(); document.querySelector('#product-modal [name=id]').value=''; document.querySelector('#product-modal [name=parent_id]').value='';">
+      + Add Product
+    </button>
+  </div>
 </div>
 
-<div class="admin-card">
+<div class="admin-card" id="view-grouped">
   <table class="admin-table">
     <thead>
       <tr>
@@ -62,6 +88,7 @@
     </thead>
     <tbody>
       {% for product in products %}
+
       <tr class="parent-row">
         <td>
           {% if variants_map.get(product.id) %}
@@ -526,6 +553,102 @@ async function adminToggleProductStatus(productId) {
     }
   } catch (err) {
     showToast('Something went wrong', 'error');
+  }
+}
+</script>
+<div class="admin-card" id="view-all" style="display: none;">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Code</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Parent</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in all_products %}
+      <tr>
+        <td>
+          <div class="product-cell">
+            <div class="product-thumb">
+              <img src="{{ p.image_url or '/static/images/placeholder.png' }}" alt="">
+            </div>
+            <div>
+              <div style="font-weight: 600;">{{ p.name[:40] }}</div>
+              {% if p.shade_name %}
+              <div style="font-size: 11px; color: #c9a96e;">Shade: {{ p.shade_name }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </td>
+        <td>{{ p.code }}</td>
+        <td>{{ p.category.name if p.category else 'N/A' }}</td>
+        <td>₹{{ "%.0f"|format(p.price or 0) }}</td>
+        <td>{{ p.stock }}</td>
+        <td>
+          {% if p.parent_id %}
+            <span style="font-size: 11px; color: rgba(255,255,255,0.4);">Linked (ID: {{ p.parent_id }})</span>
+          {% else %}
+            <span style="font-size: 11px; color: #2ecc71;">Main</span>
+          {% endif %}
+        </td>
+        <td>
+          <div class="admin-table-actions">
+            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Edit"
+              data-modal="product-modal"
+              data-id="{{ p.id }}"
+              data-name="{{ p.name }}"
+              data-code="{{ p.code or '' }}"
+              data-slug="{{ p.slug }}"
+              data-category="{{ p.category_id or '' }}"
+              data-brand="{{ p.brand or '' }}"
+              data-price="{{ p.price or '' }}"
+              data-mrp="{{ p.mrp or '' }}"
+              data-stock="{{ p.stock or 0 }}"
+              data-weight="{{ p.weight or '' }}"
+              data-short-desc="{{ p.short_description or '' }}"
+              data-desc="{{ p.description or '' }}"
+              data-image="{{ p.image_url or '' }}"
+              data-image2="{{ p.image_url_2 or '' }}"
+              data-shade-name="{{ p.shade_name or '' }}"
+              data-shade-color="{{ p.shade_color or '' }}"
+              data-shade-color2="{{ p.shade_color_2 or '' }}"
+              data-is-new="{{ 'true' if p.is_new else 'false' }}"
+              data-is-bestseller="{{ 'true' if p.is_bestseller else 'false' }}"
+              data-is-featured="{{ 'true' if p.is_featured else 'false' }}"
+              data-is-active="{{ 'true' if p.is_active else 'false' }}"
+              data-how-to-use="{{ p.how_to_use or '' }}"
+              data-ingredients="{{ p.ingredients or '' }}"
+              data-parent-id="{{ p.parent_id or '' }}"
+              onclick="populateForm(this)">
+              ✏️
+            </button>
+            <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete" onclick="adminDeleteProduct({{ p.id }})">
+              🗑️
+            </button>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+function switchProductTab(tab) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  
+  if (tab === 'grouped') {
+    document.getElementById('view-grouped').style.display = 'block';
+    document.getElementById('view-all').style.display = 'none';
+  } else {
+    document.getElementById('view-grouped').style.display = 'none';
+    document.getElementById('view-all').style.display = 'block';
   }
 }
 </script>
