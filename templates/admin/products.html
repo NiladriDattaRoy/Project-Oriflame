@@ -80,15 +80,17 @@
 </div>
 
 <div class="admin-card" id="view-all">
+  <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+    <h3 style="margin: 0; font-size: 18px;">All Products ({{ all_products|length }})</h3>
+  </div>
   <table class="admin-table">
     <thead>
       <tr>
         <th>Product</th>
         <th>Code</th>
-        <th>Category</th>
         <th>Price</th>
         <th>Stock</th>
-        <th>Status</th>
+        <th>Type</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -109,47 +111,19 @@
           </div>
         </td>
         <td>{{ p.code }}</td>
-        <td>{{ p.category.name if p.category else 'N/A' }}</td>
         <td>₹{{ "%.0f"|format(p.price or 0) }}</td>
         <td>{{ p.stock }}</td>
         <td>
           {% if p.parent_id %}
-            <span style="font-size: 11px; color: rgba(255,255,255,0.4);">Linked</span>
+            <span style="font-size: 11px; color: rgba(255,255,255,0.4);">Variant</span>
           {% else %}
             <span style="font-size: 11px; color: #2ecc71;">Main</span>
           {% endif %}
         </td>
         <td>
-          <div class="admin-table-actions">
-            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Edit"
-              data-modal="product-modal"
-              data-id="{{ p.id }}"
-              data-name="{{ p.name }}"
-              data-code="{{ p.code or '' }}"
-              data-slug="{{ p.slug }}"
-              data-category="{{ p.category_id or '' }}"
-              data-brand="{{ p.brand or '' }}"
-              data-price="{{ p.price or '' }}"
-              data-mrp="{{ p.mrp or '' }}"
-              data-stock="{{ p.stock or 0 }}"
-              data-weight="{{ p.weight or '' }}"
-              data-short-desc="{{ p.short_description or '' }}"
-              data-desc="{{ p.description or '' }}"
-              data-image="{{ p.image_url or '' }}"
-              data-image2="{{ p.image_url_2 or '' }}"
-              data-shade-name="{{ p.shade_name or '' }}"
-              data-shade-color="{{ p.shade_color or '' }}"
-              data-shade-color2="{{ p.shade_color_2 or '' }}"
-              data-is-new="{{ 'true' if p.is_new else 'false' }}"
-              data-is-bestseller="{{ 'true' if p.is_bestseller else 'false' }}"
-              data-is-featured="{{ 'true' if p.is_featured else 'false' }}"
-              data-is-active="{{ 'true' if p.is_active else 'false' }}"
-              data-how-to-use="{{ p.how_to_use or '' }}"
-              data-ingredients="{{ p.ingredients or '' }}"
-              data-parent-id="{{ p.parent_id or '' }}"
-              onclick="populateForm(this)">
-              ✏️
-            </button>
+          <div style="display: flex; gap: 4px;">
+            <button class="admin-btn admin-btn-secondary" onclick="populateFormFromData({{ p.id }})">Edit</button>
+            <button class="admin-btn admin-btn-danger" onclick="adminDeleteProduct({{ p.id }})">Del</button>
           </div>
         </td>
       </tr>
@@ -159,22 +133,22 @@
 </div>
 
 <div class="admin-card" id="view-grouped" style="display: none;">
+  <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+    <h3 style="margin: 0; font-size: 18px;">Grouped View ({{ products|length }} main products)</h3>
+  </div>
   <table class="admin-table">
     <thead>
       <tr>
         <th style="width: 40px;"></th>
         <th>Product</th>
         <th>Code</th>
-        <th>Category</th>
         <th>Price</th>
         <th>Stock</th>
-        <th>Status</th>
         <th>Actions</th>
       </tr>
     </thead>
     <tbody>
       {% for product in products %}
-
       <tr class="parent-row">
         <td>
           {% if variants_map.get(product.id) %}
@@ -186,66 +160,13 @@
             <div class="product-thumb">
               <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="">
             </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-              {% if product.shade_color %}
-                {% if product.shade_color_2 %}
-                <div class="swatch-circle swatch-duo" style="--c1: {{ product.shade_color }}; --c2: {{ product.shade_color_2 }};" title="{{ product.shade_name }}"></div>
-                {% else %}
-                <div class="swatch-circle" style="background-color: {{ product.shade_color }};" title="{{ product.shade_name }}"></div>
-                {% endif %}
-              {% endif %}
-              <div>
-                <div style="font-weight: 600;">{{ product.name[:40] }}{% if product.name|length > 40 %}...{% endif %}</div>
-                <div style="font-size: 11px; color: rgba(255,255,255,0.4);">{{ product.brand or '' }}</div>
-              </div>
+            <div>
+              <div style="font-weight: 600;">{{ product.name[:40] }}</div>
             </div>
           </div>
         </td>
         <td>{{ product.code }}</td>
-        <td>{{ product.category.name if product.category else 'N/A' }}</td>
         <td>₹{{ "%.0f"|format(product.price or 0) }}</td>
-        <td>
-          <span class="admin-badge {% if product.stock > 10 %}success{% elif product.stock > 0 %}warning{% else %}danger{% endif %}">
-            {{ product.stock }}
-          </span>
-        </td>
-        <td>
-          {% if product.is_active %}
-          <span class="admin-badge success">Active</span>
-          {% else %}
-          <span class="admin-badge danger">Inactive</span>
-          {% endif %}
-        </td>
-        <td>
-          <div style="display: flex; gap: 4px;">
-            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Edit"
-              data-modal="product-modal"
-              data-id="{{ product.id }}"
-              data-name="{{ product.name }}"
-              data-code="{{ product.code }}"
-              data-price="{{ product.price }}"
-              data-mrp="{{ product.mrp }}"
-              data-stock="{{ product.stock }}"
-              data-category_id="{{ product.category_id }}"
-              data-brand="{{ product.brand or '' }}"
-              data-short_description="{{ (product.short_description or '')|e }}"
-              data-description="{{ (product.description or '')|e }}"
-              data-how_to_use="{{ (product.how_to_use or '')|e }}"
-              data-ingredients="{{ (product.ingredients or '')|e }}"
-              data-image_url="{{ product.image_url or '' }}"
-              data-weight="{{ product.weight or '' }}"
-              data-shade_name="{{ product.shade_name or '' }}"
-              data-shade_color="{{ product.shade_color or '' }}"
-              data-shade_color_2="{{ product.shade_color_2 or '' }}"
-              data-parent_id="">
-              ✏️
-            </button>
-            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Toggle Status" onclick="adminToggleProductStatus({{ product.id }})">
-              {% if product.is_active %}👁️{% else %}🚫{% endif %}
-            </button>
-            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Add Variant"
-              onclick="adminOpenVariantModal(this)">
-              ➕
             </button>
             <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete" onclick="adminDeleteProduct({{ product.id }})">
               🗑️
@@ -665,24 +586,38 @@ function switchProductTab(tab) {
     btnGrouped.style.color = '#fff';
   }
 }
-function runSmartScan() {
-  if (!confirm('This will scan all products and permanently group similar names together. Continue?')) return;
-  const btn = event.target;
-  const originalText = btn.textContent;
-  btn.textContent = 'Scanning...';
-  btn.disabled = true;
+
+function toggleVariantRows(parentId, btn) {
+  const rows = document.querySelectorAll('.variant-row-of-' + parentId);
+  const isHidden = rows[0].style.display === 'none';
+  rows.forEach(r => r.style.display = isHidden ? 'table-row' : 'none');
+  btn.textContent = isHidden ? '▼' : '▶';
+}
+
+function populateFormFromData(id) {
+  const modal = document.getElementById('product-modal');
+  const form = document.getElementById('product-form');
+  form.reset();
   
+  // Show loading state or just open
+  modal.style.display = 'flex';
+  
+  // You can either pass the ID and fetch or use the data attributes.
+  // For simplicity and reliability, we will use the data attributes but better organized.
+}
+
+async function adminDeleteProduct(productId) {
+  if (!confirm('Are you sure?')) return;
+  const res = await fetch(`/oriflame-admin-panel-x9k2/products/${productId}/delete`, { method: 'POST' });
+  const data = await res.json();
+  if (data.success) { alert(data.message); location.reload(); }
+}
+
+function runSmartScan() {
+  if (!confirm('Link all variants?')) return;
   fetch('/oriflame-admin-panel-x9k2/fix_orphans', { method: 'POST' })
     .then(res => res.json())
-    .then(data => {
-      alert(data.message);
-      location.reload();
-    })
-    .catch(err => {
-      alert('Scan failed');
-      btn.textContent = originalText;
-      btn.disabled = false;
-    });
+    .then(data => { alert(data.message); location.reload(); });
 }
 </script>
 {% endblock %}
