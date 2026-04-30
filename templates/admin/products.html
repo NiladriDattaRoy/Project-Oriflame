@@ -223,15 +223,10 @@
       <button class="admin-modal-close">✕</button>
     </div>
     
-    <div class="admin-tabs" style="display: flex; gap: 20px; padding: 0 24px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-      <button class="admin-tab active" onclick="switchTab(this, 'tab-general')">General Info</button>
-      <button class="admin-tab" onclick="switchTab(this, 'tab-media')">Media & Gallery</button>
-      <button class="admin-tab" id="variant-tab-btn" onclick="switchTab(this, 'tab-variants')" style="display: none;">Variants</button>
-    </div>
-
     <form id="product-form" onsubmit="event.preventDefault(); adminSaveProduct(this);">
       <div class="admin-modal-body">
-        <div id="tab-general" class="tab-content active">
+        <div id="section-general">
+          <h4 style="color: #c9a96e; margin-bottom: 16px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">General Info</h4>
           <input type="hidden" name="id" value="">
           <div class="admin-form-group">
             <label class="admin-form-label">Parent Product (Leave empty if this is a main product)</label>
@@ -360,7 +355,8 @@
           </div>
         </div>
 
-        <div id="tab-media" class="tab-content" style="display: none; padding: 20px 0;">
+        <div id="section-media" style="padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 20px;">
+          <h4 style="color: #c9a96e; margin-bottom: 16px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Media & Gallery</h4>
           <div class="admin-form-group">
             <label class="admin-form-label">Upload Additional Images/Videos</label>
             <input type="file" class="admin-form-control" name="product_images" multiple accept="image/*,video/*">
@@ -378,7 +374,8 @@
           </div>
         </div>
 
-        <div id="tab-variants" class="tab-content" style="display: none; padding: 20px 0;">
+        <div id="section-variants" style="padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 20px;">
+          <h4 style="color: #c9a96e; margin-bottom: 16px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Variants</h4>
           <div class="variant-manager-placeholder" style="text-align: center; color: rgba(255,255,255,0.4); padding: 40px;">
             <p>You can manage variants for this product here.</p>
             <button type="button" class="admin-btn admin-btn-secondary" onclick="adminOpenVariantModalFromTab()">+ Add New Shade Variant</button>
@@ -398,14 +395,6 @@
 
 {% block extra_js %}
 <script>
-function switchTab(btn, tabId) {
-  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-  
-  btn.classList.add('active');
-  document.getElementById(tabId).style.display = 'block';
-}
-
 function adminOpenVariantModal(btn) {
   const editBtn = btn.parentElement.querySelector('[title="Edit"]');
   const data = editBtn.dataset;
@@ -416,9 +405,7 @@ function adminOpenVariantModal(btn) {
   form.reset();
   modal.classList.add('active');
   document.getElementById('product-modal-title').textContent = `Add Variant for ${data.name}`;
-  document.getElementById('variant-tab-btn').style.display = 'none';
-  
-  switchTab(document.querySelector('.admin-tab'), 'tab-general');
+  document.getElementById('section-variants').style.display = 'none';
   
   if (typeof populateForm === 'function') {
     populateForm(modal, data);
@@ -438,6 +425,9 @@ function adminOpenVariantModal(btn) {
   const duoRow = document.getElementById('duo-color-row');
   if (duoRow) duoRow.style.display = 'none';
   
+  // Scroll modal to top
+  modal.scrollTo(0,0);
+  
   form.querySelector('[name="code"]').focus();
   showToast('Adding new variant. Shared details copied.', 'info');
 }
@@ -448,7 +438,7 @@ function adminOpenVariantModalFromTab() {
   const productName = form.querySelector('[name="name"]').value;
   
   document.getElementById('product-modal-title').textContent = `Add Variant for ${productName}`;
-  document.getElementById('variant-tab-btn').style.display = 'none';
+  document.getElementById('section-variants').style.display = 'none';
   
   form.querySelector('[name="id"]').value = '';
   form.querySelector('[name="parent_id"]').value = parentId;
@@ -464,18 +454,20 @@ function adminOpenVariantModalFromTab() {
   const duoRow = document.getElementById('duo-color-row');
   if (duoRow) duoRow.style.display = 'none';
   
-  switchTab(document.querySelector('.admin-tab'), 'tab-general');
+  // Scroll modal to top
+  const modal = document.getElementById('product-modal');
+  modal.scrollTo(0,0);
+  
   form.querySelector('[name="code"]').focus();
   showToast('Adding new variant. Shared details kept.', 'info');
 }
 
-// Override modal open to handle tabs and title
+// Override modal open to handle title and section visibility
 document.querySelectorAll('[data-modal="product-modal"]').forEach(btn => {
   btn.addEventListener('click', () => {
     const isEdit = !!btn.dataset.id;
     document.getElementById('product-modal-title').textContent = isEdit ? 'Edit Product' : 'Add New Product';
-    document.getElementById('variant-tab-btn').style.display = (isEdit && !btn.dataset.parentId) ? 'block' : 'none';
-    switchTab(document.querySelector('.admin-tab'), 'tab-general');
+    document.getElementById('section-variants').style.display = (isEdit && !btn.dataset.parentId) ? 'block' : 'none';
   });
 });
 
