@@ -294,6 +294,24 @@ def product_detail(slug):
         Product.id != product.id,
         Product.is_active == True
     ).all()
+
+    # IF no variants found by ID (orphans), try finding by name similarity for existing products
+    if not variants:
+        # Get first 3-4 words of the name to use as a base (e.g. "The ONE Smart Sync")
+        name_parts = product.name.split()
+        if len(name_parts) >= 3:
+            base_name = " ".join(name_parts[:3])
+            variants = Product.query.filter(
+                Product.name.like(f"{base_name}%"),
+                Product.id != product.id,
+                Product.is_active == True
+            ).all()
+        elif len(name_parts) > 0:
+            variants = Product.query.filter(
+                Product.name.like(f"{name_parts[0]}%"),
+                Product.id != product.id,
+                Product.is_active == True
+            ).all()
     
     # Find related products
     related = Product.query.filter(
@@ -1120,11 +1138,30 @@ def admin_products():
     # Separate parents and group variants
     parents = [p for p in all_products if not p.parent_id]
     variants_map = {}
+    
+    # First pass: Handle explicit parent_id
     for p in all_products:
         if p.parent_id:
             if p.parent_id not in variants_map:
                 variants_map[p.parent_id] = []
             variants_map[p.parent_id].append(p)
+
+    # Second pass: For parents with no variants, try name-based grouping for existing data
+    remaining_parents = [p for p in parents if p.id not in variants_map]
+    orphans = [p for p in all_products if p.parent_id is None] # All potential orphans
+    
+    for p in remaining_parents:
+        name_parts = p.name.split()
+        if len(name_parts) >= 2:
+            base = " ".join(name_parts[:2]).lower()
+            # Find products that start with this base but aren't the parent itself
+            similar = [o for o in orphans if o.id != p.id and o.name.lower().startswith(base)]
+            if similar:
+                variants_map[p.id] = similar
+                # Remove these from the parents list so they don't show up twice
+                for s in similar:
+                    if s in parents:
+                        parents.remove(s)
             
     categories_list = Category.query.all()
     return render_template('admin/products.html', 
