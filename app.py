@@ -295,23 +295,32 @@ def product_detail(slug):
         Product.is_active == True
     ).all()
 
-    # IF no variants found by ID (orphans), try finding by name similarity for existing products
+    # IF no variants found by ID (orphans), try finding by name similarity
     if not variants:
-        # Get first 3-4 words of the name to use as a base (e.g. "The ONE Smart Sync")
+        # Try different prefix lengths to find the best match
         name_parts = product.name.split()
-        if len(name_parts) >= 3:
-            base_name = " ".join(name_parts[:3])
+        potential_variants = []
+        
+        # Try first 3 words, then 2 words
+        for prefix_len in [3, 2]:
+            if len(name_parts) >= prefix_len:
+                base_name = " ".join(name_parts[:prefix_len])
+                results = Product.query.filter(
+                    Product.name.like(f"{base_name}%"),
+                    Product.id != product.id,
+                    Product.is_active == True
+                ).all()
+                if results:
+                    variants = results
+                    break
+        
+        # If still nothing, and it's a long name, try a very broad search
+        if not variants and len(name_parts) > 1:
             variants = Product.query.filter(
-                Product.name.like(f"{base_name}%"),
+                Product.name.like(f"{name_parts[0]} %"),
                 Product.id != product.id,
                 Product.is_active == True
-            ).all()
-        elif len(name_parts) > 0:
-            variants = Product.query.filter(
-                Product.name.like(f"{name_parts[0]}%"),
-                Product.id != product.id,
-                Product.is_active == True
-            ).all()
+            ).limit(20).all()
     
     # Find related products
     related = Product.query.filter(
