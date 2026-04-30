@@ -295,32 +295,28 @@ def product_detail(slug):
         Product.is_active == True
     ).all()
 
-    # IF no variants found by ID (orphans), try finding by name similarity
+    # IF no variants found by ID (orphans), try finding by name similarity (Super Robust)
     if not variants:
-        # Try different prefix lengths to find the best match
-        name_parts = product.name.split()
-        potential_variants = []
+        # Get the first 2-3 words as a base, but also try the whole name
+        clean_name = product.name.strip()
+        name_parts = clean_name.split()
         
-        # Try first 3 words, then 2 words
-        for prefix_len in [3, 2]:
-            if len(name_parts) >= prefix_len:
-                base_name = " ".join(name_parts[:prefix_len])
-                results = Product.query.filter(
-                    Product.name.like(f"{base_name}%"),
-                    Product.id != product.id,
-                    Product.is_active == True
-                ).all()
-                if results:
-                    variants = results
-                    break
-        
-        # If still nothing, and it's a long name, try a very broad search
-        if not variants and len(name_parts) > 1:
+        # Try matching by the first 2 words (e.g. "The ONE", "Smart Sync")
+        if len(name_parts) >= 2:
+            search_prefix = " ".join(name_parts[:2])
             variants = Product.query.filter(
-                Product.name.like(f"{name_parts[0]} %"),
+                Product.name.ilike(f"{search_prefix}%"),
                 Product.id != product.id,
                 Product.is_active == True
-            ).limit(20).all()
+            ).all()
+        
+        # If still nothing, try matching the exact name (for products that share names but have different shades/codes)
+        if not variants:
+            variants = Product.query.filter(
+                Product.name.ilike(clean_name),
+                Product.id != product.id,
+                Product.is_active == True
+            ).all()
     
     # Find related products
     related = Product.query.filter(
@@ -1157,7 +1153,7 @@ def admin_products():
 
     # Second pass: For parents with no variants, try name-based grouping for existing data
     remaining_parents = [p for p in parents if p.id not in variants_map]
-    orphans = [p for p in all_products if p.parent_id is None] # All potential orphans
+    orphans = [p for p in all_products if p.parent_id is None]
     
     for p in remaining_parents:
         name_parts = p.name.split()
