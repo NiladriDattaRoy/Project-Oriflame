@@ -62,12 +62,18 @@
   }
 </style>
 
-<div class="admin-tabs">
-  <div class="admin-tab active" id="tab-grouped" onclick="switchProductTab('grouped')">Grouped View ({{ products|length }})</div>
-  <div class="admin-tab" id="tab-all" onclick="switchProductTab('all')">All Products ({{ all_products|length }})</div>
-  <div style="margin-left: auto;">
-    <button class="admin-btn admin-btn-primary" data-modal="product-modal" onclick="document.getElementById('product-form').reset(); document.querySelector('#product-modal [name=id]').value=''; document.querySelector('#product-modal [name=parent_id]').value='';">
-      + Add Product
+<div style="background: rgba(201, 169, 110, 0.1); border: 1px solid #c9a96e; padding: 16px; border-radius: 8px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+  <div>
+    <h4 style="margin: 0; color: #c9a96e;">Product Management View</h4>
+    <p style="margin: 5px 0 0; font-size: 13px; color: rgba(255,255,255,0.6);">
+      Switch between <strong>Grouped</strong> (Clean) and <strong>All Products</strong> (Full List).
+    </p>
+  </div>
+  <div style="display: flex; gap: 10px;">
+    <button class="admin-btn" id="btn-view-grouped" onclick="switchProductTab('grouped')" style="background: #c9a96e; color: #000; font-weight: 700;">Grouped ({{ products|length }})</button>
+    <button class="admin-btn" id="btn-view-all" onclick="switchProductTab('all')" style="background: rgba(255,255,255,0.1); color: #fff;">All Products ({{ all_products|length }})</button>
+    <button class="admin-btn admin-btn-primary" style="margin-left: 20px;" data-modal="product-modal" onclick="document.getElementById('product-form').reset(); document.querySelector('#product-modal [name=id]').value='';">
+      + Add New Product
     </button>
   </div>
 </div>
@@ -640,15 +646,25 @@ async function adminToggleProductStatus(productId) {
 
 <script>
 function switchProductTab(tab) {
-  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
+  const btnGrouped = document.getElementById('btn-view-grouped');
+  const btnAll = document.getElementById('btn-view-all');
+  const viewGrouped = document.getElementById('view-grouped');
+  const viewAll = document.getElementById('view-all');
   
   if (tab === 'grouped') {
-    document.getElementById('view-grouped').style.display = 'block';
-    document.getElementById('view-all').style.display = 'none';
+    viewGrouped.style.display = 'block';
+    viewAll.style.display = 'none';
+    btnGrouped.style.background = '#c9a96e';
+    btnGrouped.style.color = '#000';
+    btnAll.style.background = 'rgba(255,255,255,0.1)';
+    btnAll.style.color = '#fff';
   } else {
-    document.getElementById('view-grouped').style.display = 'none';
-    document.getElementById('view-all').style.display = 'block';
+    viewGrouped.style.display = 'none';
+    viewAll.style.display = 'block';
+    btnAll.style.background = '#c9a96e';
+    btnAll.style.color = '#000';
+    btnGrouped.style.background = 'rgba(255,255,255,0.1)';
+    btnGrouped.style.color = '#fff';
   }
 }
 </script>
