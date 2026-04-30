@@ -76,7 +76,7 @@
           Select Shade / Variant:
         </span>
         <div class="variant-list">
-          <a href="/products/{{ product.slug }}" class="variant-item active" title="{{ product.shade_name or product.code }}">
+          <a href="javascript:void(0)" class="variant-item active" title="{{ product.shade_name or product.code }}" onclick="switchToVariant({{ product.id }})">
             {% if product.shade_color %}
               {% if product.shade_color_2 %}
               <div class="shade-circle duo" style="--c1: {{ product.shade_color }}; --c2: {{ product.shade_color_2 }};"></div>
@@ -88,7 +88,7 @@
             {% endif %}
           </a>
           {% for variant in variants %}
-          <a href="/products/{{ variant.slug }}" class="variant-item" title="{{ variant.shade_name or variant.code }}">
+          <a href="javascript:void(0)" class="variant-item" title="{{ variant.shade_name or variant.code }}" onclick="switchToVariant({{ variant.id }})">
             {% if variant.shade_color %}
               {% if variant.shade_color_2 %}
               <div class="shade-circle duo" style="--c1: {{ variant.shade_color }}; --c2: {{ variant.shade_color_2 }};"></div>
@@ -101,11 +101,9 @@
           </a>
           {% endfor %}
         </div>
-        {% if product.shade_name %}
         <div class="active-shade-name" style="margin-top: 10px; font-size: 14px; color: var(--color-text-secondary);">
-          Selected: <strong style="color: var(--color-primary);">{{ product.shade_name }}</strong>
+          Selected: <strong id="selected-shade-name" style="color: var(--color-primary);">{{ product.shade_name or 'Default' }}</strong>
         </div>
-        {% endif %}
       </div>
       {% endif %}
       
@@ -115,11 +113,13 @@
       </div>
 
       <div class="product-price-box">
-        <span class="price-current">₹{{ "%.0f"|format(product.price) }}</span>
-        {% if product.mrp > product.price %}
-        <span class="price-mrp" style="font-size: 18px;">MRP ₹{{ "%.0f"|format(product.mrp) }}</span>
-        <span class="price-discount" style="font-size: 16px;">Save {{ product.discount_percent }}%</span>
-        {% endif %}
+        <span class="price-current" id="display-price">₹{{ "%.0f"|format(product.price) }}</span>
+        <span id="display-mrp-box">
+          {% if product.mrp > product.price %}
+          <span class="price-mrp" style="font-size: 18px;">MRP ₹{{ "%.0f"|format(product.mrp) }}</span>
+          <span class="price-discount" style="font-size: 16px;">Save {{ product.discount_percent }}%</span>
+          {% endif %}
+        </span>
       </div>
       <p style="font-size: 12px; color: var(--color-text-muted); margin-top: -12px; margin-bottom: 16px;">Inclusive of all taxes</p>
 
@@ -426,155 +426,230 @@ document.addEventListener('DOMContentLoaded', () => {
 {% endif %}
 
 <script>
-function adjustQty(delta) {
-  const el = document.getElementById('product-qty');
-  let qty = parseInt(el.textContent) + delta;
-  if (qty < 0) qty = 0;
-  if (qty > {{ product.stock }}) qty = {{ product.stock }};
-  el.textContent = qty;
-  
-  // Update add-to-cart button quantity
-  const btn = document.getElementById('add-cart-btn');
-  if (btn) btn.dataset.qty = qty;
-}
+  // Product Data for Dynamic Switching
+  const currentProductId = {{ product.id }};
+  const variantsData = {
+    {{ product.id }}: {
+      id: {{ product.id }},
+      code: "{{ product.code or '' }}",
+      shade: "{{ product.shade_name or '' }}",
+      price: {{ product.price or 0 }},
+      mrp: {{ product.mrp or 0 }},
+      discount: {{ product.discount_percent }},
+      main_img: "{{ product.image_url or '/static/images/placeholder.png' }}",
+      gallery: [
+        { type: 'image', src: "{{ product.image_url or '/static/images/placeholder.png' }}" },
+        {% for img in product.images.all() %}
+          {% if img.image_url != product.image_url %}
+          { type: "{{ img.media_type }}", src: "{{ img.image_url }}" },
+          {% endif %}
+        {% endfor %}
+      ]
+    },
+    {% for v in variants %}
+    {{ v.id }}: {
+      id: {{ v.id }},
+      code: "{{ v.code or '' }}",
+      shade: "{{ v.shade_name or '' }}",
+      price: {{ v.price or 0 }},
+      mrp: {{ v.mrp or 0 }},
+      discount: {{ v.discount_percent }},
+      main_img: "{{ v.image_url or '/static/images/placeholder.png' }}",
+      gallery: [
+        { type: 'image', src: "{{ v.image_url or '/static/images/placeholder.png' }}" },
+        {% for img in v.images.all() %}
+          {% if img.image_url != v.image_url %}
+          { type: "{{ img.media_type }}", src: "{{ img.image_url }}" },
+          {% endif %}
+        {% endfor %}
+      ]
+    },
+    {% endfor %}
+  };
 
-function changeImage(thumb, src) {
-  const type = thumb.dataset.type || 'image';
-  const mainImg = document.getElementById('main-image');
-  const videoContainer = document.getElementById('main-video-container');
-  const iframe = document.getElementById('main-iframe');
-  const video = document.getElementById('main-video');
-  
-  // Reset
-  mainImg.style.display = 'none';
-  videoContainer.style.display = 'none';
-  iframe.style.display = 'none';
-  video.style.display = 'none';
-  iframe.src = '';
-  video.src = '';
-  
-  if (type === 'video') {
-    videoContainer.style.display = 'block';
-    if (src.includes('youtube.com/embed/')) {
-      iframe.style.display = 'block';
-      iframe.src = src;
-    } else {
-      video.style.display = 'block';
-      video.src = src;
-    }
-  } else {
-    mainImg.style.display = 'block';
-    mainImg.src = src;
-  }
-  
-  document.querySelectorAll('.product-gallery-thumb').forEach(t => t.classList.remove('active'));
-  thumb.classList.add('active');
-}
+  let currentGallery = variantsData[currentProductId].gallery;
+  let currentImgIndex = 0;
 
-function toggleAccordion(header) {
-  const item = header.parentElement;
-  const isActive = item.classList.contains('active');
-  
-  // Close all other items
-  document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active'));
-  
-  if (!isActive) {
-    item.classList.add('active');
-  }
-}
+  function switchToVariant(id) {
+    const data = variantsData[id];
+    if (!data) return;
 
-function navigateGallery(delta) {
-  const thumbs = Array.from(document.querySelectorAll('.product-gallery-thumb'));
-  const activeIndex = thumbs.findIndex(t => t.classList.contains('active'));
-  const slider = document.getElementById('thumb-slider');
-  
-  let nextIndex = activeIndex + delta;
-  
-  // Wrap around
-  if (nextIndex < 0) nextIndex = thumbs.length - 1;
-  if (nextIndex >= thumbs.length) nextIndex = 0;
-  
-  const targetThumb = thumbs[nextIndex];
-  
-  // Change the main image
-  const src = targetThumb.dataset.src || targetThumb.querySelector('img').src;
-  changeImage(targetThumb, src);
-  
-  // Update slider scroll position (keep active thumb in view)
-  // We want the window of 4 to shift if the nextIndex is outside it
-  const visibleCount = 4;
-  let scrollIndex = Math.floor(nextIndex / 1); // Basic shift
-  
-  // To keep it simple and match the "only 4" requirement:
-  // If we have 6 images and we are at index 4 (5th image), 
-  // we should scroll so index 4 is visible.
-  // The max scroll index is total - 4
-  const maxScroll = Math.max(0, thumbs.length - visibleCount);
-  let targetScrollIndex = Math.min(nextIndex, maxScroll);
-  
-  const thumbWidth = thumbs[0].offsetWidth + 10;
-  slider.style.transform = `translateX(-${targetScrollIndex * thumbWidth}px)`;
-}
-
-function toggleWishlist(btn, productId) {
-  fetch(`/wishlist/toggle/${productId}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  .then(response => {
-    if (response.status === 401) {
-      window.location.href = '/login?next=' + window.location.pathname;
-      return;
-    }
-    return response.json();
-  })
-  .then(data => {
-    if (data && data.success) {
-      if (data.status === 'added') {
-        btn.innerHTML = '♥';
-        btn.style.color = 'var(--color-accent-dark)';
-        btn.classList.add('active');
-        if (typeof showToast === 'function') showToast('Added to wishlist', 'success');
-      } else {
-        btn.innerHTML = '♡';
-        btn.style.color = 'inherit';
-        btn.classList.remove('active');
-        if (typeof showToast === 'function') showToast('Removed from wishlist', 'info');
+    // Update active state in variant list
+    document.querySelectorAll('.variant-item').forEach(item => {
+      item.classList.remove('active');
+      if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(id)) {
+        item.classList.add('active');
       }
+    });
+
+    // Update Text info
+    const shadeNameEl = document.getElementById('selected-shade-name');
+    if (shadeNameEl) shadeNameEl.textContent = data.shade || data.code || 'Default';
+    
+    document.getElementById('display-price').textContent = `₹${data.price.toFixed(0)}`;
+    
+    const mrpBox = document.getElementById('display-mrp-box');
+    if (data.mrp > data.price) {
+      mrpBox.innerHTML = `
+        <span class="price-mrp" style="font-size: 18px;">MRP ₹${data.mrp.toFixed(0)}</span>
+        <span class="price-discount" style="font-size: 16px;">Save ${data.discount}%</span>
+      `;
+    } else {
+      mrpBox.innerHTML = '';
     }
-  })
-  .catch(err => console.error('Wishlist error:', err));
-}
 
-function adjustQty(delta) {
-  const qtyEl = document.getElementById('product-qty');
-  const btn = document.getElementById('add-cart-btn');
-  let qty = parseInt(qtyEl.textContent) + delta;
-  if (qty < 1) qty = 1;
-  qtyEl.textContent = qty;
-  if (btn) btn.dataset.qty = qty;
-}
+    // Update Cart/Wishlist Buttons
+    const cartBtn = document.getElementById('add-cart-btn');
+    if (cartBtn) cartBtn.dataset.productId = data.id;
+    
+    const wishlistBtn = document.querySelector('.btn-wishlist');
+    if (wishlistBtn) wishlistBtn.setAttribute('onclick', `toggleWishlist(this, ${data.id})`);
 
-// Ensure qty starts at 1
-document.addEventListener('DOMContentLoaded', () => {
-  adjustQty(0);
-});
-function closeReviewModal() {
-  document.getElementById('review-modal').style.display = 'none';
-}
+    // Update Gallery
+    currentGallery = data.gallery;
+    currentImgIndex = 0;
+    
+    const thumbSlider = document.getElementById('thumb-slider');
+    if (thumbSlider) {
+      thumbSlider.innerHTML = '';
+      currentGallery.forEach((item, index) => {
+        const thumb = document.createElement('div');
+        thumb.className = `product-gallery-thumb ${index === 0 ? 'active' : ''}`;
+        thumb.dataset.type = item.type;
+        thumb.dataset.src = item.src;
+        
+        let thumbContent = '';
+        if (item.type === 'video') {
+          thumbContent = '<div class="video-thumb-overlay">▶</div>';
+          if (item.src.includes('youtube.com/embed/')) {
+            const ytId = item.src.split('/').pop().split('?')[0];
+            thumbContent += `<img src="https://img.youtube.com/vi/${ytId}/0.jpg" alt="">`;
+          } else {
+            thumbContent += '<div style="width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px;">Video</div>';
+          }
+        } else {
+          thumbContent = `<img src="${item.src}" alt="">`;
+        }
+        
+        thumb.innerHTML = thumbContent;
+        thumb.onclick = () => changeImage(thumb, item.src);
+        thumbSlider.appendChild(thumb);
+      });
+      // Reset slider position
+      thumbSlider.style.transform = 'translateX(0)';
+    }
 
-function openReviewModal() {
-  document.getElementById('review-modal').style.display = 'flex';
-}
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-  const modal = document.getElementById('review-modal');
-  if (event.target == modal) {
-    modal.style.display = 'none';
+    // Show first image of new variant
+    const firstThumb = document.querySelector('.product-gallery-thumb');
+    if (firstThumb) changeImage(firstThumb, data.main_img);
   }
-}
+
+  function changeImage(thumb, src) {
+    const type = thumb.dataset.type || 'image';
+    const mainImg = document.getElementById('main-image');
+    const videoContainer = document.getElementById('main-video-container');
+    const iframe = document.getElementById('main-iframe');
+    const video = document.getElementById('main-video');
+    
+    mainImg.style.display = 'none';
+    videoContainer.style.display = 'none';
+    iframe.style.display = 'none';
+    video.style.display = 'none';
+    iframe.src = '';
+    video.src = '';
+    
+    if (type === 'video') {
+      videoContainer.style.display = 'block';
+      if (src.includes('youtube.com/embed/')) {
+        iframe.style.display = 'block';
+        iframe.src = src.includes('?') ? src + "&autoplay=1" : src + "?autoplay=1";
+      } else {
+        video.style.display = 'block';
+        video.src = src;
+        video.play();
+      }
+    } else {
+      mainImg.style.display = 'block';
+      mainImg.src = src;
+    }
+    
+    document.querySelectorAll('.product-gallery-thumb').forEach(t => t.classList.remove('active'));
+    thumb.classList.add('active');
+    
+    // Update current index
+    const thumbs = Array.from(document.querySelectorAll('.product-gallery-thumb'));
+    currentImgIndex = thumbs.indexOf(thumb);
+  }
+
+  function navigateGallery(delta) {
+    const thumbs = Array.from(document.querySelectorAll('.product-gallery-thumb'));
+    if (thumbs.length === 0) return;
+    
+    currentImgIndex += delta;
+    if (currentImgIndex < 0) currentImgIndex = thumbs.length - 1;
+    if (currentImgIndex >= thumbs.length) currentImgIndex = 0;
+    
+    const targetThumb = thumbs[currentImgIndex];
+    const src = targetThumb.dataset.src;
+    changeImage(targetThumb, src);
+    
+    // Scroll thumb into view
+    const slider = document.getElementById('thumb-slider');
+    const visibleCount = 4;
+    const maxScroll = Math.max(0, thumbs.length - visibleCount);
+    let targetScrollIndex = Math.min(currentImgIndex, maxScroll);
+    const thumbWidth = thumbs[0].offsetWidth + 10;
+    slider.style.transform = `translateX(-${targetScrollIndex * thumbWidth}px)`;
+  }
+
+  function adjustQty(delta) {
+    const qtyEl = document.getElementById('product-qty');
+    const btn = document.getElementById('add-cart-btn');
+    let qty = parseInt(qtyEl.textContent) + delta;
+    if (qty < 1) qty = 1;
+    qtyEl.textContent = qty;
+    if (btn) btn.dataset.qty = qty;
+  }
+
+  function toggleWishlist(btn, productId) {
+    fetch(`/wishlist/toggle/${productId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => {
+      if (response.status === 401) {
+        window.location.href = '/login?next=' + window.location.pathname;
+        return;
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data && data.success) {
+        if (data.status === 'added') {
+          btn.innerHTML = '♥';
+          btn.classList.add('active');
+        } else {
+          btn.innerHTML = '♡';
+          btn.classList.remove('active');
+        }
+      }
+    })
+    .catch(err => console.error('Wishlist error:', err));
+  }
+
+  function toggleAccordion(header) {
+    const item = header.parentElement;
+    const isActive = item.classList.contains('active');
+    document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active'));
+    if (!isActive) item.classList.add('active');
+  }
+
+  function openReviewModal() { document.getElementById('review-modal').style.display = 'flex'; }
+  function closeReviewModal() { document.getElementById('review-modal').style.display = 'none'; }
+
+  window.onclick = function(event) {
+    const modal = document.getElementById('review-modal');
+    if (event.target == modal) modal.style.display = 'none';
+  }
 </script>
 {% endblock %}
