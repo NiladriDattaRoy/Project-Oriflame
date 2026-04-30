@@ -72,6 +72,7 @@
   <div style="display: flex; gap: 10px;">
     <button class="admin-btn" id="btn-view-grouped" onclick="switchProductTab('grouped')" style="background: #c9a96e; color: #000; font-weight: 700;">Grouped ({{ products|length }})</button>
     <button class="admin-btn" id="btn-view-all" onclick="switchProductTab('all')" style="background: rgba(255,255,255,0.1); color: #fff;">All Products ({{ all_products|length }})</button>
+    <button class="admin-btn" onclick="runSmartScan()" style="background: #2ecc71; color: #fff; font-weight: 700;">🔄 Scan & Link Variants</button>
     <button class="admin-btn admin-btn-primary" style="margin-left: 20px;" data-modal="product-modal" onclick="document.getElementById('product-form').reset(); document.querySelector('#product-modal [name=id]').value='';">
       + Add New Product
     </button>
@@ -663,6 +664,25 @@ function switchProductTab(tab) {
     btnGrouped.style.background = 'rgba(255,255,255,0.1)';
     btnGrouped.style.color = '#fff';
   }
+}
+function runSmartScan() {
+  if (!confirm('This will scan all products and permanently group similar names together. Continue?')) return;
+  const btn = event.target;
+  const originalText = btn.textContent;
+  btn.textContent = 'Scanning...';
+  btn.disabled = true;
+  
+  fetch('/oriflame-admin-panel-x9k2/fix_orphans', { method: 'POST' })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message);
+      location.reload();
+    })
+    .catch(err => {
+      alert('Scan failed');
+      btn.textContent = originalText;
+      btn.disabled = false;
+    });
 }
 </script>
 {% endblock %}

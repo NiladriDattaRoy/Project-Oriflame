@@ -1944,6 +1944,47 @@ with app.app_context():
         db.session.rollback()
 
 # ─── Main Entry ───────────────────────────────────────────────────────────────
+@app.route('/oriflame-admin-panel-x9k2/fix_orphans', methods=['GET', 'POST'])
+@login_required
+def fix_orphans():
+    if not current_user.is_admin:
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+    
+    all_products = Product.query.all()
+    count = 0
+    
+    # Simple grouping logic: Find products with identical or very similar names
+    # and set the first one as the parent of the others.
+    processed = set()
+    
+    for p in all_products:
+        if p.id in processed:
+            continue
+            
+        # Get first 3 words for matching
+        name_parts = p.name.strip().split()
+        if len(name_parts) < 2:
+            continue
+            
+        base_name = " ".join(name_parts[:3]) if len(name_parts) >= 3 else " ".join(name_parts[:2])
+        
+        # Find all similar products that are orphans
+        similar = Product.query.filter(
+            Product.name.ilike(f"{base_name}%"),
+            Product.parent_id == None,
+            Product.id != p.id
+        ).all()
+        
+        if similar:
+            for s in similar:
+                s.parent_id = p.id
+                processed.add(s.id)
+                count += 1
+            processed.add(p.id)
+            
+    db.session.commit()
+    return jsonify({"success": True, "message": f"Successfully linked {count} orphan variants!"})
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
