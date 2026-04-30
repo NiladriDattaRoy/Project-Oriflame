@@ -1343,28 +1343,31 @@ def admin_fix_orphans():
     if current_user.role != 'admin':
         return jsonify({'success': False, 'message': 'Unauthorized'}), 403
         
-    products = Product.query.filter_by(parent_id=None).all()
-    grouped = {}
-    for p in products:
-        if not p.name: continue
-        name = p.name.strip()
-        if name not in grouped:
-            grouped[name] = []
-        grouped[name].append(p)
-        
+    all_products = Product.query.all()
+    orphans = [p for p in all_products if p.parent_id is None]
+    
+    # Sort by length of name so shorter names (likely parents) come first
+    orphans.sort(key=lambda x: len(x.name or ""))
+    
     fixed_count = 0
-    for name, group in grouped.items():
-        if len(group) > 1:
-            # Sort by ID to pick the oldest as the parent
-            group.sort(key=lambda x: x.id)
-            parent = group[0]
-            for child in group[1:]:
-                if child.parent_id != parent.id:
-                    child.parent_id = parent.id
+    for i, potential_parent in enumerate(orphans):
+        if not potential_parent.name: continue
+        parent_name = potential_parent.name.strip()
+        
+        for j in range(i + 1, len(orphans)):
+            child = orphans[j]
+            if not child.name: continue
+            child_name = child.name.strip()
+            
+            # If child name starts with parent name (e.g. "Lipstick Warm Cocoa" starts with "Lipstick")
+            # OR if they are exactly the same
+            if child_name.lower().startswith(parent_name.lower()):
+                if child.id != potential_parent.id and child.parent_id != potential_parent.id:
+                    child.parent_id = potential_parent.id
                     fixed_count += 1
                 
     db.session.commit()
-    return jsonify({'success': True, 'message': f'Successfully linked {fixed_count} orphaned variants to their parents!'})
+    return jsonify({'success': True, 'message': f'Successfully linked {fixed_count} orphaned variants using prefix matching!'})
 
 @app.route('/oriflame-admin-panel-x9k2/products/<int:product_id>/delete', methods=['POST'])
 @login_required

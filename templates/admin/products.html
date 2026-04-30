@@ -90,7 +90,7 @@
         </td>
         <td>{{ product.code }}</td>
         <td>{{ product.category.name if product.category else 'N/A' }}</td>
-        <td>₹{{ "%.0f"|format(product.price) }}</td>
+        <td>₹{{ "%.0f"|format(product.price or 0) }}</td>
         <td>
           <span class="admin-badge {% if product.stock > 10 %}success{% elif product.stock > 0 %}warning{% else %}danger{% endif %}">
             {{ product.stock }}
@@ -167,7 +167,7 @@
         </td>
         <td>{{ variant.code }}</td>
         <td>—</td>
-        <td>₹{{ "%.0f"|format(variant.price) }}</td>
+        <td>₹{{ "%.0f"|format(variant.price or 0) }}</td>
         <td>{{ variant.stock }}</td>
         <td>
           {% if variant.is_active %}
