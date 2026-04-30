@@ -1317,6 +1317,54 @@ def admin_save_product(product_id=None):
         print(f"[ERROR] saving product: {str(e)}\n{traceback.format_exc()}", flush=True)
         return jsonify({'success': False, 'message': f'Server Error: {str(e)}'})
 
+@app.route('/oriflame-admin-panel-x9k2/api/products/<int:product_id>/variants')
+@login_required
+def admin_api_product_variants(product_id):
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    variants = Product.query.filter_by(parent_id=product_id).all()
+    result = []
+    for v in variants:
+        result.append({
+            'id': v.id,
+            'code': v.code,
+            'shade_name': v.shade_name or '',
+            'shade_color': v.shade_color or '#000000',
+            'shade_color_2': v.shade_color_2 or '',
+            'price': v.price,
+            'mrp': v.mrp
+        })
+    return jsonify(result)
+
+@app.route('/oriflame-admin-panel-x9k2/fix_orphans')
+@login_required
+def admin_fix_orphans():
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+        
+    products = Product.query.filter_by(parent_id=None).all()
+    grouped = {}
+    for p in products:
+        if not p.name: continue
+        name = p.name.strip()
+        if name not in grouped:
+            grouped[name] = []
+        grouped[name].append(p)
+        
+    fixed_count = 0
+    for name, group in grouped.items():
+        if len(group) > 1:
+            # Sort by ID to pick the oldest as the parent
+            group.sort(key=lambda x: x.id)
+            parent = group[0]
+            for child in group[1:]:
+                if child.parent_id != parent.id:
+                    child.parent_id = parent.id
+                    fixed_count += 1
+                
+    db.session.commit()
+    return jsonify({'success': True, 'message': f'Successfully linked {fixed_count} orphaned variants to their parents!'})
 
 @app.route('/oriflame-admin-panel-x9k2/products/<int:product_id>/delete', methods=['POST'])
 @login_required

@@ -443,18 +443,51 @@ function removeVariantRow(btn) {
 
 // Override modal open to handle title and clear inline variants
 document.querySelectorAll('[data-modal="product-modal"]').forEach(btn => {
-  btn.addEventListener('click', () => {
+  btn.addEventListener('click', async () => {
     const isEdit = !!btn.dataset.id;
+    const isMainProduct = isEdit && !btn.dataset.parentId;
     document.getElementById('product-modal-title').textContent = isEdit ? 'Edit Product' : 'Add New Product';
     
     // Clear inline variants
-    document.getElementById('inline-variants-body').innerHTML = '';
+    const tbody = document.getElementById('inline-variants-body');
+    tbody.innerHTML = '';
     variantCount = 0;
     const emptyMsg = document.getElementById('inline-variants-empty');
     if (emptyMsg) emptyMsg.style.display = 'block';
     
     // Only show variants section for main products (not variants themselves)
     document.getElementById('section-variants').style.display = (isEdit && btn.dataset.parentId) ? 'none' : 'block';
+    
+    // Fetch existing variants
+    if (isMainProduct) {
+      try {
+        const response = await fetch(`/oriflame-admin-panel-x9k2/api/products/${btn.dataset.id}/variants`);
+        if (response.ok) {
+          const variants = await response.json();
+          if (variants.length > 0) {
+            if (emptyMsg) emptyMsg.style.display = 'none';
+            variants.forEach(v => {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td><input type="text" class="admin-form-control" name="inline_variant_code[]" placeholder="Code" value="${v.code}" required></td>
+                <td><input type="text" class="admin-form-control" name="inline_variant_name[]" placeholder="Shade Name" value="${v.shade_name || ''}"></td>
+                <td>
+                  <div style="display: flex; gap: 4px;">
+                    <input type="color" class="admin-form-control" name="inline_variant_color[]" style="width: 30px; padding: 0;" value="${v.shade_color || '#000000'}">
+                    <input type="color" class="admin-form-control" name="inline_variant_color2[]" style="width: 30px; padding: 0; opacity: 0.5;" title="Optional second color" value="${v.shade_color_2 || '#000000'}">
+                  </div>
+                </td>
+                <td><input type="number" class="admin-form-control" name="inline_variant_price[]" placeholder="Price" step="0.01" value="${v.price || ''}"></td>
+                <td><input type="number" class="admin-form-control" name="inline_variant_mrp[]" placeholder="MRP" step="0.01" value="${v.mrp || ''}"></td>
+                <td><button type="button" class="admin-btn admin-btn-secondary" style="padding: 4px; color: #ff4444;" onclick="removeVariantRow(this)">✕</button></td>
+              `;
+              tbody.appendChild(tr);
+              variantCount++;
+            });
+          }
+        }
+      } catch(e) { console.error('Error fetching variants', e); }
+    }
   });
 });
 
