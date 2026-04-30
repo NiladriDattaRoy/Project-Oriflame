@@ -1166,6 +1166,7 @@ def admin_products():
     categories_list = Category.query.all()
     return render_template('admin/products.html', 
                            products=parents, 
+                           all_products=all_products,
                            variants_map=variants_map,
                            categories=categories_list)
 
