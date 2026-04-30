@@ -1985,6 +1985,26 @@ def fix_orphans():
     db.session.commit()
     return jsonify({"success": True, "message": f"Successfully linked {count} orphan variants!"})
 
+@app.route('/oriflame-admin-panel-x9k2/get_product/<int:product_id>')
+@login_required
+def get_product_data(product_id):
+    if not current_user.is_admin:
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+    p = Product.query.get_or_404(product_id)
+    return jsonify({
+        "success": True,
+        "id": p.id,
+        "name": p.name,
+        "code": p.code,
+        "price": p.price,
+        "stock": p.stock,
+        "category_id": p.category_id,
+        "brand": p.brand,
+        "description": p.description,
+        "image_url": p.image_url,
+        "parent_id": p.parent_id
+    })
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

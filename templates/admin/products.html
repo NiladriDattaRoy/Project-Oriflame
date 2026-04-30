@@ -594,16 +594,30 @@ function toggleVariantRows(parentId, btn) {
   btn.textContent = isHidden ? '▼' : '▶';
 }
 
-function populateFormFromData(id) {
+async function populateFormFromData(id) {
   const modal = document.getElementById('product-modal');
   const form = document.getElementById('product-form');
   form.reset();
-  
-  // Show loading state or just open
   modal.style.display = 'flex';
   
-  // You can either pass the ID and fetch or use the data attributes.
-  // For simplicity and reliability, we will use the data attributes but better organized.
+  try {
+    const res = await fetch(`/oriflame-admin-panel-x9k2/get_product/${id}`);
+    const data = await res.json();
+    if (data.success) {
+      form.querySelector('[name="id"]').value = data.id;
+      form.querySelector('[name="name"]').value = data.name;
+      form.querySelector('[name="code"]').value = data.code || '';
+      form.querySelector('[name="price"]').value = data.price || '';
+      form.querySelector('[name="stock"]').value = data.stock || 0;
+      form.querySelector('[name="category_id"]').value = data.category_id || '';
+      form.querySelector('[name="brand"]').value = data.brand || '';
+      form.querySelector('[name="description"]').value = data.description || '';
+      form.querySelector('[name="image_url"]').value = data.image_url || '';
+      form.querySelector('[name="parent_id"]').value = data.parent_id || '';
+    }
+  } catch (err) {
+    console.error('Failed to fetch product data');
+  }
 }
 
 async function adminDeleteProduct(productId) {
