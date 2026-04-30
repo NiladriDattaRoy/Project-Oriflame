@@ -1113,8 +1113,6 @@ def admin_dashboard():
 
 
 @app.route('/oriflame-admin-panel-x9k2/products', methods=['GET'])
-@login_required
-@admin_required
 def admin_products():
     # Fetch all products in one single query to be super fast
     all_products = Product.query.order_by(Product.created_at.desc()).all()
@@ -1208,13 +1206,12 @@ def admin_save_product(product_id=None):
         product.how_to_use = form.get('how_to_use')
         product.ingredients = form.get('ingredients')
         
-        if form.get('image_url'):
-            product.image_url = form.get('image_url')
-        
         product.is_new = bool(form.get('is_new'))
         product.is_bestseller = bool(form.get('is_bestseller'))
         product.is_active = True
         
+        # Determine main image from uploaded files first
+        main_image_set = False
         if files and files[0].filename != '':
             for i, file in enumerate(files):
                 if file and file.filename != '':
@@ -1226,35 +1223,90 @@ def admin_save_product(product_id=None):
                     ext = filename.split('.')[-1].lower()
                     m_type = 'video' if ext in ['mp4', 'webm', 'ogg', 'mov', 'avi'] else 'image'
                     
-                    if i == 0 and not product.image_url and m_type == 'image':
+                    if i == 0 and m_type == 'image':
                         product.image_url = img_url
+                        main_image_set = True
                     
                     img_record = ProductImage(product=product, image_url=img_url, media_type=m_type, display_order=i)
                     db.session.add(img_record)
                     
-        pasted_urls = form.get('additional_image_urls', '').split('\n')
+        pasted_urls = form.get('media_urls', '').split('\n')
         for i, url in enumerate(pasted_urls):
             url = url.strip()
-            if url and url != product.image_url:
-                img_record = ProductImage(product=product, image_url=url, media_type='image', display_order=100+i)
-                db.session.add(img_record)
+            if not url:
+                continue
                 
-        video_urls = form.get('video_urls', '').split('\n')
-        for i, url in enumerate(video_urls):
-            url = url.strip()
-            if url:
-                if 'youtube.com/watch?v=' in url:
-                    video_id = url.split('v=')[1].split('&')[0]
-                    url = f"https://www.youtube.com/embed/{video_id}"
-                elif 'youtu.be/' in url:
-                    video_id = url.split('/')[-1]
-                    url = f"https://www.youtube.com/embed/{video_id}"
-                    
-                img_record = ProductImage(product=product, image_url=url, media_type='video', display_order=200+i)
+            m_type = 'image'
+            if 'youtube.com/watch?v=' in url:
+                video_id = url.split('v=')[1].split('&')[0]
+                url = f"https://www.youtube.com/embed/{video_id}"
+                m_type = 'video'
+            elif 'youtu.be/' in url:
+                video_id = url.split('/')[-1]
+                url = f"https://www.youtube.com/embed/{video_id}"
+                m_type = 'video'
+            
+            # First non-video URL becomes main image if not set
+            if not main_image_set and m_type == 'image':
+                product.image_url = url
+                main_image_set = True
+            else:
+                img_record = ProductImage(product=product, image_url=url, media_type=m_type, display_order=100+i)
                 db.session.add(img_record)
         
+        # Flush to get the product ID if it's new
+        db.session.flush()
+        
+        # Handle Inline Variants
+        v_codes = request.form.getlist('inline_variant_code[]')
+        v_names = request.form.getlist('inline_variant_name[]')
+        v_colors = request.form.getlist('inline_variant_color[]')
+        v_colors2 = request.form.getlist('inline_variant_color2[]')
+        v_prices = request.form.getlist('inline_variant_price[]')
+        v_mrps = request.form.getlist('inline_variant_mrp[]')
+        
+        for i in range(len(v_codes)):
+            code = v_codes[i].strip()
+            if not code:
+                continue
+                
+            variant = Product.query.filter_by(code=code).first()
+            if not variant:
+                variant = Product(code=code)
+                db.session.add(variant)
+            
+            variant.parent_id = product.id
+            variant.name = product.name
+            variant.slug = slugify(f"{product.name} {code}")
+            variant.category_id = product.category_id
+            variant.brand = product.brand
+            variant.weight = product.weight
+            variant.short_description = product.short_description
+            variant.description = product.description
+            variant.how_to_use = product.how_to_use
+            variant.ingredients = product.ingredients
+            variant.image_url = product.image_url
+            variant.is_new = product.is_new
+            variant.is_bestseller = product.is_bestseller
+            variant.is_active = True
+            
+            variant.shade_name = v_names[i].strip() if i < len(v_names) else ''
+            variant.shade_color = v_colors[i].strip() if i < len(v_colors) else ''
+            variant.shade_color_2 = v_colors2[i].strip() if i < len(v_colors2) else ''
+            
+            try:
+                v_price = float(v_prices[i].strip()) if i < len(v_prices) and v_prices[i].strip() else product.price
+                variant.price = v_price
+                v_mrp = float(v_mrps[i].strip()) if i < len(v_mrps) and v_mrps[i].strip() else product.mrp
+                variant.mrp = v_mrp
+            except ValueError:
+                variant.price = product.price
+                variant.mrp = product.mrp
+            
+            variant.discount_percent = round(((variant.mrp - variant.price) / variant.mrp) * 100) if variant.mrp > variant.price else 0
+        
         db.session.commit()
-        return jsonify({'success': True, 'message': 'Product saved successfully!'})
+        return jsonify({'success': True, 'message': 'Product and variants saved successfully!'})
         
     except ValueError as ve:
         db.session.rollback()

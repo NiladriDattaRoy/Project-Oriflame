@@ -317,11 +317,6 @@
           </div>
   
           <div class="admin-form-group">
-            <label class="admin-form-label">Main Image URL</label>
-            <input type="text" class="admin-form-control" name="image_url" placeholder="https://...">
-          </div>
-  
-          <div class="admin-form-group">
             <label class="admin-form-label">Short Description</label>
             <textarea class="admin-form-control" name="short_description" rows="2" placeholder="Brief summary (e.g. Deeply hydrating liquid foundation...)"></textarea>
           </div>
@@ -358,27 +353,42 @@
         <div id="section-media" style="padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 20px;">
           <h4 style="color: #c9a96e; margin-bottom: 16px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Media & Gallery</h4>
           <div class="admin-form-group">
-            <label class="admin-form-label">Upload Additional Images/Videos</label>
+            <label class="admin-form-label">Upload Media (Images & Videos)</label>
             <input type="file" class="admin-form-control" name="product_images" multiple accept="image/*,video/*">
-            <small style="color: rgba(255,255,255,0.4);">You can select multiple files at once.</small>
+            <small style="color: rgba(255,255,255,0.4);">Select multiple files. First file or URL will be the main image.</small>
           </div>
 
           <div class="admin-form-group" style="margin-top: 20px;">
-            <label class="admin-form-label">Additional Image URLs (One per line)</label>
-            <textarea class="admin-form-control" name="additional_image_urls" rows="4" placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"></textarea>
-          </div>
-
-          <div class="admin-form-group" style="margin-top: 20px;">
-            <label class="admin-form-label">Video URLs (YouTube or Direct Link)</label>
-            <textarea class="admin-form-control" name="video_urls" rows="2" placeholder="https://www.youtube.com/watch?v=..."></textarea>
+            <label class="admin-form-label">Media URLs (One per line - Images or YouTube links)</label>
+            <textarea class="admin-form-control" name="media_urls" rows="4" placeholder="https://example.com/main.jpg&#10;https://example.com/gallery1.jpg&#10;https://youtube.com/watch?v=..."></textarea>
+            <small style="color: rgba(255,255,255,0.4);">The first line will be used as the main product image if no file is uploaded above.</small>
           </div>
         </div>
 
         <div id="section-variants" style="padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 20px;">
-          <h4 style="color: #c9a96e; margin-bottom: 16px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Variants</h4>
-          <div class="variant-manager-placeholder" style="text-align: center; color: rgba(255,255,255,0.4); padding: 40px;">
-            <p>You can manage variants for this product here.</p>
-            <button type="button" class="admin-btn admin-btn-secondary" onclick="adminOpenVariantModalFromTab()">+ Add New Shade Variant</button>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h4 style="color: #c9a96e; margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Inline Variants</h4>
+            <button type="button" class="admin-btn admin-btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="addInlineVariantRow()">+ Add Row</button>
+          </div>
+          <div class="admin-table-container" style="margin: 0; overflow-x: visible;">
+            <table class="admin-table" style="min-width: 100%;">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Shade Name</th>
+                  <th>Color (Hex)</th>
+                  <th>Price</th>
+                  <th>MRP</th>
+                  <th style="width: 50px;"></th>
+                </tr>
+              </thead>
+              <tbody id="inline-variants-body">
+                <!-- Rows will be added here -->
+              </tbody>
+            </table>
+          </div>
+          <div id="inline-variants-empty" style="text-align: center; color: rgba(255,255,255,0.4); padding: 20px; font-size: 13px;">
+            No variants added yet. Click "+ Add Row" to add variants.
           </div>
         </div>
       </div>
@@ -395,79 +405,56 @@
 
 {% block extra_js %}
 <script>
-function adminOpenVariantModal(btn) {
-  const editBtn = btn.parentElement.querySelector('[title="Edit"]');
-  const data = editBtn.dataset;
+let variantCount = 0;
+
+function addInlineVariantRow() {
+  const tbody = document.getElementById('inline-variants-body');
+  const emptyMsg = document.getElementById('inline-variants-empty');
   
-  const modal = document.getElementById('product-modal');
-  const form = document.getElementById('product-form');
+  if (emptyMsg) emptyMsg.style.display = 'none';
   
-  form.reset();
-  modal.classList.add('active');
-  document.getElementById('product-modal-title').textContent = `Add Variant for ${data.name}`;
-  document.getElementById('section-variants').style.display = 'none';
-  
-  if (typeof populateForm === 'function') {
-    populateForm(modal, data);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" class="admin-form-control" name="inline_variant_code[]" placeholder="Code" required></td>
+    <td><input type="text" class="admin-form-control" name="inline_variant_name[]" placeholder="Shade Name"></td>
+    <td>
+      <div style="display: flex; gap: 4px;">
+        <input type="color" class="admin-form-control" name="inline_variant_color[]" style="width: 30px; padding: 0;" value="#000000">
+        <input type="color" class="admin-form-control" name="inline_variant_color2[]" style="width: 30px; padding: 0; opacity: 0.5;" title="Optional second color">
+      </div>
+    </td>
+    <td><input type="number" class="admin-form-control" name="inline_variant_price[]" placeholder="Price" step="0.01"></td>
+    <td><input type="number" class="admin-form-control" name="inline_variant_mrp[]" placeholder="MRP" step="0.01"></td>
+    <td><button type="button" class="admin-btn admin-btn-secondary" style="padding: 4px; color: #ff4444;" onclick="removeVariantRow(this)">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+  variantCount++;
+}
+
+function removeVariantRow(btn) {
+  const tr = btn.closest('tr');
+  tr.remove();
+  variantCount--;
+  if (variantCount === 0) {
+    const emptyMsg = document.getElementById('inline-variants-empty');
+    if (emptyMsg) emptyMsg.style.display = 'block';
   }
-  
-  form.querySelector('[name="id"]').value = '';
-  form.querySelector('[name="parent_id"]').value = data.id;
-  form.querySelector('[name="code"]').value = '';
-  form.querySelector('[name="shade_name"]').value = '';
-  form.querySelector('[name="shade_color"]').value = '';
-  const shadeColor2 = form.querySelector('[name="shade_color_2"]');
-  if (shadeColor2) shadeColor2.value = '';
-  form.querySelector('[name="image_url"]').value = '';
-  
-  const duoCheck = form.querySelector('[name="is_duo"]');
-  if (duoCheck) duoCheck.checked = false;
-  const duoRow = document.getElementById('duo-color-row');
-  if (duoRow) duoRow.style.display = 'none';
-  
-  // Scroll modal to top
-  modal.scrollTo(0,0);
-  
-  form.querySelector('[name="code"]').focus();
-  showToast('Adding new variant. Shared details copied.', 'info');
 }
 
-function adminOpenVariantModalFromTab() {
-  const form = document.getElementById('product-form');
-  const parentId = form.querySelector('[name="id"]').value;
-  const productName = form.querySelector('[name="name"]').value;
-  
-  document.getElementById('product-modal-title').textContent = `Add Variant for ${productName}`;
-  document.getElementById('section-variants').style.display = 'none';
-  
-  form.querySelector('[name="id"]').value = '';
-  form.querySelector('[name="parent_id"]').value = parentId;
-  form.querySelector('[name="code"]').value = '';
-  form.querySelector('[name="shade_name"]').value = '';
-  form.querySelector('[name="shade_color"]').value = '';
-  const shadeColor2 = form.querySelector('[name="shade_color_2"]');
-  if (shadeColor2) shadeColor2.value = '';
-  form.querySelector('[name="image_url"]').value = '';
-  
-  const duoCheck = form.querySelector('[name="is_duo"]');
-  if (duoCheck) duoCheck.checked = false;
-  const duoRow = document.getElementById('duo-color-row');
-  if (duoRow) duoRow.style.display = 'none';
-  
-  // Scroll modal to top
-  const modal = document.getElementById('product-modal');
-  modal.scrollTo(0,0);
-  
-  form.querySelector('[name="code"]').focus();
-  showToast('Adding new variant. Shared details kept.', 'info');
-}
-
-// Override modal open to handle title and section visibility
+// Override modal open to handle title and clear inline variants
 document.querySelectorAll('[data-modal="product-modal"]').forEach(btn => {
   btn.addEventListener('click', () => {
     const isEdit = !!btn.dataset.id;
     document.getElementById('product-modal-title').textContent = isEdit ? 'Edit Product' : 'Add New Product';
-    document.getElementById('section-variants').style.display = (isEdit && !btn.dataset.parentId) ? 'block' : 'none';
+    
+    // Clear inline variants
+    document.getElementById('inline-variants-body').innerHTML = '';
+    variantCount = 0;
+    const emptyMsg = document.getElementById('inline-variants-empty');
+    if (emptyMsg) emptyMsg.style.display = 'block';
+    
+    // Only show variants section for main products (not variants themselves)
+    document.getElementById('section-variants').style.display = (isEdit && btn.dataset.parentId) ? 'none' : 'block';
   });
 });
 
