@@ -1203,6 +1203,7 @@ def admin_save_product(product_id=None):
         else:
             product.parent_id = None
             
+        product.short_description = form.get('short_description')
         product.description = form.get('description')
         product.how_to_use = form.get('how_to_use')
         product.ingredients = form.get('ingredients')

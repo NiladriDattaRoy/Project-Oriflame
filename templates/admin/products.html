@@ -115,7 +115,10 @@
               data-stock="{{ product.stock }}"
               data-category_id="{{ product.category_id }}"
               data-brand="{{ product.brand or '' }}"
-              data-description="{{ product.description or '' }}"
+              data-short_description="{{ (product.short_description or '')|e }}"
+              data-description="{{ (product.description or '')|e }}"
+              data-how_to_use="{{ (product.how_to_use or '')|e }}"
+              data-ingredients="{{ (product.ingredients or '')|e }}"
               data-image_url="{{ product.image_url or '' }}"
               data-weight="{{ product.weight or '' }}"
               data-shade_name="{{ product.shade_name or '' }}"
@@ -128,7 +131,7 @@
               {% if product.is_active %}👁️{% else %}🚫{% endif %}
             </button>
             <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Add Variant"
-              onclick='adminOpenVariantModal({{ product.id }}, "{{ product.name|replace("\"", "\\\"")|replace("\n", " ") }}", "{{ product.brand|replace("\"", "\\\"") }}")'>
+              onclick="adminOpenVariantModal(this)">
               ➕
             </button>
             <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete" onclick="adminDeleteProduct({{ product.id }})">
@@ -185,7 +188,10 @@
               data-stock="{{ variant.stock }}"
               data-category_id="{{ variant.category_id }}"
               data-brand="{{ variant.brand or '' }}"
-              data-description="{{ variant.description or '' }}"
+              data-short_description="{{ (variant.short_description or '')|e }}"
+              data-description="{{ (variant.description or '')|e }}"
+              data-how_to_use="{{ (variant.how_to_use or '')|e }}"
+              data-ingredients="{{ (variant.ingredients or '')|e }}"
               data-image_url="{{ variant.image_url or '' }}"
               data-weight="{{ variant.weight or '' }}"
               data-shade_name="{{ variant.shade_name or '' }}"
@@ -321,8 +327,23 @@
           </div>
   
           <div class="admin-form-group">
-            <label class="admin-form-label">Description</label>
+            <label class="admin-form-label">Short Description</label>
+            <textarea class="admin-form-control" name="short_description" rows="2" placeholder="Brief summary (e.g. Deeply hydrating liquid foundation...)"></textarea>
+          </div>
+  
+          <div class="admin-form-group">
+            <label class="admin-form-label">About the Product (Full Description)</label>
             <textarea class="admin-form-control" name="description" rows="3"></textarea>
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-form-label">How to Use</label>
+            <textarea class="admin-form-control" name="how_to_use" rows="3"></textarea>
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-form-label">Ingredients</label>
+            <textarea class="admin-form-control" name="ingredients" rows="3"></textarea>
           </div>
   
           <div class="admin-form-row">
@@ -385,33 +406,67 @@ function switchTab(btn, tabId) {
   document.getElementById(tabId).style.display = 'block';
 }
 
-function adminOpenVariantModal(parentId, productName, brand) {
+function adminOpenVariantModal(btn) {
+  const editBtn = btn.parentElement.querySelector('[title="Edit"]');
+  const data = editBtn.dataset;
+  
   const modal = document.getElementById('product-modal');
   const form = document.getElementById('product-form');
   
   form.reset();
   modal.classList.add('active');
-  document.getElementById('product-modal-title').textContent = `Add Variant for ${productName}`;
-  document.getElementById('variant-tab-btn').style.display = 'none'; // Hide variant tab when adding a new variant
+  document.getElementById('product-modal-title').textContent = `Add Variant for ${data.name}`;
+  document.getElementById('variant-tab-btn').style.display = 'none';
   
   switchTab(document.querySelector('.admin-tab'), 'tab-general');
   
-  form.querySelector('[name="id"]').value = '';
-  form.querySelector('[name="parent_id"]').value = parentId;
-  form.querySelector('[name="name"]').value = productName;
-  form.querySelector('[name="brand"]').value = brand;
-  form.querySelector('[name="code"]').focus();
+  if (typeof populateForm === 'function') {
+    populateForm(modal, data);
+  }
   
-  showToast('Adding new variant. Please enter a unique Product Code.', 'info');
+  form.querySelector('[name="id"]').value = '';
+  form.querySelector('[name="parent_id"]').value = data.id;
+  form.querySelector('[name="code"]').value = '';
+  form.querySelector('[name="shade_name"]').value = '';
+  form.querySelector('[name="shade_color"]').value = '';
+  const shadeColor2 = form.querySelector('[name="shade_color_2"]');
+  if (shadeColor2) shadeColor2.value = '';
+  form.querySelector('[name="image_url"]').value = '';
+  
+  const duoCheck = form.querySelector('[name="is_duo"]');
+  if (duoCheck) duoCheck.checked = false;
+  const duoRow = document.getElementById('duo-color-row');
+  if (duoRow) duoRow.style.display = 'none';
+  
+  form.querySelector('[name="code"]').focus();
+  showToast('Adding new variant. Shared details copied.', 'info');
 }
 
 function adminOpenVariantModalFromTab() {
   const form = document.getElementById('product-form');
   const parentId = form.querySelector('[name="id"]').value;
   const productName = form.querySelector('[name="name"]').value;
-  const brand = form.querySelector('[name="brand"]').value;
   
-  adminOpenVariantModal(parentId, productName, brand);
+  document.getElementById('product-modal-title').textContent = `Add Variant for ${productName}`;
+  document.getElementById('variant-tab-btn').style.display = 'none';
+  
+  form.querySelector('[name="id"]').value = '';
+  form.querySelector('[name="parent_id"]').value = parentId;
+  form.querySelector('[name="code"]').value = '';
+  form.querySelector('[name="shade_name"]').value = '';
+  form.querySelector('[name="shade_color"]').value = '';
+  const shadeColor2 = form.querySelector('[name="shade_color_2"]');
+  if (shadeColor2) shadeColor2.value = '';
+  form.querySelector('[name="image_url"]').value = '';
+  
+  const duoCheck = form.querySelector('[name="is_duo"]');
+  if (duoCheck) duoCheck.checked = false;
+  const duoRow = document.getElementById('duo-color-row');
+  if (duoRow) duoRow.style.display = 'none';
+  
+  switchTab(document.querySelector('.admin-tab'), 'tab-general');
+  form.querySelector('[name="code"]').focus();
+  showToast('Adding new variant. Shared details kept.', 'info');
 }
 
 // Override modal open to handle tabs and title
