@@ -2090,6 +2090,11 @@ def get_product_data(product_id):
         "is_bestseller": p.is_bestseller
     })
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static/images'),
+                               'placeholder.png', mimetype='image/png')
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
