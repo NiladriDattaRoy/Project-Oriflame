@@ -422,10 +422,9 @@ function addInlineVariantRow() {
     <td><input type="text" class="admin-form-control" name="inline_variant_name[]" placeholder="Shade"></td>
     <td><input type="color" class="admin-form-control" name="inline_variant_color[]" style="width: 30px; padding: 0;" value="#000000"></td>
     <td><input type="number" class="admin-form-control" name="inline_variant_price[]" placeholder="Price" step="0.01"></td>
-    <td><button type="button" class="admin-btn admin-btn-secondary" style="padding: 4px; color: #ff4444;" onclick="this.closest('tr').remove(); variantCount--; if(variantCount===0) document.getElementById('inline-variants-empty').style.display='block';">✕</button></td>
+    <td><button type="button" class="admin-btn admin-btn-secondary" style="padding: 4px; color: #ff4444;" onclick="this.closest('tr').remove(); if(document.getElementById('inline-variants-body').children.length===0) document.getElementById('inline-variants-empty').style.display='block';">✕</button></td>
   `;
   tbody.appendChild(tr);
-  variantCount++;
 }
 
 // Override modal open to handle title and clear inline variants
@@ -479,7 +478,34 @@ async function populateFormFromData(id) {
       populateForm(modal, data);
       
       // Handle the variants section visibility
-      document.getElementById('section-variants').style.display = data.parent_id ? 'none' : 'block';
+      const sectionVariants = document.getElementById('section-variants');
+      sectionVariants.style.display = data.parent_id ? 'none' : 'block';
+
+      if (!data.parent_id) {
+        // Fetch and show existing variants
+        const vRes = await fetch(`/oriflame-admin-panel-x9k2/api/products/${id}/variants`);
+        const variants = await vRes.json();
+        const tbody = document.getElementById('inline-variants-body');
+        const emptyMsg = document.getElementById('inline-variants-empty');
+        
+        tbody.innerHTML = '';
+        if (variants.length > 0) {
+          emptyMsg.style.display = 'none';
+          variants.forEach(v => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td><input type="text" class="admin-form-control" value="${v.code}" readonly style="background: rgba(255,255,255,0.05); cursor: default;"></td>
+              <td><input type="text" class="admin-form-control" value="${v.shade_name}" readonly style="background: rgba(255,255,255,0.05); cursor: default;"></td>
+              <td><div style="width: 24px; height: 24px; border-radius: 4px; background: ${v.shade_color}; border: 1px solid rgba(255,255,255,0.1);"></div></td>
+              <td><input type="text" class="admin-form-control" value="₹${v.price}" readonly style="background: rgba(255,255,255,0.05); cursor: default;"></td>
+              <td><a href="javascript:void(0)" onclick="populateFormFromData(${v.id})" style="color: #c9a96e; text-decoration: none; font-size: 18px;">✎</a></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } else {
+          emptyMsg.style.display = 'block';
+        }
+      }
     }
   } catch (err) {
     console.error('Failed to fetch product data', err);
