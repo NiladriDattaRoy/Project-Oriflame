@@ -171,6 +171,14 @@
             My Dashboard
           </a>
         </li>
+        {% if current_user.is_admin %}
+        <li>
+          <a href="/oriflame-admin-panel-x9k2/" class="left-menu-link" style="color: #c9a96e;">
+            <svg class="icon-svg" style="width: 18px; height: 18px;" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            Admin Panel
+          </a>
+        </li>
+        {% endif %}
         <li>
           <a href="/orders" class="left-menu-link">
             <svg class="icon-svg" style="width: 18px; height: 18px;" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>

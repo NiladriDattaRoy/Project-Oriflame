@@ -63,11 +63,25 @@ def inject_globals():
     categories = Category.query.filter_by(is_active=True).order_by(Category.display_order).all()
     cart_count = 0
     wishlist_count = 0
+    product_count = 0
+    pending_orders = 0
+    
     if current_user.is_authenticated:
         if current_user.cart:
             cart_count = current_user.cart.item_count
         wishlist_count = Wishlist.query.filter_by(user_id=current_user.id).count()
-    return dict(categories=categories, cart_count=cart_count, wishlist_count=wishlist_count)
+        
+        if current_user.is_admin:
+            product_count = Product.query.count()
+            pending_orders = Order.query.filter_by(status='pending').count()
+            
+    return dict(
+        categories=categories, 
+        cart_count=cart_count, 
+        wishlist_count=wishlist_count,
+        product_count=product_count,
+        pending_orders=pending_orders
+    )
 
 
 # ─── Admin Required Decorator ────────────────────────────────────────────────
@@ -1107,6 +1121,17 @@ def mlm_user_details(user_id):
 #  ADMIN ROUTES (Hidden URL)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# ─── Admin Redirects (Convenience) ──────────────────────────────────────────
+@app.route('/admin')
+@app.route('/admin/products')
+@login_required
+def admin_convenience_redirect():
+    if current_user.is_admin:
+        if 'products' in request.path:
+            return redirect('/oriflame-admin-panel-x9k2/products')
+        return redirect('/oriflame-admin-panel-x9k2/')
+    abort(404)
+
 @app.route('/oriflame-admin-panel-x9k2/')
 @login_required
 @admin_required
@@ -1136,6 +1161,8 @@ def admin_dashboard():
 
 
 @app.route('/oriflame-admin-panel-x9k2/products', methods=['GET'])
+@login_required
+@admin_required
 def admin_products():
     # Fetch all products in one single query to be super fast
     all_products = Product.query.order_by(Product.created_at.desc()).all()
@@ -1380,37 +1407,6 @@ def admin_api_product_variants(product_id):
         })
     return jsonify(result)
 
-@app.route('/oriflame-admin-panel-x9k2/fix_orphans')
-@login_required
-def admin_fix_orphans():
-    if current_user.role != 'admin':
-        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
-        
-    all_products = Product.query.all()
-    orphans = [p for p in all_products if p.parent_id is None]
-    
-    # Sort by length of name so shorter names (likely parents) come first
-    orphans.sort(key=lambda x: len(x.name or ""))
-    
-    fixed_count = 0
-    for i, potential_parent in enumerate(orphans):
-        if not potential_parent.name: continue
-        parent_name = potential_parent.name.strip()
-        
-        for j in range(i + 1, len(orphans)):
-            child = orphans[j]
-            if not child.name: continue
-            child_name = child.name.strip()
-            
-            # If child name starts with parent name (e.g. "Lipstick Warm Cocoa" starts with "Lipstick")
-            # OR if they are exactly the same
-            if child_name.lower().startswith(parent_name.lower()):
-                if child.id != potential_parent.id and child.parent_id != potential_parent.id:
-                    child.parent_id = potential_parent.id
-                    fixed_count += 1
-                
-    db.session.commit()
-    return jsonify({'success': True, 'message': f'Successfully linked {fixed_count} orphaned variants using prefix matching!'})
 
 @app.route('/oriflame-admin-panel-x9k2/products/<int:product_id>/delete', methods=['POST'])
 @login_required
