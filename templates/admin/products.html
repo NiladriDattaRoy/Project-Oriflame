@@ -346,15 +346,15 @@
           <div class="admin-table-container" style="margin: 0;">
             <table class="admin-table">
               <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Shade</th>
-                  <th>Color</th>
-                  <th>Weight</th>
-                  <th>Price</th>
-                  <th style="width: 40px;"></th>
-                </tr>
-              </thead>
+  <tr>
+    <th>Code</th>
+    <th>Shade</th>
+    <th>Color</th>
+    <th>Second Color</th>
+    <th>Media URLs (one per line)</th>
+    <th style="width: 40px;"></th>
+  </tr>
+</thead>
               <tbody id="inline-variants-body"></tbody>
             </table>
           </div>
@@ -386,8 +386,8 @@ function addInlineVariantRow() {
     <td><input type="text" class="admin-form-control" name="inline_variant_code[]" placeholder="Code" required></td>
     <td><input type="text" class="admin-form-control" name="inline_variant_name[]" placeholder="Shade"></td>
     <td><input type="color" class="admin-form-control" name="inline_variant_color[]" style="width: 30px; padding: 0;" value="#000000"></td>
-    <td><input type="text" class="admin-form-control" name="inline_variant_weight[]" placeholder="Weight"></td>
-    <td><input type="number" class="admin-form-control" name="inline_variant_price[]" placeholder="Price" step="0.01"></td>
+    <td><input type="color" class="admin-form-control" name="inline_variant_color2[]" style="width: 30px; padding: 0;" value="#000000"></td>
+    <td><textarea class="admin-form-control" name="inline_variant_media_urls[]" placeholder="One URL per line"></textarea></td>
     <td><button type="button" class="admin-btn admin-btn-secondary" style="padding: 4px; color: #ff4444;" onclick="this.closest('tr').remove(); if(document.getElementById('inline-variants-body').children.length===0) document.getElementById('inline-variants-empty').style.display='block';">✕</button></td>
   `;
   tbody.appendChild(tr);
