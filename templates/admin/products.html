@@ -474,6 +474,45 @@ async function populateFormFromData(id) {
   }
 }
 
+function initAdminTables() {
+  const searchInput = document.querySelector('.admin-search input');
+  if (searchInput) {
+    searchInput.addEventListener('input', debounce((e) => {
+      const query = e.target.value.toLowerCase();
+      const isGrouped = document.getElementById('view-grouped').style.display !== 'none';
+      
+      if (isGrouped) {
+        // Filter parent rows only
+        const parentRows = document.querySelectorAll('#view-grouped .parent-row');
+        parentRows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          const match = text.includes(query);
+          row.style.display = match ? '' : 'none';
+          
+          // Also hide all variant rows for this parent if it's hidden
+          const parentId = row.id.replace('row-', '');
+          const variantRows = document.querySelectorAll(`.variant-row-of-${parentId}`);
+          variantRows.forEach(vr => vr.style.display = 'none');
+          
+          // Reset expand button
+          const btn = row.querySelector('.expand-btn');
+          if (btn) btn.textContent = '▶';
+        });
+      } else {
+        // Filter all rows in the all-products view
+        const allRows = document.querySelectorAll('#view-all tbody tr');
+        allRows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          row.style.display = text.includes(query) ? '' : 'none';
+        });
+      }
+    }, 300));
+  }
+}
+
+// Ensure it runs
+document.addEventListener('DOMContentLoaded', initAdminTables);
+
 function runSmartScan() {
   if (!confirm('Link all variants based on names?')) return;
   fetch('/oriflame-admin-panel-x9k2/fix_orphans', { method: 'POST' })
