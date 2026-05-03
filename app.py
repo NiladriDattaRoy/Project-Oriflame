@@ -1405,6 +1405,7 @@ def admin_save_product(product_id=None):
         v_mrps = request.form.getlist('inline_variant_mrp[]')
         v_weights = request.form.getlist('inline_variant_weight[]')
         
+        v_img_offset = 0  # tracks position in the flat inline_variant_images[] file list
         for i in range(len(v_codes)):
             code = v_codes[i].strip()
             if not code:
@@ -1433,18 +1434,43 @@ def admin_save_product(product_id=None):
             variant.shade_name = v_names[i].strip() if i < len(v_names) else ''
             variant.shade_color = v_colors[i].strip() if i < len(v_colors) else ''
             variant.shade_color_2 = v_colors2[i].strip() if i < len(v_colors2) else ''
-            variant.weight = v_weights[i].strip() if i < len(v_weights) else product.weight
+            variant.weight = product.weight
+            variant.price = product.price
+            variant.mrp = product.mrp
+            variant.discount_percent = product.discount_percent
             
-            try:
-                v_price = float(v_prices[i].strip()) if i < len(v_prices) and v_prices[i].strip() else product.price
-                variant.price = v_price
-                v_mrp = float(v_mrps[i].strip()) if i < len(v_mrps) and v_mrps[i].strip() else product.mrp
-                variant.mrp = v_mrp
-            except ValueError:
-                variant.price = product.price
-                variant.mrp = product.mrp
+            # Flush so variant gets an id before attaching images
+            db.session.flush()
             
-            variant.discount_percent = round(((variant.mrp - variant.price) / variant.mrp) * 100) if variant.mrp > variant.price else 0
+            # Process per-variant uploaded images/videos
+            v_images_key = 'inline_variant_images[]'
+            # request.files.getlist returns all files across all rows combined,
+            # so we track the per-row field via a named key with index
+            v_img_files = request.files.getlist(v_images_key)
+            # We split by index: each row sends its files under the same key,
+            # so we compute slice position by counting how many files earlier rows sent.
+            # Since the browser sends them in order, we grab them sequentially.
+            # We use a shared index tracked outside the loop via offset approach:
+            # assign to all variants in order - this approach works when all files
+            # are sent together in a flat list. Offset is tracked by v_img_offset
+            # set before the for loop.
+            row_files = v_img_files[v_img_offset:v_img_offset + 99]  # generous slice
+            files_used = 0
+            for j, vf in enumerate(row_files):
+                if not vf or vf.filename == '':
+                    break
+                files_used += 1
+                vfilename = secure_filename(f"{variant.code}_{uuid.uuid4().hex[:8]}_{vf.filename}")
+                vupload_path = os.path.join(app.config['UPLOAD_FOLDER'], vfilename)
+                vf.save(vupload_path)
+                vimg_url = f"/static/images/uploads/{vfilename}"
+                vext = vfilename.split('.')[-1].lower()
+                vm_type = 'video' if vext in ['mp4', 'webm', 'ogg', 'mov', 'avi'] else 'image'
+                if j == 0 and vm_type == 'image':
+                    variant.image_url = vimg_url
+                vim_record = ProductImage(product=variant, image_url=vimg_url, media_type=vm_type, display_order=j)
+                db.session.add(vim_record)
+            v_img_offset += files_used
         
         db.session.commit()
         return jsonify({'success': True, 'message': 'Product and variants saved successfully!'})
