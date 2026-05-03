@@ -443,8 +443,8 @@ async function populateFormFromData(id) {
       sectionVariants.style.display = data.parent_id ? 'none' : 'block';
 
       if (!data.parent_id) {
-        // Fetch and show existing variants
-        const vRes = await fetch(`/oriflame-admin-panel-x9k2/api/products/${id}/variants`);
+        // Fetch and show existing variants (both by parent_id and by name similarity)
+        const vRes = await fetch(`/oriflame-admin-panel-x9k2/api/products/${id}/variants?include_names=true`);
         const variants = await vRes.json();
         const tbody = document.getElementById('inline-variants-body');
         const emptyMsg = document.getElementById('inline-variants-empty');

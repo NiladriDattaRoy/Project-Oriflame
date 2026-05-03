@@ -6,6 +6,6 @@ from app import app, db, Product
 
 with app.app_context():
     products = Product.query.filter(Product.name.ilike('%Super Pout%')).all()
-    print(f"Found {len(products)} products with 'Super Pout' in name.")
+    print(f"Found {len(products)} products.")
     for p in products:
-        print(f"ID: {p.id}, Code: {p.code}, Name: '{p.name}', ParentID: {p.parent_id}")
+        print(f"ID: {p.id}, Name: {repr(p.name)}")

@@ -1230,6 +1230,9 @@ def admin_products():
         else:
             parents.append(p)
             
+    # Sort parents by ID ascending to pick the oldest as the main one
+    parents.sort(key=lambda x: x.id)
+            
     # 2. Second pass: Consolidate orphans with exact same name
     final_parents = []
     processed_ids = set()
@@ -1248,6 +1251,9 @@ def admin_products():
             final_parents.append(p)
             name_to_parent[name_key] = p.id
             processed_ids.add(p.id)
+            
+    # Sort final_parents by ID ascending to have a consistent order
+    final_parents.sort(key=lambda x: x.id)
             
     categories_list = Category.query.all()
     return render_template('admin/products.html', 
@@ -1449,7 +1455,24 @@ def admin_api_product_variants(product_id):
     if current_user.role != 'admin':
         return jsonify({'error': 'Unauthorized'}), 403
     
-    variants = Product.query.filter_by(parent_id=product_id).all()
+    product = Product.query.get_or_404(product_id)
+    include_names = request.args.get('include_names') == 'true'
+    
+    if include_names:
+        # Find variants by parent_id OR by exact name match
+        variants = Product.query.filter(
+            db.or_(
+                Product.parent_id == product_id,
+                db.and_(
+                    Product.name == product.name,
+                    Product.id != product_id,
+                    Product.parent_id == None
+                )
+            )
+        ).all()
+    else:
+        variants = Product.query.filter_by(parent_id=product_id).all()
+        
     result = []
     for v in variants:
         result.append({
