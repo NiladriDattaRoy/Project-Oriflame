@@ -1219,21 +1219,27 @@ def admin_products():
     # Fetch all products in one single query to be super fast
     all_products = Product.query.order_by(Product.created_at.desc()).all()
     
-    # 1. First pass: Separate by parent_id
+    # 1. Map all products by ID for quick lookup
+    product_map = {p.id: p for p in all_products}
+    
+    # 2. First pass: Separate into initial parents and explicit variants
     parents = []
     variants_map = {}
+    
     for p in all_products:
-        if p.parent_id:
+        if p.parent_id and p.parent_id in product_map:
+            # It's an explicit variant of an existing product
             if p.parent_id not in variants_map:
                 variants_map[p.parent_id] = []
             variants_map[p.parent_id].append(p)
         else:
+            # It's a parent or its parent_id is invalid/missing
             parents.append(p)
             
     # Sort parents by ID ascending to pick the oldest as the main one
     parents.sort(key=lambda x: x.id)
             
-    # 2. Second pass: Consolidate orphans with exact same name
+    # 3. Second pass: Consolidate orphans with exact same name
     final_parents = []
     processed_ids = set()
     name_to_parent = {} # name.lower() -> parent_id
@@ -1252,7 +1258,7 @@ def admin_products():
             name_to_parent[name_key] = p.id
             processed_ids.add(p.id)
             
-    # Sort final_parents by ID ascending to have a consistent order
+    # Sort final_parents by ID ascending
     final_parents.sort(key=lambda x: x.id)
             
     categories_list = Category.query.all()
