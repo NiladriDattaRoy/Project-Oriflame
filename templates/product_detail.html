@@ -65,10 +65,60 @@
       <h1>{{ product.name }}</h1>
 
       <!-- Variants / Shades -->
+      <!-- Variants / Shades -->
       {% if variants or product.shade_name %}
       <style>
         .shade-circle.duo {
           background: linear-gradient(90deg, var(--c1) 50%, var(--c2) 50%);
+        }
+        .variant-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-bottom: 16px;
+        }
+        .variant-item {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          padding: 2px;
+          border: 2px solid transparent;
+          transition: all 0.2s ease;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .variant-item.active {
+          border-color: #000;
+          box-shadow: inset 0 0 0 2px #fff;
+        }
+        .shade-circle {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          border: 1px solid rgba(0,0,0,0.1);
+        }
+        .variant-item img {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+        .selected-shade-info {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px;
+          background: rgba(0,0,0,0.03);
+          border-radius: 8px;
+          margin-bottom: 20px;
+        }
+        .shade-dot-indicator {
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          border: 1px solid rgba(0,0,0,0.1);
         }
       </style>
       <div class="product-variants">
@@ -76,7 +126,7 @@
           Select Shade / Variant:
         </span>
         <div class="variant-list">
-          <a href="javascript:void(0)" class="variant-item active" title="{{ product.shade_name or product.code }}" onclick="switchToVariant({{ product.id }})">
+          <div class="variant-item active" title="{{ product.shade_name or product.code }}" onclick="switchToVariant({{ product.id }})">
             {% if product.shade_color %}
               {% if product.shade_color_2 %}
               <div class="shade-circle duo" style="--c1: {{ product.shade_color }}; --c2: {{ product.shade_color_2 }};"></div>
@@ -86,9 +136,9 @@
             {% else %}
               <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="{{ product.code }}">
             {% endif %}
-          </a>
+          </div>
           {% for variant in variants %}
-          <a href="javascript:void(0)" class="variant-item" title="{{ variant.shade_name or variant.code }}" onclick="switchToVariant({{ variant.id }})">
+          <div class="variant-item" title="{{ variant.shade_name or variant.code }}" onclick="switchToVariant({{ variant.id }})">
             {% if variant.shade_color %}
               {% if variant.shade_color_2 %}
               <div class="shade-circle duo" style="--c1: {{ variant.shade_color }}; --c2: {{ variant.shade_color_2 }};"></div>
@@ -98,11 +148,19 @@
             {% else %}
               <img src="{{ variant.image_url or '/static/images/placeholder.png' }}" alt="{{ variant.code }}">
             {% endif %}
-          </a>
+          </div>
           {% endfor %}
         </div>
-        <div class="active-shade-name" style="margin-top: 10px; font-size: 14px; color: var(--color-text-secondary);">
-          Selected: <strong id="selected-shade-name" style="color: var(--color-primary);">{{ product.shade_name or 'Default' }}</strong>
+        
+        <div class="selected-shade-info" id="shade-info-box">
+          <div class="shade-dot-indicator" id="selected-shade-dot" style="background-color: {{ product.shade_color or 'transparent' }}; display: {{ 'block' if product.shade_color else 'none' }}"></div>
+          <div style="line-height: 1.4;">
+            <div id="selected-shade-name" style="font-weight: 700; font-size: 14px;">{{ product.shade_name or 'Default' }}</div>
+            <div style="font-size: 12px; color: var(--color-text-secondary);">
+              Code: <span id="selected-shade-code">{{ product.code }}</span> 
+              {% if product.weight %} | <span id="selected-shade-weight">{{ product.weight }}</span>{% endif %}
+            </div>
+          </div>
         </div>
       </div>
       {% endif %}
@@ -436,6 +494,8 @@ document.addEventListener('DOMContentLoaded', () => {
       price: {{ product.price or 0 }},
       mrp: {{ product.mrp or 0 }},
       discount: {{ product.discount_percent }},
+      weight: "{{ product.weight or '' }}",
+      color: "{{ product.shade_color or '' }}",
       main_img: "{{ product.image_url or '/static/images/placeholder.png' }}",
       gallery: [
         { type: 'image', src: "{{ product.image_url or '/static/images/placeholder.png' }}" },
@@ -454,6 +514,8 @@ document.addEventListener('DOMContentLoaded', () => {
       price: {{ v.price or 0 }},
       mrp: {{ v.mrp or 0 }},
       discount: {{ v.discount_percent }},
+      weight: "{{ v.weight or '' }}",
+      color: "{{ v.shade_color or '' }}",
       main_img: "{{ v.image_url or '/static/images/placeholder.png' }}",
       gallery: [
         { type: 'image', src: "{{ v.image_url or '/static/images/placeholder.png' }}" },
@@ -484,7 +546,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update Text info
     const shadeNameEl = document.getElementById('selected-shade-name');
-    if (shadeNameEl) shadeNameEl.textContent = data.shade || data.code || 'Default';
+    if (shadeNameEl) shadeNameEl.textContent = data.shade || 'Default';
+    
+    const shadeCodeEl = document.getElementById('selected-shade-code');
+    if (shadeCodeEl) shadeCodeEl.textContent = data.code || '-';
+    
+    const shadeWeightEl = document.getElementById('selected-shade-weight');
+    if (shadeWeightEl) {
+        shadeWeightEl.textContent = data.weight || '';
+        shadeWeightEl.parentElement.style.display = data.weight ? 'inline' : 'none';
+    }
+
+    const shadeDotEl = document.getElementById('selected-shade-dot');
+    if (shadeDotEl) {
+        if (data.color) {
+            shadeDotEl.style.backgroundColor = data.color;
+            shadeDotEl.style.display = 'block';
+        } else {
+            shadeDotEl.style.display = 'none';
+        }
+    }
     
     document.getElementById('display-price').textContent = `₹${data.price.toFixed(0)}`;
     

@@ -123,13 +123,13 @@
               <div class="product-card-shades" style="display: flex; gap: 4px; margin-bottom: 8px;">
                 {# Show the main product's shade first #}
                 {% if product.shade_color %}
-                <div class="shade-dot active" style="width: 12px; height: 12px; border-radius: 50%; background: {{ product.shade_color }}; border: 1px solid rgba(0,0,0,0.1);" title="{{ product.shade_name }}"></div>
+                <div class="shade-dot active" style="width: 14px; height: 14px; border-radius: 50%; background: {{ product.shade_color }}; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0;" title="{{ product.shade_name }}"></div>
                 {% endif %}
                 
                 {# Show other shades #}
                 {% for v in variants_map.get(product.id)[:5] %}
                   {% if v.shade_color %}
-                  <div class="shade-dot" style="width: 12px; height: 12px; border-radius: 50%; background: {{ v.shade_color }}; border: 1px solid rgba(0,0,0,0.1); opacity: 0.6;" title="{{ v.shade_name }}"></div>
+                  <div class="shade-dot" style="width: 14px; height: 14px; border-radius: 50%; background: {{ v.shade_color }}; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; opacity: 0.8;" title="{{ v.shade_name }}"></div>
                   {% endif %}
                 {% endfor %}
                 

@@ -1386,6 +1386,7 @@ def admin_save_product(product_id=None):
         v_colors2 = request.form.getlist('inline_variant_color2[]')
         v_prices = request.form.getlist('inline_variant_price[]')
         v_mrps = request.form.getlist('inline_variant_mrp[]')
+        v_weights = request.form.getlist('inline_variant_weight[]')
         
         for i in range(len(v_codes)):
             code = v_codes[i].strip()
@@ -1415,6 +1416,7 @@ def admin_save_product(product_id=None):
             variant.shade_name = v_names[i].strip() if i < len(v_names) else ''
             variant.shade_color = v_colors[i].strip() if i < len(v_colors) else ''
             variant.shade_color_2 = v_colors2[i].strip() if i < len(v_colors2) else ''
+            variant.weight = v_weights[i].strip() if i < len(v_weights) else product.weight
             
             try:
                 v_price = float(v_prices[i].strip()) if i < len(v_prices) and v_prices[i].strip() else product.price
@@ -1455,7 +1457,8 @@ def admin_api_product_variants(product_id):
             'shade_color': v.shade_color or '#000000',
             'shade_color_2': v.shade_color_2 or '',
             'price': v.price,
-            'mrp': v.mrp
+            'mrp': v.mrp,
+            'weight': v.weight or ''
         })
     return jsonify(result)
 
