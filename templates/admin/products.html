@@ -328,8 +328,13 @@
           </div>
   
           <div class="admin-form-group">
-            <label class="admin-form-label">Image URL</label>
-            <input type="text" class="admin-form-control" name="image_url" placeholder="https://...">
+            <label class="admin-form-label">Upload Images / Videos</label>
+            <input type="file" class="admin-form-control" name="product_images" multiple accept="image/*,video/*">
+          </div>
+          
+          <div class="admin-form-group">
+            <label class="admin-form-label">Media URLs (One per line, supports YouTube)</label>
+            <textarea class="admin-form-control" name="media_urls" rows="3" placeholder="https://image.url&#10;https://youtube.com/watch?v=..."></textarea>
           </div>
         </div>
 
