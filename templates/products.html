@@ -118,6 +118,27 @@
             <div class="product-card-info">
               {% if product.brand %}<a href="/products?brand={{ product.brand|urlencode }}" class="product-card-brand" style="text-decoration: none; z-index: 2; position: relative;">{{ product.brand }}</a>{% endif %}
               <a href="/products/{{ product.slug }}"><h3 class="product-card-name">{{ product.name }}</h3></a>
+              
+              {% if variants_map.get(product.id) %}
+              <div class="product-card-shades" style="display: flex; gap: 4px; margin-bottom: 8px;">
+                {# Show the main product's shade first #}
+                {% if product.shade_color %}
+                <div class="shade-dot active" style="width: 12px; height: 12px; border-radius: 50%; background: {{ product.shade_color }}; border: 1px solid rgba(0,0,0,0.1);" title="{{ product.shade_name }}"></div>
+                {% endif %}
+                
+                {# Show other shades #}
+                {% for v in variants_map.get(product.id)[:5] %}
+                  {% if v.shade_color %}
+                  <div class="shade-dot" style="width: 12px; height: 12px; border-radius: 50%; background: {{ v.shade_color }}; border: 1px solid rgba(0,0,0,0.1); opacity: 0.6;" title="{{ v.shade_name }}"></div>
+                  {% endif %}
+                {% endfor %}
+                
+                {% if variants_map.get(product.id)|length > 5 %}
+                <span style="font-size: 10px; color: var(--color-text-muted);">+{{ variants_map.get(product.id)|length - 5 }}</span>
+                {% endif %}
+              </div>
+              {% endif %}
+
               <div class="product-card-rating">
                 <span class="stars">{% for i in range(5) %}{% if i < product.rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
                 <span class="rating-count">({{ product.review_count }})</span>

@@ -241,12 +241,57 @@ def products():
     # Pagination
     page = request.args.get('page', 1, type=int)
     per_page = Config.PRODUCTS_PER_PAGE
-    total = query.count()
-    total_pages = (total + per_page - 1) // per_page
-    products_list = query.offset((page - 1) * per_page).limit(per_page).all()
     
+    # Get all active products that match criteria
+    all_matching = query.all()
+    
+    # Grouping Logic: Consolidate variants into parent products
+    # We want to show only the 'root' product in the grid
+    grouped_products = []
+    seen_roots = {} # root_id or name -> product object
+    variants_map = {} # root_id or name -> list of variant products
+    name_to_root = {} # name -> root_id
+    
+    for p in all_matching:
+        # Determine root identifier
+        root_id = p.parent_id
+        
+        if not root_id:
+            # Check if we've seen this name before
+            clean_name = p.name.strip().lower()
+            if clean_name in name_to_root:
+                root_id = name_to_root[clean_name]
+            else:
+                root_id = f"name_{clean_name}"
+                name_to_root[clean_name] = root_id
+
+        if root_id not in seen_roots:
+            seen_roots[root_id] = p
+            variants_map[p.id] = [] # Store variants by the ID of the 'root' product we picked
+        else:
+            # It's a variant
+            root_product = seen_roots[root_id]
+            if p.id != root_product.id:
+                if root_product.id not in variants_map:
+                    variants_map[root_product.id] = []
+                variants_map[root_product.id].append(p)
+                
+    # Flatten the grouped products
+    products_list = list(seen_roots.values())
+    
+    # Re-apply sorting to the grouped list (since order might have changed)
+    # (Simplified: we use the original query's order for roots)
+    
+    total = len(products_list)
+    total_pages = (total + per_page - 1) // per_page
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_products = products_list[start:end]
+    
+    # Pass variants to the template
     return render_template('products.html',
-                           products=products_list,
+                           products=paginated_products,
+                           variants_map=variants_map,
                            page=page,
                            total_pages=total_pages,
                            category=None)
@@ -311,26 +356,33 @@ def product_detail(slug):
 
     # IF no variants found by ID (orphans), try finding by name similarity (Super Robust)
     if not variants:
-        # Get the first 2-3 words as a base, but also try the whole name
         clean_name = product.name.strip()
-        name_parts = clean_name.split()
         
-        # Try matching by the first 2 words (e.g. "The ONE", "Smart Sync")
-        if len(name_parts) >= 2:
-            search_prefix = " ".join(name_parts[:2])
-            variants = Product.query.filter(
-                Product.name.ilike(f"{search_prefix}%"),
-                Product.id != product.id,
-                Product.is_active == True
-            ).all()
+        # 1. Try exact name match (best for products where shades share the same name)
+        variants = Product.query.filter(
+            Product.name.ilike(clean_name),
+            Product.id != product.id,
+            Product.is_active == True
+        ).all()
         
-        # If still nothing, try matching the exact name (for products that share names but have different shades/codes)
+        # 2. If still nothing, try matching by the first 3 words (more specific than 2)
         if not variants:
-            variants = Product.query.filter(
-                Product.name.ilike(clean_name),
-                Product.id != product.id,
-                Product.is_active == True
-            ).all()
+            name_parts = clean_name.split()
+            if len(name_parts) >= 3:
+                search_prefix = " ".join(name_parts[:3])
+                variants = Product.query.filter(
+                    Product.name.ilike(f"{search_prefix}%"),
+                    Product.id != product.id,
+                    Product.is_active == True
+                ).all()
+            # 3. Last resort: match by first 2 words if they are long enough
+            elif len(name_parts) >= 2 and len(name_parts[0]) > 3:
+                search_prefix = " ".join(name_parts[:2])
+                variants = Product.query.filter(
+                    Product.name.ilike(f"{search_prefix}%"),
+                    Product.id != product.id,
+                    Product.is_active == True
+                ).all()
     
     # Find related products
     related = Product.query.filter(
