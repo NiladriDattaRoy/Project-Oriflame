@@ -1993,12 +1993,22 @@ def get_product_data(product_id):
         "name": p.name,
         "code": p.code,
         "price": p.price,
+        "mrp": p.mrp,
         "stock": p.stock,
         "category_id": p.category_id,
         "brand": p.brand,
+        "weight": p.weight,
+        "shade_name": p.shade_name,
+        "shade_color": p.shade_color,
+        "shade_color_2": p.shade_color_2,
+        "short_description": p.short_description,
         "description": p.description,
+        "how_to_use": p.how_to_use,
+        "ingredients": p.ingredients,
         "image_url": p.image_url,
-        "parent_id": p.parent_id
+        "parent_id": p.parent_id,
+        "is_new": p.is_new,
+        "is_bestseller": p.is_bestseller
     })
 
 if __name__ == '__main__':

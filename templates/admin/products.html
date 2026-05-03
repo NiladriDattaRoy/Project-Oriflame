@@ -166,6 +166,26 @@
         </td>
         <td>{{ product.code }}</td>
         <td>₹{{ "%.0f"|format(product.price or 0) }}</td>
+        <td>{{ product.stock }}</td>
+        <td>
+          <div style="display: flex; gap: 4px;">
+            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Edit" 
+              data-modal="product-modal"
+              data-id="{{ product.id }}"
+              data-name="{{ product.name }}"
+              data-code="{{ product.code }}"
+              data-price="{{ product.price }}"
+              data-mrp="{{ product.mrp }}"
+              data-stock="{{ product.stock }}"
+              data-category_id="{{ product.category_id }}"
+              data-brand="{{ product.brand or '' }}"
+              data-short_description="{{ (product.short_description or '')|e }}"
+              data-description="{{ (product.description or '')|e }}"
+              data-how_to_use="{{ (product.how_to_use or '')|e }}"
+              data-ingredients="{{ (product.ingredients or '')|e }}"
+              data-image_url="{{ product.image_url or '' }}"
+              data-weight="{{ product.weight or '' }}">
+              ✏️
             </button>
             <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete" onclick="adminDeleteProduct({{ product.id }})">
               🗑️
@@ -178,8 +198,8 @@
       {% for variant in variants_map.get(product.id, []) %}
       <tr class="variant-row variant-row-of-{{ product.id }}" style="display: none;">
         <td></td>
-        <td style="padding-left: 20px;">
-          <div class="product-cell">
+        <td>
+          <div class="product-cell" style="padding-left: 20px;">
             <div class="product-thumb" style="width: 32px; height: 32px;">
               <img src="{{ variant.image_url or '/static/images/placeholder.png' }}" alt="">
             </div>
@@ -199,16 +219,8 @@
           </div>
         </td>
         <td>{{ variant.code }}</td>
-        <td>—</td>
         <td>₹{{ "%.0f"|format(variant.price or 0) }}</td>
         <td>{{ variant.stock }}</td>
-        <td>
-          {% if variant.is_active %}
-          <span class="admin-badge success" style="padding: 2px 6px; font-size: 10px;">Active</span>
-          {% else %}
-          <span class="admin-badge danger" style="padding: 2px 6px; font-size: 10px;">Inactive</span>
-          {% endif %}
-        </td>
         <td>
           <div style="display: flex; gap: 4px;">
             <button class="admin-btn admin-btn-secondary admin-btn-icon" style="padding: 2px 6px;" title="Edit Variant"
@@ -233,15 +245,13 @@
               data-parent_id="{{ product.id }}">
               ✏️
             </button>
-            <button class="admin-btn admin-btn-secondary admin-btn-icon" style="padding: 2px 6px;" title="Toggle Status" onclick="adminToggleProductStatus({{ variant.id }})">
-              {% if variant.is_active %}👁️{% else %}🚫{% endif %}
-            </button>
             <button class="admin-btn admin-btn-danger admin-btn-icon" style="padding: 2px 6px;" title="Delete" onclick="adminDeleteProduct({{ variant.id }})">
               🗑️
             </button>
           </div>
         </td>
       </tr>
+      {% endfor %}
       {% endfor %}
     </tbody>
   </table>
@@ -273,18 +283,18 @@
           <div class="admin-form-row">
             <div class="admin-form-group">
               <label class="admin-form-label">Product Name</label>
-              <input type="text" class="admin-form-control" name="name">
+              <input type="text" class="admin-form-control" name="name" required>
             </div>
             <div class="admin-form-group">
               <label class="admin-form-label">Product Code</label>
-              <input type="text" class="admin-form-control" name="code">
+              <input type="text" class="admin-form-control" name="code" required>
             </div>
           </div>
   
           <div class="admin-form-row">
             <div class="admin-form-group">
               <label class="admin-form-label">Price (₹)</label>
-              <input type="number" class="admin-form-control" name="price" step="0.01">
+              <input type="number" class="admin-form-control" name="price" step="0.01" required>
             </div>
             <div class="admin-form-group">
               <label class="admin-form-label">MRP (₹)</label>
@@ -337,7 +347,7 @@
               </div>
             </div>
           </div>
-
+ 
           <div class="admin-form-row" id="duo-color-row" style="display: none; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 10px;">
             <div class="admin-form-group">
               <label class="admin-form-label">Second Color (for Duo)</label>
@@ -350,77 +360,41 @@
   
           <div class="admin-form-group">
             <label class="admin-form-label">Short Description</label>
-            <textarea class="admin-form-control" name="short_description" rows="2" placeholder="Brief summary (e.g. Deeply hydrating liquid foundation...)"></textarea>
+            <textarea class="admin-form-control" name="short_description" rows="2" placeholder="Brief summary..."></textarea>
           </div>
   
           <div class="admin-form-group">
-            <label class="admin-form-label">About the Product (Full Description)</label>
+            <label class="admin-form-label">Full Description</label>
             <textarea class="admin-form-control" name="description" rows="3"></textarea>
           </div>
-
-          <div class="admin-form-group">
-            <label class="admin-form-label">How to Use</label>
-            <textarea class="admin-form-control" name="how_to_use" rows="3"></textarea>
-          </div>
-
-          <div class="admin-form-group">
-            <label class="admin-form-label">Ingredients</label>
-            <textarea class="admin-form-control" name="ingredients" rows="3"></textarea>
-          </div>
   
-          <div class="admin-form-row">
-            <div class="admin-form-group">
-              <label style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.6); font-size: 13px;">
-                <input type="checkbox" name="is_new" style="accent-color: #c9a96e;"> Mark as New
-              </label>
-            </div>
-            <div class="admin-form-group">
-              <label style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.6); font-size: 13px;">
-                <input type="checkbox" name="is_bestseller" style="accent-color: #c9a96e;"> Mark as Bestseller
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div id="section-media" style="padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 20px;">
-          <h4 style="color: #c9a96e; margin-bottom: 16px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Media & Gallery</h4>
           <div class="admin-form-group">
-            <label class="admin-form-label">Upload Media (Images & Videos)</label>
-            <input type="file" class="admin-form-control" name="product_images" multiple accept="image/*,video/*">
-            <small style="color: rgba(255,255,255,0.4);">Select multiple files. First file or URL will be the main image.</small>
-          </div>
-
-          <div class="admin-form-group" style="margin-top: 20px;">
-            <label class="admin-form-label">Media URLs (One per line - Images or YouTube links)</label>
-            <textarea class="admin-form-control" name="media_urls" rows="4" placeholder="https://example.com/main.jpg&#10;https://example.com/gallery1.jpg&#10;https://youtube.com/watch?v=..."></textarea>
-            <small style="color: rgba(255,255,255,0.4);">The first line will be used as the main product image if no file is uploaded above.</small>
+            <label class="admin-form-label">Image URL</label>
+            <input type="text" class="admin-form-control" name="image_url" placeholder="https://...">
           </div>
         </div>
 
         <div id="section-variants" style="padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 20px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h4 style="color: #c9a96e; margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Inline Variants</h4>
+            <h4 style="color: #c9a96e; margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Quick Add Variants</h4>
             <button type="button" class="admin-btn admin-btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="addInlineVariantRow()">+ Add Row</button>
           </div>
-          <div class="admin-table-container" style="margin: 0; overflow-x: visible;">
-            <table class="admin-table" style="min-width: 100%;">
+          <div class="admin-table-container" style="margin: 0;">
+            <table class="admin-table">
               <thead>
                 <tr>
                   <th>Code</th>
-                  <th>Shade Name</th>
-                  <th>Color (Hex)</th>
+                  <th>Shade</th>
+                  <th>Color</th>
                   <th>Price</th>
-                  <th>MRP</th>
-                  <th style="width: 50px;"></th>
+                  <th style="width: 40px;"></th>
                 </tr>
               </thead>
-              <tbody id="inline-variants-body">
-                <!-- Rows will be added here -->
-              </tbody>
+              <tbody id="inline-variants-body"></tbody>
             </table>
           </div>
-          <div id="inline-variants-empty" style="text-align: center; color: rgba(255,255,255,0.4); padding: 20px; font-size: 13px;">
-            No variants added yet. Click "+ Add Row" to add variants.
+          <div id="inline-variants-empty" style="text-align: center; color: rgba(255,255,255,0.4); padding: 20px;">
+            No variants added.
           </div>
         </div>
       </div>
@@ -429,8 +403,6 @@
         <button type="submit" class="admin-btn admin-btn-primary">Save Changes</button>
       </div>
     </form>
-  </div>
-</div>
   </div>
 </div>
 {% endblock %}
@@ -442,127 +414,36 @@ let variantCount = 0;
 function addInlineVariantRow() {
   const tbody = document.getElementById('inline-variants-body');
   const emptyMsg = document.getElementById('inline-variants-empty');
-  
   if (emptyMsg) emptyMsg.style.display = 'none';
   
   const tr = document.createElement('tr');
   tr.innerHTML = `
     <td><input type="text" class="admin-form-control" name="inline_variant_code[]" placeholder="Code" required></td>
-    <td><input type="text" class="admin-form-control" name="inline_variant_name[]" placeholder="Shade Name"></td>
-    <td>
-      <div style="display: flex; gap: 4px;">
-        <input type="color" class="admin-form-control" name="inline_variant_color[]" style="width: 30px; padding: 0;" value="#000000">
-        <input type="color" class="admin-form-control" name="inline_variant_color2[]" style="width: 30px; padding: 0; opacity: 0.5;" title="Optional second color">
-      </div>
-    </td>
+    <td><input type="text" class="admin-form-control" name="inline_variant_name[]" placeholder="Shade"></td>
+    <td><input type="color" class="admin-form-control" name="inline_variant_color[]" style="width: 30px; padding: 0;" value="#000000"></td>
     <td><input type="number" class="admin-form-control" name="inline_variant_price[]" placeholder="Price" step="0.01"></td>
-    <td><input type="number" class="admin-form-control" name="inline_variant_mrp[]" placeholder="MRP" step="0.01"></td>
-    <td><button type="button" class="admin-btn admin-btn-secondary" style="padding: 4px; color: #ff4444;" onclick="removeVariantRow(this)">✕</button></td>
+    <td><button type="button" class="admin-btn admin-btn-secondary" style="padding: 4px; color: #ff4444;" onclick="this.closest('tr').remove(); variantCount--; if(variantCount===0) document.getElementById('inline-variants-empty').style.display='block';">✕</button></td>
   `;
   tbody.appendChild(tr);
   variantCount++;
 }
 
-function removeVariantRow(btn) {
-  const tr = btn.closest('tr');
-  tr.remove();
-  variantCount--;
-  if (variantCount === 0) {
-    const emptyMsg = document.getElementById('inline-variants-empty');
-    if (emptyMsg) emptyMsg.style.display = 'block';
-  }
-}
-
 // Override modal open to handle title and clear inline variants
 document.querySelectorAll('[data-modal="product-modal"]').forEach(btn => {
-  btn.addEventListener('click', async () => {
+  btn.addEventListener('click', () => {
     const isEdit = !!btn.dataset.id;
-    const isMainProduct = isEdit && !btn.dataset.parentId;
     document.getElementById('product-modal-title').textContent = isEdit ? 'Edit Product' : 'Add New Product';
     
     // Clear inline variants
-    const tbody = document.getElementById('inline-variants-body');
-    tbody.innerHTML = '';
+    document.getElementById('inline-variants-body').innerHTML = '';
     variantCount = 0;
-    const emptyMsg = document.getElementById('inline-variants-empty');
-    if (emptyMsg) emptyMsg.style.display = 'block';
+    document.getElementById('inline-variants-empty').style.display = 'block';
     
     // Only show variants section for main products (not variants themselves)
-    document.getElementById('section-variants').style.display = (isEdit && btn.dataset.parentId) ? 'none' : 'block';
-    
-    // Fetch existing variants
-    if (isMainProduct) {
-      try {
-        const response = await fetch(`/oriflame-admin-panel-x9k2/api/products/${btn.dataset.id}/variants`);
-        if (response.ok) {
-          const variants = await response.json();
-          if (variants.length > 0) {
-            if (emptyMsg) emptyMsg.style.display = 'none';
-            variants.forEach(v => {
-              const tr = document.createElement('tr');
-              tr.innerHTML = `
-                <td><input type="text" class="admin-form-control" name="inline_variant_code[]" placeholder="Code" value="${v.code}" required></td>
-                <td><input type="text" class="admin-form-control" name="inline_variant_name[]" placeholder="Shade Name" value="${v.shade_name || ''}"></td>
-                <td>
-                  <div style="display: flex; gap: 4px;">
-                    <input type="color" class="admin-form-control" name="inline_variant_color[]" style="width: 30px; padding: 0;" value="${v.shade_color || '#000000'}">
-                    <input type="color" class="admin-form-control" name="inline_variant_color2[]" style="width: 30px; padding: 0; opacity: 0.5;" title="Optional second color" value="${v.shade_color_2 || '#000000'}">
-                  </div>
-                </td>
-                <td><input type="number" class="admin-form-control" name="inline_variant_price[]" placeholder="Price" step="0.01" value="${v.price || ''}"></td>
-                <td><input type="number" class="admin-form-control" name="inline_variant_mrp[]" placeholder="MRP" step="0.01" value="${v.mrp || ''}"></td>
-                <td><button type="button" class="admin-btn admin-btn-secondary" style="padding: 4px; color: #ff4444;" onclick="removeVariantRow(this)">✕</button></td>
-              `;
-              tbody.appendChild(tr);
-              variantCount++;
-            });
-          }
-        }
-      } catch(e) { console.error('Error fetching variants', e); }
-    }
+    document.getElementById('section-variants').style.display = btn.dataset.parentId ? 'none' : 'block';
   });
 });
 
-async function adminDeleteProduct(productId) {
-  if (!confirm('Are you sure you want to PERMANENTLY remove this product? This cannot be undone.')) return;
-  
-  try {
-    const response = await fetch(`/oriflame-admin-panel-x9k2/products/${productId}/delete`, {
-      method: 'POST'
-    });
-    const data = await response.json();
-    
-    if (data.success) {
-      showToast(data.message, 'success');
-      setTimeout(() => location.reload(), 1000);
-    } else {
-      showToast(data.message || 'Failed to remove product', 'error');
-    }
-  } catch (err) {
-    showToast('Something went wrong', 'error');
-  }
-}
-
-async function adminToggleProductStatus(productId) {
-  try {
-    const response = await fetch(`/oriflame-admin-panel-x9k2/products/${productId}/toggle-status`, {
-      method: 'POST'
-    });
-    const data = await response.json();
-    
-    if (data.success) {
-      showToast(data.message, 'success');
-      setTimeout(() => location.reload(), 1000);
-    } else {
-      showToast(data.message || 'Failed to toggle status', 'error');
-    }
-  } catch (err) {
-    showToast('Something went wrong', 'error');
-  }
-}
-</script>
-
-<script>
 function switchProductTab(tab) {
   const btnGrouped = document.getElementById('btn-view-grouped');
   const btnAll = document.getElementById('btn-view-all');
@@ -586,48 +467,27 @@ function switchProductTab(tab) {
   }
 }
 
-function toggleVariantRows(parentId, btn) {
-  const rows = document.querySelectorAll('.variant-row-of-' + parentId);
-  const isHidden = rows[0].style.display === 'none';
-  rows.forEach(r => r.style.display = isHidden ? 'table-row' : 'none');
-  btn.textContent = isHidden ? '▼' : '▶';
-}
-
 async function populateFormFromData(id) {
   const modal = document.getElementById('product-modal');
-  const form = document.getElementById('product-form');
-  form.reset();
-  modal.style.display = 'flex';
+  modal.classList.add('active');
+  document.getElementById('product-modal-title').textContent = 'Edit Product';
   
   try {
     const res = await fetch(`/oriflame-admin-panel-x9k2/get_product/${id}`);
     const data = await res.json();
     if (data.success) {
-      form.querySelector('[name="id"]').value = data.id;
-      form.querySelector('[name="name"]').value = data.name;
-      form.querySelector('[name="code"]').value = data.code || '';
-      form.querySelector('[name="price"]').value = data.price || '';
-      form.querySelector('[name="stock"]').value = data.stock || 0;
-      form.querySelector('[name="category_id"]').value = data.category_id || '';
-      form.querySelector('[name="brand"]').value = data.brand || '';
-      form.querySelector('[name="description"]').value = data.description || '';
-      form.querySelector('[name="image_url"]').value = data.image_url || '';
-      form.querySelector('[name="parent_id"]').value = data.parent_id || '';
+      populateForm(modal, data);
+      
+      // Handle the variants section visibility
+      document.getElementById('section-variants').style.display = data.parent_id ? 'none' : 'block';
     }
   } catch (err) {
-    console.error('Failed to fetch product data');
+    console.error('Failed to fetch product data', err);
   }
 }
 
-async function adminDeleteProduct(productId) {
-  if (!confirm('Are you sure?')) return;
-  const res = await fetch(`/oriflame-admin-panel-x9k2/products/${productId}/delete`, { method: 'POST' });
-  const data = await res.json();
-  if (data.success) { alert(data.message); location.reload(); }
-}
-
 function runSmartScan() {
-  if (!confirm('Link all variants?')) return;
+  if (!confirm('Link all variants based on names?')) return;
   fetch('/oriflame-admin-panel-x9k2/fix_orphans', { method: 'POST' })
     .then(res => res.json())
     .then(data => { alert(data.message); location.reload(); });
