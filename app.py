@@ -1283,8 +1283,6 @@ def admin_save_product(product_id=None):
         if not product_code:
             product_code = f"ORI{uuid.uuid4().hex[:6].upper()}"
             
-        initial_slug = slugify(product_name) if product_name else uuid.uuid4().hex[:10]
-        
         if product_id:
             product = Product.query.get_or_404(product_id)
         else:
@@ -1297,17 +1295,22 @@ def admin_save_product(product_id=None):
             
         product.name = product_name
         product.code = product_code
-        product.slug = initial_slug
+
+        # Determine base slug
+        initial_slug = slugify(product_name) if product_name else uuid.uuid4().hex[:10]
+        final_slug = initial_slug
         
-        # Check for slug conflicts
-        existing_slug = Product.query.filter(Product.slug == product.slug, Product.id != product.id).first()
+        # Check for slug conflicts against existing products
+        existing_slug = Product.query.filter(Product.slug == final_slug, Product.id != product.id).first()
         if existing_slug:
-            product.slug = f"{initial_slug}-{product.code.lower()}"
+            final_slug = f"{initial_slug}-{product.code.lower()}"
             
         # Ensure unique slug even after appending code
-        final_check = Product.query.filter(Product.slug == product.slug, Product.id != product.id).first()
+        final_check = Product.query.filter(Product.slug == final_slug, Product.id != product.id).first()
         if final_check:
-            product.slug = f"{product.slug}-{uuid.uuid4().hex[:4]}"
+            final_slug = f"{final_slug}-{uuid.uuid4().hex[:4]}"
+            
+        product.slug = final_slug
         
         if not product_id:
             db.session.add(product)
