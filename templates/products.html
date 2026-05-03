@@ -25,59 +25,55 @@
     <div class="shop-layout">
       <!-- Filters Sidebar -->
       <aside class="filters-sidebar" id="products-sidebar">
-        <div class="filters-sidebar-header mobile-only">
-          <h3>Filters</h3>
-          <button class="modal-close" id="filter-close">✕</button>
-        </div>
-        <div class="filter-section">
-          <h4>Categories</h4>
-          {% for cat in categories %}
-          <label class="filter-option">
-            <input type="checkbox" name="category" value="{{ cat.slug }}" data-slug="{{ cat.slug }}"
-              {% if category and category.slug == cat.slug %}checked{% endif %}
-              onchange="this.checked ? window.location.href='/category/' + this.dataset.slug : window.location.href='/products'">
-            <span>{{ cat.name }} ({{ cat.products.count() }})</span>
-          </label>
-          {% endfor %}
-        </div>
+  <form id="filters-form" method="GET" action="/products">
+    <div class="filters-sidebar-header mobile-only">
+      <h3>Filters</h3>
+      <button class="modal-close" id="filter-close">✕</button>
+    </div>
+    <div class="filter-section">
+      <h4>Categories</h4>
+      {% for cat in categories %}
+      <label class="filter-option">
+        <input type="checkbox" name="category" value="{{ cat.slug }}" {% if request.args.get('category') == cat.slug %}checked{% endif %} onchange="document.getElementById('filters-form').submit()">
+        <span>{{ cat.name }} ({{ cat.products.count() }})</span>
+      </label>
+      {% endfor %}
+    </div>
 
-        <div class="filter-section">
-          <h4>Price Range</h4>
-          <div class="price-range-slider">
-            <input type="range" min="0" max="5000" step="100" 
-              value="{{ request.args.get('max_price', 5000) }}" 
-              id="price-range" 
-              oninput="document.getElementById('price-display').textContent = '₹0 - ₹' + this.value"
-              onchange="window.location.href=updateQueryParam('max_price', this.value)">
-            <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-muted); margin-top: 8px;">
-              <span>₹0</span>
-              <span id="price-display">₹0 - ₹{{ request.args.get('max_price', 5000) }}</span>
-            </div>
-          </div>
+    <div class="filter-section">
+      <h4>Price Range</h4>
+      <div class="price-range-slider">
+        <input type="range" name="max_price" min="0" max="5000" step="100" value="{{ request.args.get('max_price', 5000) }}" id="price-range" oninput="document.getElementById('price-display').textContent = '₹0 - ₹' + this.value" onchange="document.getElementById('filters-form').submit()">
+        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-muted); margin-top: 8px;">
+          <span>₹0</span>
+          <span id="price-display">₹0 - ₹{{ request.args.get('max_price', 5000) }}</span>
         </div>
+      </div>
+    </div>
 
-        <div class="filter-section">
-          <h4>Rating</h4>
-          {% for rating in [4, 3, 2, 1] %}
-          <label class="filter-option">
-            <input type="checkbox" name="rating" value="{{ rating }}">
-            <span>{% for i in range(rating) %}★{% endfor %}{% for i in range(5-rating) %}☆{% endfor %} & Up</span>
-          </label>
-          {% endfor %}
-        </div>
+    <div class="filter-section">
+      <h4>Rating</h4>
+      {% for rating in [4,3,2,1] %}
+      <label class="filter-option">
+        <input type="checkbox" name="rating" value="{{ rating }}" {% if rating|string in request.args.getlist('rating') %}checked{% endif %} onchange="document.getElementById('filters-form').submit()">
+        <span>{% for i in range(rating) %}★{% endfor %}{% for i in range(5-rating) %}☆{% endfor %} & Up</span>
+      </label>
+      {% endfor %}
+    </div>
 
-        <div class="filter-section">
-          <h4>Availability</h4>
-          <label class="filter-option">
-            <input type="checkbox" name="in_stock" checked>
-            <span>In Stock</span>
-          </label>
-          <label class="filter-option">
-            <input type="checkbox" name="on_sale">
-            <span>On Sale</span>
-          </label>
-        </div>
-      </aside>
+    <div class="filter-section">
+      <h4>Availability</h4>
+      <label class="filter-option">
+        <input type="checkbox" name="in_stock" value="true" {% if request.args.get('in_stock') %}checked{% endif %} onchange="document.getElementById('filters-form').submit()">
+        <span>In Stock</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" name="on_sale" value="true" {% if request.args.get('on_sale') %}checked{% endif %} onchange="document.getElementById('filters-form').submit()">
+        <span>On Sale</span>
+      </label>
+    </div>
+  </form>
+</aside>
 
       <!-- Products Area -->
       <div class="products-area">
