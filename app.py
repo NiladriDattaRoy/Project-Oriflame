@@ -1219,37 +1219,39 @@ def admin_products():
     # Fetch all products in one single query to be super fast
     all_products = Product.query.order_by(Product.created_at.desc()).all()
     
-    # Separate parents and group variants
-    parents = [p for p in all_products if not p.parent_id]
+    # 1. First pass: Separate by parent_id
+    parents = []
     variants_map = {}
-    
-    # First pass: Handle explicit parent_id
     for p in all_products:
         if p.parent_id:
             if p.parent_id not in variants_map:
                 variants_map[p.parent_id] = []
             variants_map[p.parent_id].append(p)
-
-    # Second pass: For parents with no variants, try name-based grouping for existing data
-    remaining_parents = [p for p in parents if p.id not in variants_map]
-    orphans = [p for p in all_products if p.parent_id is None]
+        else:
+            parents.append(p)
+            
+    # 2. Second pass: Consolidate orphans with exact same name
+    final_parents = []
+    processed_ids = set()
+    name_to_parent = {} # name.lower() -> parent_id
     
-    for p in remaining_parents:
-        name_parts = p.name.split()
-        if len(name_parts) >= 2:
-            base = " ".join(name_parts[:2]).lower()
-            # Find products that start with this base but aren't the parent itself
-            similar = [o for o in orphans if o.id != p.id and o.name.lower().startswith(base)]
-            if similar:
-                variants_map[p.id] = similar
-                # Remove these from the parents list so they don't show up twice
-                for s in similar:
-                    if s in parents:
-                        parents.remove(s)
+    for p in parents:
+        if p.id in processed_ids: continue
+        
+        name_key = p.name.strip().lower()
+        if name_key in name_to_parent:
+            parent_id = name_to_parent[name_key]
+            if parent_id not in variants_map: variants_map[parent_id] = []
+            variants_map[parent_id].append(p)
+            processed_ids.add(p.id)
+        else:
+            final_parents.append(p)
+            name_to_parent[name_key] = p.id
+            processed_ids.add(p.id)
             
     categories_list = Category.query.all()
     return render_template('admin/products.html', 
-                           products=parents, 
+                           products=final_parents, 
                            all_products=all_products,
                            variants_map=variants_map,
                            categories=categories_list)
@@ -2004,24 +2006,17 @@ def fix_orphans():
     all_products = Product.query.all()
     count = 0
     
-    # Simple grouping logic: Find products with identical or very similar names
-    # and set the first one as the parent of the others.
+    # Grouping logic: Find products with identical names and link them
+    # This is safer than prefix matching which often catches unrelated products.
     processed = set()
     
     for p in all_products:
-        if p.id in processed:
+        if p.id in processed or p.parent_id is not None:
             continue
             
-        # Get first 3 words for matching
-        name_parts = p.name.strip().split()
-        if len(name_parts) < 2:
-            continue
-            
-        base_name = " ".join(name_parts[:3]) if len(name_parts) >= 3 else " ".join(name_parts[:2])
-        
-        # Find all similar products that are orphans
+        # Find all products with the EXACT SAME name that are orphans
         similar = Product.query.filter(
-            Product.name.ilike(f"{base_name}%"),
+            Product.name == p.name,
             Product.parent_id == None,
             Product.id != p.id
         ).all()

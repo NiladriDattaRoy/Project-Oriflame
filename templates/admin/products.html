@@ -148,9 +148,10 @@
     </thead>
     <tbody>
       {% for product in products %}
-      <tr class="parent-row">
+      {% set variants = variants_map.get(product.id, []) %}
+      <tr class="parent-row" id="row-{{ product.id }}">
         <td>
-          {% if variants_map.get(product.id) %}
+          {% if variants %}
           <button class="expand-btn" onclick="toggleVariantRows({{ product.id }}, this)">▶</button>
           {% endif %}
         </td>
@@ -160,7 +161,13 @@
               <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="">
             </div>
             <div>
-              <div style="font-weight: 600;">{{ product.name[:40] }}</div>
+              <div style="font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                {{ product.name }}
+                {% if variants %}
+                <span style="background: var(--color-primary); color: #000; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: 700;">{{ variants|length }} VARIANTS</span>
+                {% endif %}
+              </div>
+              <div style="font-size: 11px; color: rgba(255,255,255,0.4);">{{ product.brand or 'No Brand' }}</div>
             </div>
           </div>
         </td>
@@ -168,52 +175,28 @@
         <td>₹{{ "%.0f"|format(product.price or 0) }}</td>
         <td>{{ product.stock }}</td>
         <td>
-          <div style="display: flex; gap: 4px;">
-            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Edit" 
-              data-modal="product-modal"
-              data-id="{{ product.id }}"
-              data-name="{{ product.name }}"
-              data-code="{{ product.code }}"
-              data-price="{{ product.price }}"
-              data-mrp="{{ product.mrp }}"
-              data-stock="{{ product.stock }}"
-              data-category_id="{{ product.category_id }}"
-              data-brand="{{ product.brand or '' }}"
-              data-short_description="{{ (product.short_description or '')|e }}"
-              data-description="{{ (product.description or '')|e }}"
-              data-how_to_use="{{ (product.how_to_use or '')|e }}"
-              data-ingredients="{{ (product.ingredients or '')|e }}"
-              data-image_url="{{ product.image_url or '' }}"
-              data-weight="{{ product.weight or '' }}">
-              ✏️
-            </button>
-            <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete" onclick="adminDeleteProduct({{ product.id }})">
-              🗑️
-            </button>
+          <div style="display: flex; gap: 8px;">
+            <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Edit" onclick="populateFormFromData({{ product.id }})">✏️</button>
+            <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete" onclick="adminDeleteProduct({{ product.id }})">🗑️</button>
           </div>
         </td>
       </tr>
       
-      {# Render Variants #}
-      {% for variant in variants_map.get(product.id, []) %}
-      <tr class="variant-row variant-row-of-{{ product.id }}" style="display: none;">
+      {% for variant in variants %}
+      <tr class="variant-row variant-row-of-{{ product.id }}" style="display: none; background: rgba(255,255,255,0.02);">
         <td></td>
         <td>
-          <div class="product-cell" style="padding-left: 20px;">
-            <div class="product-thumb" style="width: 32px; height: 32px;">
+          <div class="product-cell" style="padding-left: 30px;">
+            <div class="product-thumb" style="width: 28px; height: 28px;">
               <img src="{{ variant.image_url or '/static/images/placeholder.png' }}" alt="">
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
               {% if variant.shade_color %}
-                {% if variant.shade_color_2 %}
-                <div class="swatch-circle swatch-duo" style="width: 16px; height: 16px; --c1: {{ variant.shade_color }}; --c2: {{ variant.shade_color_2 }};" title="{{ variant.shade_name }}"></div>
-                {% else %}
-                <div class="swatch-circle" style="width: 16px; height: 16px; background-color: {{ variant.shade_color }};" title="{{ variant.shade_name }}"></div>
-                {% endif %}
+                <div class="swatch-circle" style="width: 14px; height: 14px; background-color: {{ variant.shade_color }}; border: 1px solid rgba(255,255,255,0.2);" title="{{ variant.shade_name }}"></div>
               {% endif %}
               <div>
-                <div style="font-weight: 500;">{{ variant.shade_name or variant.name }}</div>
-                <div style="font-size: 10px; color: rgba(255,255,255,0.4);">Variant of {{ product.name[:20] }}</div>
+                <div style="font-weight: 500; font-size: 13px;">{{ variant.shade_name or variant.name }}</div>
+                <div style="font-size: 10px; color: rgba(255,255,255,0.3);">Variant Code: {{ variant.code }}</div>
               </div>
             </div>
           </div>
@@ -222,32 +205,8 @@
         <td>₹{{ "%.0f"|format(variant.price or 0) }}</td>
         <td>{{ variant.stock }}</td>
         <td>
-          <div style="display: flex; gap: 4px;">
-            <button class="admin-btn admin-btn-secondary admin-btn-icon" style="padding: 2px 6px;" title="Edit Variant"
-              data-modal="product-modal"
-              data-id="{{ variant.id }}"
-              data-name="{{ variant.name }}"
-              data-code="{{ variant.code }}"
-              data-price="{{ variant.price }}"
-              data-mrp="{{ variant.mrp }}"
-              data-stock="{{ variant.stock }}"
-              data-category_id="{{ variant.category_id }}"
-              data-brand="{{ variant.brand or '' }}"
-              data-short_description="{{ (variant.short_description or '')|e }}"
-              data-description="{{ (variant.description or '')|e }}"
-              data-how_to_use="{{ (variant.how_to_use or '')|e }}"
-              data-ingredients="{{ (variant.ingredients or '')|e }}"
-              data-image_url="{{ variant.image_url or '' }}"
-              data-weight="{{ variant.weight or '' }}"
-              data-shade_name="{{ variant.shade_name or '' }}"
-              data-shade_color="{{ variant.shade_color or '' }}"
-              data-shade_color_2="{{ variant.shade_color_2 or '' }}"
-              data-parent_id="{{ product.id }}">
-              ✏️
-            </button>
-            <button class="admin-btn admin-btn-danger admin-btn-icon" style="padding: 2px 6px;" title="Delete" onclick="adminDeleteProduct({{ variant.id }})">
-              🗑️
-            </button>
+          <div style="display: flex; gap: 8px;">
+            <button class="admin-btn admin-btn-secondary admin-btn-icon" style="padding: 4px;" title="Edit Variant" onclick="populateFormFromData({{ variant.id }})">✏️</button>
           </div>
         </td>
       </tr>
