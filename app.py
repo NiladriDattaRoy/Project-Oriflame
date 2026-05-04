@@ -1435,7 +1435,7 @@ def admin_save_product(product_id=None):
             variant.weight = product.weight
             variant.price = product.price
             variant.mrp = product.mrp
-            variant.discount_percent = product.discount_percent
+
             
             # Process inline variant media URLs (one per line per variant)
             media_urls_raw = v_media_urls[i] if i < len(v_media_urls) else ''
