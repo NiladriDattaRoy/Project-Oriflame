@@ -1470,6 +1470,85 @@ def admin_save_product(product_id=None):
         print(f"[ERROR] saving product: {str(e)}\n{traceback.format_exc()}", flush=True)
         return jsonify({'success': False, 'message': f'Server Error: {str(e)}'})
 
+
+@app.route('/oriflame-admin-panel-x9k2/save_product_variant/<int:parent_id>', methods=['POST'])
+@login_required
+@admin_required
+def save_product_variant(parent_id):
+    """Create a single new variant linked to the given parent product."""
+    try:
+        parent = Product.query.get_or_404(parent_id)
+        form = request.form
+
+        v_code = form.get('inline_variant_code[]', '').strip()
+        if not v_code:
+            return jsonify({'success': False, 'message': 'Variant code is required.'})
+
+        # Check duplicate code
+        existing = Product.query.filter_by(code=v_code).first()
+        if existing:
+            return jsonify({'success': False, 'message': f'Code "{v_code}" already exists (product ID {existing.id}).'})
+
+        variant = Product(code=v_code)
+        variant.parent_id = parent.id
+        variant.name = parent.name
+        variant.slug = slugify(f"{parent.name} {v_code}")
+
+        # Ensure unique slug
+        slug_check = Product.query.filter_by(slug=variant.slug).first()
+        if slug_check:
+            variant.slug = f"{variant.slug}-{uuid.uuid4().hex[:6]}"
+
+        variant.category_id = parent.category_id
+        variant.brand = parent.brand
+        variant.weight = parent.weight
+        variant.price = parent.price
+        variant.mrp = parent.mrp
+        variant.short_description = parent.short_description
+        variant.description = parent.description
+        variant.how_to_use = parent.how_to_use
+        variant.ingredients = parent.ingredients
+        variant.image_url = parent.image_url
+        variant.is_new = parent.is_new
+        variant.is_bestseller = parent.is_bestseller
+        variant.is_active = True
+
+        variant.shade_name = form.get('inline_variant_name[]', '').strip()
+        variant.shade_color = form.get('inline_variant_color[]', '').strip()
+        variant.shade_color_2 = form.get('inline_variant_color2[]', '').strip()
+
+        db.session.add(variant)
+        db.session.flush()  # get variant.id
+
+        # Process media URLs
+        media_urls_raw = form.get('inline_variant_media_urls[]', '')
+        media_urls = [u.strip() for u in media_urls_raw.split('\n') if u.strip()]
+        main_set = False
+        for idx, url in enumerate(media_urls):
+            m_type = 'image'
+            if 'youtube.com/watch?v=' in url:
+                video_id = url.split('v=')[1].split('&')[0]
+                url = f"https://www.youtube.com/embed/{video_id}"
+                m_type = 'video'
+            elif 'youtu.be/' in url:
+                video_id = url.split('/')[-1]
+                url = f"https://www.youtube.com/embed/{video_id}"
+                m_type = 'video'
+            if not main_set and m_type == 'image':
+                variant.image_url = url
+                main_set = True
+            img_record = ProductImage(product=variant, image_url=url, media_type=m_type, display_order=idx)
+            db.session.add(img_record)
+
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'Variant "{v_code}" created successfully!'})
+
+    except Exception as e:
+        db.session.rollback()
+        import traceback
+        print(f"[ERROR] save_product_variant: {str(e)}\n{traceback.format_exc()}", flush=True)
+        return jsonify({'success': False, 'message': f'Server Error: {str(e)}'})
+
 @app.route('/oriflame-admin-panel-x9k2/api/products/<int:product_id>/variants')
 @login_required
 def admin_api_product_variants(product_id):

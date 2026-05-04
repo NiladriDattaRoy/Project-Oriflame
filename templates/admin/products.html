@@ -123,6 +123,7 @@
           <div style="display: flex; gap: 4px;">
             <button class="admin-btn admin-btn-secondary" onclick="populateFormFromData({{ p.id }})">Edit</button>
             <button class="admin-btn admin-btn-danger" onclick="adminDeleteProduct({{ p.id }})">Del</button>
+            <button class="admin-btn" style="background:#8b5cf6;color:#fff;padding:4px 10px;font-size:12px;" onclick="openAddVariantModal({{ p.id }}, '{{ p.name|replace("'","\\'") }}')">+ Variant</button>
           </div>
         </td>
       </tr>
@@ -178,6 +179,7 @@
           <div style="display: flex; gap: 8px;">
             <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Edit" onclick="populateFormFromData({{ product.id }})">✏️</button>
             <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete" onclick="adminDeleteProduct({{ product.id }})">🗑️</button>
+            <button class="admin-btn admin-btn-icon" style="background:#8b5cf6;color:#fff;" title="Add Variant" onclick="openAddVariantModal({{ product.id }}, '{{ product.name|replace("'","\\'") }}')">+ Variant</button>
           </div>
         </td>
       </tr>
@@ -370,11 +372,124 @@
     </form>
   </div>
 </div>
+
+<!-- Add Variant Modal -->
+<div class="admin-modal-overlay" id="add-variant-modal">
+  <div class="admin-modal" style="max-width:600px;">
+    <div class="admin-modal-header">
+      <h3 id="add-variant-modal-title">Add Variant</h3>
+      <button class="admin-modal-close" onclick="document.getElementById('add-variant-modal').classList.remove('active')">✕</button>
+    </div>
+    <form id="add-variant-form" onsubmit="event.preventDefault(); submitAddVariant();">
+      <div class="admin-modal-body">
+        <input type="hidden" name="id" value="">
+        <div class="admin-form-group" style="margin-bottom:12px;">
+          <label class="admin-form-label" style="color:#8b5cf6;">Parent Product</label>
+          <input type="text" class="admin-form-control" id="av-parent-display" readonly style="background:rgba(139,92,246,0.1);border-color:#8b5cf6;cursor:default;">
+          <input type="hidden" name="parent_id" id="av-parent-id">
+        </div>
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label class="admin-form-label">Variant Code *</label>
+            <input type="text" class="admin-form-control" name="code" id="av-code" required placeholder="e.g. 46918">
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Shade Name</label>
+            <input type="text" class="admin-form-control" name="shade_name" placeholder="e.g. Red Sunset">
+          </div>
+        </div>
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label class="admin-form-label">Color 1</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="text" class="admin-form-control" name="shade_color" placeholder="#000000" id="av-color-text" style="flex:1;" oninput="document.getElementById('av-color-pick').value=this.value">
+              <input type="color" class="admin-form-control" id="av-color-pick" style="width:38px;padding:2px;" value="#c9a96e" oninput="document.getElementById('av-color-text').value=this.value">
+            </div>
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Color 2 (Duo)</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="text" class="admin-form-control" name="shade_color_2" placeholder="#000000" id="av-color2-text" style="flex:1;" oninput="document.getElementById('av-color2-pick').value=this.value">
+              <input type="color" class="admin-form-control" id="av-color2-pick" style="width:38px;padding:2px;" value="#000000" oninput="document.getElementById('av-color2-text').value=this.value">
+            </div>
+          </div>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Media URLs (one per line — images or YouTube links)</label>
+          <textarea class="admin-form-control" name="media_urls" id="av-media-urls" rows="4" placeholder="https://image.url&#10;https://youtube.com/watch?v=..."></textarea>
+        </div>
+        <div id="av-status" style="margin-top:10px;font-size:13px;"></div>
+      </div>
+      <div class="admin-modal-footer">
+        <button type="button" class="admin-btn admin-btn-secondary" onclick="document.getElementById('add-variant-modal').classList.remove('active')">Cancel</button>
+        <button type="submit" class="admin-btn admin-btn-primary" style="background:#8b5cf6;">Save Variant</button>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 let variantCount = 0;
+
+function openAddVariantModal(parentId, parentName) {
+  // Reset form
+  document.getElementById('add-variant-form').reset();
+  document.getElementById('av-status').textContent = '';
+  document.getElementById('av-parent-id').value = parentId;
+  document.getElementById('av-parent-display').value = parentName + '  (ID: ' + parentId + ')';
+  document.getElementById('av-color-text').value = '';
+  document.getElementById('av-color2-text').value = '';
+  document.getElementById('add-variant-modal-title').textContent = 'Add Variant for: ' + parentName;
+  document.getElementById('add-variant-modal').classList.add('active');
+}
+
+async function submitAddVariant() {
+  const form = document.getElementById('add-variant-form');
+  const statusEl = document.getElementById('av-status');
+  const fd = new FormData(form);
+
+  // Build a standard product save payload re-using the existing endpoint
+  // We POST as if it were a new product with parent_id set
+  const data = new URLSearchParams();
+  data.append('id', '');  // new
+  data.append('parent_id', fd.get('parent_id'));
+  data.append('name', '');  // will be inherited on backend
+  data.append('code', fd.get('code'));
+  data.append('shade_name', fd.get('shade_name') || '');
+  data.append('shade_color', fd.get('shade_color') || '');
+  data.append('shade_color_2', fd.get('shade_color_2') || '');
+  // Pass media_urls as inline_variant_media_urls for one variant
+  data.append('inline_variant_code[]', fd.get('code'));
+  data.append('inline_variant_name[]', fd.get('shade_name') || '');
+  data.append('inline_variant_color[]', fd.get('shade_color') || '#000000');
+  data.append('inline_variant_color2[]', fd.get('shade_color_2') || '#000000');
+  data.append('inline_variant_media_urls[]', fd.get('media_urls') || '');
+
+  statusEl.style.color = '#c9a96e';
+  statusEl.textContent = 'Saving...';
+
+  try {
+    const res = await fetch(`/oriflame-admin-panel-x9k2/save_product_variant/${fd.get('parent_id')}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: data.toString()
+    });
+    const json = await res.json();
+    if (json.success) {
+      statusEl.style.color = '#2ecc71';
+      statusEl.textContent = '✅ Variant saved! Reloading...';
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      statusEl.style.color = '#e74c3c';
+      statusEl.textContent = '❌ ' + (json.message || 'Unknown error');
+    }
+  } catch(e) {
+    statusEl.style.color = '#e74c3c';
+    statusEl.textContent = '❌ Network error: ' + e.message;
+  }
+}
 
 function addInlineVariantRow() {
   const tbody = document.getElementById('inline-variants-body');
