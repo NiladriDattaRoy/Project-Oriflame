@@ -342,28 +342,37 @@
 
         <div id="section-variants" style="padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 20px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h4 style="color: #c9a96e; margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Quick Add Variants</h4>
-            <button type="button" class="admin-btn admin-btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="addInlineVariantRow()">+ Add Row</button>
+            <h4 style="color: #c9a96e; margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Variants</h4>
+            <button type="button" id="btn-open-add-variant"
+              style="background: #8b5cf6; color: #fff; padding: 6px 16px; font-size: 13px; font-weight: 600; border: none; border-radius: 6px; cursor: pointer;"
+              onclick="openAddVariantFromEditModal()">
+              + Add Variant
+            </button>
           </div>
-          <div class="admin-table-container" style="margin: 0;">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Shade</th>
-                  <th>Color 1</th>
-                  <th>Color 2</th>
-                  <th>Images / Videos</th>
-                  <th style="width: 40px;"></th>
-                </tr>
-              </thead>
-              <tbody id="inline-variants-body"></tbody>
-            </table>
+
+          <!-- Existing variants list -->
+          <div id="existing-variants-list" style="display:none; margin-bottom: 12px;">
+            <div class="admin-table-container" style="margin: 0;">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>Shade</th>
+                    <th>Color 1</th>
+                    <th>Color 2</th>
+                    <th style="width: 80px;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="inline-variants-body"></tbody>
+              </table>
+            </div>
           </div>
-          <div id="inline-variants-empty" style="text-align: center; color: rgba(255,255,255,0.4); padding: 20px;">
-            No variants added.
+
+          <div id="inline-variants-empty" style="text-align: center; color: rgba(255,255,255,0.4); padding: 16px 0; font-size: 13px;">
+            No variants yet.
           </div>
         </div>
+
       </div>
       <div class="admin-modal-footer">
         <button type="button" class="admin-btn admin-btn-secondary" onclick="this.closest('.admin-modal-overlay').classList.remove('active')">Cancel</button>
@@ -551,26 +560,32 @@ async function populateFormFromData(id) {
   const modal = document.getElementById('product-modal');
   modal.classList.add('active');
   document.getElementById('product-modal-title').textContent = 'Edit Product';
-  
+  // Store the current product id on the button so openAddVariantFromEditModal can read it
+  document.getElementById('btn-open-add-variant').dataset.productId = id;
+
   try {
     const res = await fetch(`/oriflame-admin-panel-x9k2/get_product/${id}`);
     const data = await res.json();
     if (data.success) {
       populateForm(modal, data);
-      
-      // Handle the variants section visibility
+
+      // Store product name too
+      document.getElementById('btn-open-add-variant').dataset.productName = data.name || '';
+
+      // Hide variants section for products that are themselves variants
       const sectionVariants = document.getElementById('section-variants');
       sectionVariants.style.display = data.parent_id ? 'none' : 'block';
 
       if (!data.parent_id) {
-        // Fetch and show existing variants (both by parent_id and by name similarity)
         const vRes = await fetch(`/oriflame-admin-panel-x9k2/api/products/${id}/variants?include_names=true`);
         const variants = await vRes.json();
         const tbody = document.getElementById('inline-variants-body');
         const emptyMsg = document.getElementById('inline-variants-empty');
-        
+        const listWrap = document.getElementById('existing-variants-list');
+
         tbody.innerHTML = '';
         if (variants.length > 0) {
+          listWrap.style.display = 'block';
           emptyMsg.style.display = 'none';
           variants.forEach(v => {
             const c2 = v.shade_color_2 && v.shade_color_2 !== '' ? v.shade_color_2 : null;
@@ -580,21 +595,27 @@ async function populateFormFromData(id) {
               <td><input type="text" class="admin-form-control" value="${v.shade_name || ''}" readonly style="background:rgba(255,255,255,0.05);cursor:default;font-size:12px;"></td>
               <td>
                 <div style="display:flex;align-items:center;gap:6px;">
-                  <div style="width:24px;height:24px;border-radius:4px;background:${v.shade_color};border:1px solid rgba(255,255,255,0.15);flex-shrink:0;" title="${v.shade_color}"></div>
+                  <div style="width:22px;height:22px;border-radius:4px;background:${v.shade_color};border:1px solid rgba(255,255,255,0.15);flex-shrink:0;" title="${v.shade_color}"></div>
                   <span style="font-size:11px;color:rgba(255,255,255,0.4);">${v.shade_color}</span>
                 </div>
               </td>
               <td>
-                ${c2 ? `<div style="display:flex;align-items:center;gap:6px;"><div style="width:24px;height:24px;border-radius:4px;background:${c2};border:1px solid rgba(255,255,255,0.15);flex-shrink:0;" title="${c2}"></div><span style="font-size:11px;color:rgba(255,255,255,0.4);">${c2}</span></div>` : '<span style="color:rgba(255,255,255,0.2);font-size:11px;">—</span>'}
+                ${c2
+                  ? `<div style="display:flex;align-items:center;gap:6px;"><div style="width:22px;height:22px;border-radius:4px;background:${c2};border:1px solid rgba(255,255,255,0.15);flex-shrink:0;" title="${c2}"></div><span style="font-size:11px;color:rgba(255,255,255,0.4);">${c2}</span></div>`
+                  : '<span style="color:rgba(255,255,255,0.2);font-size:11px;">—</span>'}
               </td>
               <td>
-                <button type="button" class="admin-btn admin-btn-secondary" style="padding:3px 10px;font-size:11px;" onclick="document.getElementById('product-modal').classList.remove('active'); setTimeout(()=>populateFormFromData(${v.id}),100);">✏ Edit</button>
+                <button type="button" class="admin-btn admin-btn-secondary"
+                  style="padding:3px 10px;font-size:11px;"
+                  onclick="document.getElementById('product-modal').classList.remove('active'); setTimeout(()=>populateFormFromData(${v.id}),80);">
+                  ✏ Edit
+                </button>
               </td>
-              <td></td>
             `;
             tbody.appendChild(tr);
           });
         } else {
+          listWrap.style.display = 'none';
           emptyMsg.style.display = 'block';
         }
       }
@@ -603,6 +624,18 @@ async function populateFormFromData(id) {
     console.error('Failed to fetch product data', err);
   }
 }
+
+// Opens the Add Variant modal pre-linked to whatever product is currently open in the edit modal
+function openAddVariantFromEditModal() {
+  const btn = document.getElementById('btn-open-add-variant');
+  const parentId   = btn.dataset.productId;
+  const parentName = btn.dataset.productName || 'this product';
+  if (!parentId) { alert('Please open a product first.'); return; }
+  // Close edit modal, open add-variant modal
+  document.getElementById('product-modal').classList.remove('active');
+  setTimeout(() => openAddVariantModal(parentId, parentName), 80);
+}
+
 
 function initAdminTables() {
   const searchInput = document.querySelector('.admin-search input');
