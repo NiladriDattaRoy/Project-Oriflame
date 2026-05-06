@@ -627,11 +627,9 @@ async function populateFormFromData(id) {
 
 // Opens the Add Variant modal pre-linked to whatever product is currently open in the edit modal
 function openAddVariantFromEditModal() {
-  const btn = document.getElementById('btn-open-add-variant');
-  const parentId   = btn.dataset.productId;
-  const parentName = btn.dataset.productName || 'this product';
-  if (!parentId) { alert('Please open a product first.'); return; }
-  // Close edit modal, open add-variant modal
+  const parentId   = document.querySelector('#product-form input[name="id"]').value;
+  const parentName = document.querySelector('#product-form input[name="name"]').value || 'this product';
+  if (!parentId) { alert('Please save the product first before adding variants.'); return; }
   document.getElementById('product-modal').classList.remove('active');
   setTimeout(() => openAddVariantModal(parentId, parentName), 80);
 }
