@@ -573,14 +573,24 @@ async function populateFormFromData(id) {
         if (variants.length > 0) {
           emptyMsg.style.display = 'none';
           variants.forEach(v => {
+            const c2 = v.shade_color_2 && v.shade_color_2 !== '' ? v.shade_color_2 : null;
             const tr = document.createElement('tr');
             tr.innerHTML = `
-              <td><input type="text" class="admin-form-control" value="${v.code}" readonly style="background: rgba(255,255,255,0.05); cursor: default;"></td>
-              <td><input type="text" class="admin-form-control" value="${v.shade_name}" readonly style="background: rgba(255,255,255,0.05); cursor: default;"></td>
-              <td><div style="width: 24px; height: 24px; border-radius: 4px; background: ${v.shade_color}; border: 1px solid rgba(255,255,255,0.1);"></div></td>
-              <td><input type="text" class="admin-form-control" value="${v.weight}" readonly style="background: rgba(255,255,255,0.05); cursor: default;"></td>
-              <td><input type="text" class="admin-form-control" value="₹${v.price}" readonly style="background: rgba(255,255,255,0.05); cursor: default;"></td>
-              <td><a href="javascript:void(0)" onclick="populateFormFromData(${v.id})" style="color: #c9a96e; text-decoration: none; font-size: 18px;">✎</a></td>
+              <td><input type="text" class="admin-form-control" value="${v.code || ''}" readonly style="background:rgba(255,255,255,0.05);cursor:default;font-size:12px;"></td>
+              <td><input type="text" class="admin-form-control" value="${v.shade_name || ''}" readonly style="background:rgba(255,255,255,0.05);cursor:default;font-size:12px;"></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <div style="width:24px;height:24px;border-radius:4px;background:${v.shade_color};border:1px solid rgba(255,255,255,0.15);flex-shrink:0;" title="${v.shade_color}"></div>
+                  <span style="font-size:11px;color:rgba(255,255,255,0.4);">${v.shade_color}</span>
+                </div>
+              </td>
+              <td>
+                ${c2 ? `<div style="display:flex;align-items:center;gap:6px;"><div style="width:24px;height:24px;border-radius:4px;background:${c2};border:1px solid rgba(255,255,255,0.15);flex-shrink:0;" title="${c2}"></div><span style="font-size:11px;color:rgba(255,255,255,0.4);">${c2}</span></div>` : '<span style="color:rgba(255,255,255,0.2);font-size:11px;">—</span>'}
+              </td>
+              <td>
+                <button type="button" class="admin-btn admin-btn-secondary" style="padding:3px 10px;font-size:11px;" onclick="document.getElementById('product-modal').classList.remove('active'); setTimeout(()=>populateFormFromData(${v.id}),100);">✏ Edit</button>
+              </td>
+              <td></td>
             `;
             tbody.appendChild(tr);
           });
