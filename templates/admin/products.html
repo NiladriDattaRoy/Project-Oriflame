@@ -123,7 +123,9 @@
           <div style="display: flex; gap: 4px;">
             <button class="admin-btn admin-btn-secondary" onclick="populateFormFromData({{ p.id }})">Edit</button>
             <button class="admin-btn admin-btn-danger" onclick="adminDeleteProduct({{ p.id }})">Del</button>
+            {% if not p.parent_id %}
             <button class="admin-btn" style="background:#8b5cf6;color:#fff;padding:4px 10px;font-size:12px;" onclick="openAddVariantModal({{ p.id }}, '{{ p.name|replace("'","\\'") }}')">+ Variant</button>
+            {% endif %}
           </div>
         </td>
       </tr>
@@ -179,7 +181,9 @@
           <div style="display: flex; gap: 8px;">
             <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Edit" onclick="populateFormFromData({{ product.id }})">✏️</button>
             <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete" onclick="adminDeleteProduct({{ product.id }})">🗑️</button>
+            {% if not product.parent_id %}
             <button class="admin-btn admin-btn-icon" style="background:#8b5cf6;color:#fff;" title="Add Variant" onclick="openAddVariantModal({{ product.id }}, '{{ product.name|replace("'","\\'") }}')">+ Variant</button>
+            {% endif %}
           </div>
         </td>
       </tr>
