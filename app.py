@@ -328,14 +328,44 @@ def category_page(slug):
             session['random_sort_seed'] = seed
         query = query.order_by((Product.id * seed % 100003).asc())
     
+    all_matching = query.all()
     page = request.args.get('page', 1, type=int)
     per_page = Config.PRODUCTS_PER_PAGE
-    total = query.count()
+
+    # Grouping Logic: Consolidate variants into parent products (same as main products page)
+    seen_roots = {}
+    variants_map = {}
+    name_to_root = {}
+
+    for p in all_matching:
+        root_id = p.parent_id
+        if not root_id:
+            clean_name = p.name.strip().lower()
+            if clean_name in name_to_root:
+                root_id = name_to_root[clean_name]
+            else:
+                root_id = f"name_{clean_name}"
+                name_to_root[clean_name] = root_id
+
+        if root_id not in seen_roots:
+            seen_roots[root_id] = p
+            variants_map[p.id] = []
+        else:
+            root_product = seen_roots[root_id]
+            if p.id != root_product.id:
+                if root_product.id not in variants_map:
+                    variants_map[root_product.id] = []
+                variants_map[root_product.id].append(p)
+
+    products_list = list(seen_roots.values())
+    total = len(products_list)
     total_pages = (total + per_page - 1) // per_page
-    products_list = query.offset((page - 1) * per_page).limit(per_page).all()
-    
+    start = (page - 1) * per_page
+    paginated_products = products_list[start:start + per_page]
+
     return render_template('products.html',
-                           products=products_list,
+                           products=paginated_products,
+                           variants_map=variants_map,
                            category=category,
                            page=page,
                            total_pages=total_pages)
