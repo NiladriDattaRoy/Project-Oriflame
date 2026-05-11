@@ -2711,7 +2711,7 @@ textarea.form-control {
   font-size: 26px;
   font-weight: 600;
   letter-spacing: 1.5px;
-  text-transform: lowercase;
+  text-transform: none;
   background: linear-gradient(90deg, #4a4a4a 0%, #7f8c8d 40%, var(--color-accent) 75%, var(--color-accent-dark) 100%);
   -webkit-background-clip: text;
   background-clip: text;
