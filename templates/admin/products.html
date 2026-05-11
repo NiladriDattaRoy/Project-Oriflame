@@ -263,7 +263,7 @@
           <div class="admin-form-row">
             <div class="admin-form-group">
               <label class="admin-form-label">Category</label>
-              <select class="admin-form-control" name="category_id">
+              <select class="admin-form-control" name="category_id" required>
                 <option value="">Select Category</option>
                 {% for cat in categories %}
                 <option value="{{ cat.id }}">{{ cat.name }}</option>

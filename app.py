@@ -1324,6 +1324,8 @@ def admin_save_product(product_id=None):
         cat_id = form.get('category_id', '').strip()
         if cat_id:
             product.category_id = int(cat_id)
+        else:
+            return jsonify({'success': False, 'message': 'Please select a Category. It is required.'})
             
         stock_val = form.get('stock', '').strip()
         product.stock = int(stock_val) if stock_val else 0
