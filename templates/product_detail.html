@@ -152,10 +152,10 @@
           {% endfor %}
         </div>
         
-        <div class="selected-shade-info" id="shade-info-box">
+        <div class="selected-shade-info" id="shade-info-box" style="display: {{ 'flex' if product.shade_name or product.shade_color else 'none' }};">
           <div class="shade-dot-indicator" id="selected-shade-dot" style="background-color: {{ product.shade_color or 'transparent' }}; display: {{ 'block' if product.shade_color else 'none' }}"></div>
           <div style="line-height: 1.4;">
-            <div id="selected-shade-name" style="font-weight: 700; font-size: 14px;">{{ product.shade_name or 'Default' }}</div>
+            <div id="selected-shade-name" style="font-weight: 700; font-size: 14px; display: {{ 'block' if product.shade_name else 'none' }};">{{ product.shade_name }}</div>
             <div style="font-size: 12px; color: var(--color-text-secondary);">
               Code: <span id="selected-shade-code">{{ product.code }}</span> 
               {% if product.weight %} | <span id="selected-shade-weight">{{ product.weight }}</span>{% endif %}
@@ -545,8 +545,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Update Text info
+    const shadeInfoBox = document.getElementById('shade-info-box');
+    if (shadeInfoBox) {
+        if (data.shade || data.color) {
+            shadeInfoBox.style.display = 'flex';
+        } else {
+            shadeInfoBox.style.display = 'none';
+        }
+    }
+
     const shadeNameEl = document.getElementById('selected-shade-name');
-    if (shadeNameEl) shadeNameEl.textContent = data.shade || 'Default';
+    if (shadeNameEl) {
+        if (data.shade) {
+            shadeNameEl.textContent = data.shade;
+            shadeNameEl.style.display = 'block';
+        } else {
+            shadeNameEl.style.display = 'none';
+        }
+    }
     
     const shadeCodeEl = document.getElementById('selected-shade-code');
     if (shadeCodeEl) shadeCodeEl.textContent = data.code || '-';
