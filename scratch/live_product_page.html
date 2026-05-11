@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Oriflame India - Premium beauty products, skincare, makeup, fragrances & business opportunity. Shop online or join as a Brand Partner.">
+  <title>The ONE Smart Sync Lipstick | Premium Beauty & Wellness</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="/static/css/main.css?v=6.1">
+  
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <span>Luxury Swedish Beauty | <a href="/join">Join the Oriflame Community</a></span>
+  </div>
+
+  <!-- Header -->
+  <header class="header" id="main-header">
+    <div class="header-inner">
+      <!-- Hamburger + Logo -->
+      <div class="header-left">
+        <button class="hamburger-menu-btn" id="left-sidebar-toggle" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+        <a href="/" class="logo">
+          <img src="/static/images/logo.png" alt="Nilu's Oriflame Logo" style="height: 32px; border-radius: 8px;">
+          <span class="logo-text">Nilu's Oriflame</span>
+        </a>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="nav-main" id="main-menu">
+        <a href="/" class="nav-link ">Home</a>
+        
+        <div class="nav-item">
+          <a href="/products" class="nav-link active">Shop</a>
+          <div class="nav-dropdown">
+            
+            <a href="/category/skincare">Skincare</a>
+            
+            <a href="/category/makeup">Makeup</a>
+            
+            <a href="/category/fragrance">Fragrance</a>
+            
+            <a href="/category/hair-care">Hair Care</a>
+            
+            <a href="/category/bath-and-body">Bath &amp; Body</a>
+            
+            <a href="/category/personal-care">Personal Care</a>
+            
+            <a href="/category/wellness">Wellness</a>
+            
+            <a href="/category/accessories">Accessories</a>
+            
+            <a href="/category/mens-care">Men&#39;s Care</a>
+            
+            <a href="/category/gift-sets">Gift Sets</a>
+            
+            <a href="/products" style="color: var(--color-accent-dark); font-weight: 600;">View All →</a>
+          </div>
+        </div>
+
+        <a href="/products?filter=bestsellers" class="nav-link">Bestsellers</a>
+        <a href="/products?filter=new" class="nav-link">New Arrivals</a>
+        <a href="/products?filter=offers" class="nav-link">Offers</a>
+        <a href="/join" class="nav-link ">Join Us</a>
+      </nav>
+
+      <!-- Search Bar -->
+      <div class="header-search search-bar">
+        <form action="/products" method="GET" style="display: flex; width: 100%; align-items: center;">
+          <button type="submit" class="search-btn" style="display: flex; align-items: center;">
+            <svg class="icon-svg" viewBox="0 0 24 24" style="width: 18px; height: 18px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </button>
+          <input type="text" name="search" placeholder="Search products..." class="search-input" value="">
+        </form>
+      </div>
+
+      <!-- Actions -->
+      <div class="header-actions">
+        <!-- Mobile Search Toggle -->
+        <button class="header-action-btn mobile-search-toggle" onclick="openSearchOverlay()" title="Search">
+          <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+        
+        <a href="/login" class="header-action-btn" title="Login / Join">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </a>
+        
+
+        <a href="/wishlist" class="header-action-btn" title="Wishlist" style="position: relative;">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+          <span id="wishlist-badge-count" class="cart-badge d-none" style="background: var(--color-accent);">0</span>
+        </a>
+
+        <button class="header-action-btn" id="cart-toggle" title="Cart" style="position: relative;">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          <span id="cart-badge-count" class="cart-badge d-none">0</span>
+        </button>
+      </div>
+
+      <!-- No redundant nav-toggle here -->
+    </div>
+  </header>
+    <!-- Flash Messages (Moved back up) -->
+
+  <!-- Flash Messages -->
+  <!-- Search Overlay -->
+  <div class="search-overlay" id="search-overlay">
+    <div class="search-overlay-header">
+      <form action="/products" method="GET" class="search-overlay-form">
+        <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" name="search" placeholder="Search for products, brands..." autofocus>
+      </form>
+      <button class="search-overlay-close" onclick="closeSearchOverlay()">✕</button>
+    </div>
+    <div class="search-overlay-content">
+      <div class="search-suggestions">
+        <h4>Popular Searches</h4>
+        <ul>
+          <li><a href="/products?search=Face+Cream">Face Cream</a></li>
+          <li><a href="/products?search=Lipstick">Lipstick</a></li>
+          <li><a href="/products?search=Perfume">Perfume</a></li>
+          <li><a href="/products?search=Wellness">Wellness</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  
+
+  <!-- Main Content -->
+  <main id="main-content">
+    
+<div class="container">
+  <div class="breadcrumb">
+    <a href="/">Home</a>
+    <span class="separator">›</span>
+    <a href="/products">Products</a>
+    <span class="separator">›</span>
+    
+    <a href="/category/makeup">Makeup</a>
+    <span class="separator">›</span>
+    
+    <span>The ONE Smart Sync Lipstick</span>
+  </div>
+
+  <div class="product-detail">
+    <!-- Gallery -->
+    <div class="product-gallery">
+      <div class="product-gallery-main">
+        <button class="gallery-nav prev" onclick="navigateGallery(-1)">‹</button>
+        <img src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_1.png&amp;MediaId=18117921&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" alt="The ONE Smart Sync Lipstick" id="main-image">
+        <div id="main-video-container" style="display: none; width: 100%; height: 100%;">
+          <iframe id="main-iframe" width="100%" height="100%" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          <video id="main-video" width="100%" height="100%" controls style="display: none;"></video>
+        </div>
+        <button class="gallery-nav next" onclick="navigateGallery(1)">›</button>
+      </div>
+      <div class="product-gallery-thumbs-wrapper">
+        <div class="product-gallery-thumbs" id="thumb-slider">
+          
+          <div class="product-gallery-thumb active" data-type="image" data-src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_1.png&amp;MediaId=18117921&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" onclick="changeImage(this, 'https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_1.png&amp;MediaId=18117921&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP')">
+            <img src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_1.png&amp;MediaId=18117921&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" alt="">
+          </div>
+          
+          
+            
+            <div class="product-gallery-thumb" data-type="image" data-src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_2.png&amp;MediaId=18117913&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" onclick="changeImage(this, 'https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_2.png&amp;MediaId=18117913&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP')">
+              
+                <img src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_2.png&amp;MediaId=18117913&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" alt="">
+              
+            </div>
+            
+          
+            
+            <div class="product-gallery-thumb" data-type="image" data-src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_3.png&amp;MediaId=18117914&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" onclick="changeImage(this, 'https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_3.png&amp;MediaId=18117914&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP')">
+              
+                <img src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_3.png&amp;MediaId=18117914&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" alt="">
+              
+            </div>
+            
+          
+            
+            <div class="product-gallery-thumb" data-type="image" data-src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_4.png&amp;MediaId=18117915&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" onclick="changeImage(this, 'https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_4.png&amp;MediaId=18117915&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP')">
+              
+                <img src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_4.png&amp;MediaId=18117915&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" alt="">
+              
+            </div>
+            
+          
+            
+            <div class="product-gallery-thumb" data-type="image" data-src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_5.png&amp;MediaId=18117916&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" onclick="changeImage(this, 'https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_5.png&amp;MediaId=18117916&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP')">
+              
+                <img src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_5.png&amp;MediaId=18117916&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" alt="">
+              
+            </div>
+            
+          
+            
+            <div class="product-gallery-thumb" data-type="image" data-src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_6.png&amp;MediaId=18117917&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" onclick="changeImage(this, 'https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_6.png&amp;MediaId=18117917&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP')">
+              
+                <img src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_6.png&amp;MediaId=18117917&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" alt="">
+              
+            </div>
+            
+          
+            
+            <div class="product-gallery-thumb" data-type="image" data-src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_7.png&amp;MediaId=18117919&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" onclick="changeImage(this, 'https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_7.png&amp;MediaId=18117919&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP')">
+              
+                <img src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_7.png&amp;MediaId=18117919&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" alt="">
+              
+            </div>
+            
+          
+            
+            <div class="product-gallery-thumb" data-type="image" data-src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_8.png&amp;MediaId=18117920&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" onclick="changeImage(this, 'https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_8.png&amp;MediaId=18117920&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP')">
+              
+                <img src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_8.png&amp;MediaId=18117920&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" alt="">
+              
+            </div>
+            
+          
+            
+            <div class="product-gallery-thumb" data-type="image" data-src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_9.png&amp;MediaId=18841599&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" onclick="changeImage(this, 'https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_9.png&amp;MediaId=18841599&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP')">
+              
+                <img src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_9.png&amp;MediaId=18841599&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" alt="">
+              
+            </div>
+            
+          
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="product-info">
+      
+      <a href="/products?brand=The%20ONE" class="product-brand" style="text-decoration: none;">The ONE</a>
+      
+      
+      <h1>The ONE Smart Sync Lipstick</h1>
+
+      <!-- Variants / Shades -->
+      <!-- Variants / Shades -->
+      
+      <style>
+        .shade-circle.duo {
+          background: linear-gradient(90deg, var(--c1) 50%, var(--c2) 50%);
+        }
+        .variant-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-bottom: 16px;
+        }
+        .variant-item {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          padding: 2px;
+          border: 2px solid transparent;
+          transition: all 0.2s ease;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .variant-item.active {
+          border-color: #000;
+          box-shadow: inset 0 0 0 2px #fff;
+        }
+        .shade-circle {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          border: 1px solid rgba(0,0,0,0.1);
+        }
+        .variant-item img {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+        .selected-shade-info {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px;
+          background: rgba(0,0,0,0.03);
+          border-radius: 8px;
+          margin-bottom: 20px;
+        }
+        .shade-dot-indicator {
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          border: 1px solid rgba(0,0,0,0.1);
+        }
+      </style>
+      <div class="product-variants">
+        <span style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">
+          Select Shade / Variant:
+        </span>
+        <div class="variant-list">
+          <div class="variant-item active" title="Warm Cocoa" onclick="switchToVariant(179)">
+            
+              
+              <div class="shade-circle" style="background-color: #ae5e51;"></div>
+              
+            
+          </div>
+          
+          <div class="variant-item" title="Cherry Plum" onclick="switchToVariant(182)">
+            
+              
+              <div class="shade-circle" style="background-color: #811830;"></div>
+              
+            
+          </div>
+          
+          <div class="variant-item" title="Creamy Rosewood" onclick="switchToVariant(180)">
+            
+              
+              <div class="shade-circle" style="background-color: #b3605f;"></div>
+              
+            
+          </div>
+          
+          <div class="variant-item" title="Smart Red" onclick="switchToVariant(186)">
+            
+              
+              <div class="shade-circle" style="background-color: #b50621;"></div>
+              
+            
+          </div>
+          
+          <div class="variant-item" title="Marvellous Mocha" onclick="switchToVariant(181)">
+            
+              
+              <div class="shade-circle" style="background-color: #954a4d;"></div>
+              
+            
+          </div>
+          
+          <div class="variant-item" title="Soft Magenta" onclick="switchToVariant(183)">
+            
+              
+              <div class="shade-circle" style="background-color: #ad4d53;"></div>
+              
+            
+          </div>
+          
+          <div class="variant-item" title="Burnt Sienna" onclick="switchToVariant(185)">
+            
+              
+              <div class="shade-circle" style="background-color: #924644;"></div>
+              
+            
+          </div>
+          
+          <div class="variant-item" title="Double Espresso" onclick="switchToVariant(188)">
+            
+              
+              <div class="shade-circle" style="background-color: #794030;"></div>
+              
+            
+          </div>
+          
+          <div class="variant-item" title="Deep Berry" onclick="switchToVariant(187)">
+            
+              
+              <div class="shade-circle" style="background-color: #853846;"></div>
+              
+            
+          </div>
+          
+          <div class="variant-item" title="Baked Terracotta" onclick="switchToVariant(184)">
+            
+              
+              <div class="shade-circle" style="background-color: #a14940;"></div>
+              
+            
+          </div>
+          
+          <div class="variant-item" title="Pinkish Mauve" onclick="switchToVariant(189)">
+            
+              
+              <div class="shade-circle" style="background-color: #af656f;"></div>
+              
+            
+          </div>
+          
+        </div>
+        
+        <div class="selected-shade-info" id="shade-info-box" style="display: flex;">
+          <div class="shade-dot-indicator" id="selected-shade-dot" style="background-color: #ae5e51; display: block"></div>
+          <div style="line-height: 1.4;">
+            <div id="selected-shade-name" style="font-weight: 700; font-size: 14px; display: block;">Warm Cocoa</div>
+            <div style="font-size: 12px; color: var(--color-text-secondary);">
+              Code: <span id="selected-shade-code">46437</span> 
+               | <span id="selected-shade-weight">3.8g</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      
+      <div class="product-card-rating" style="margin-bottom: 16px;">
+        <span class="stars" style="font-size: 18px;">★★★★☆</span>
+        <span class="rating-count">(0 reviews)</span>
+      </div>
+
+      <div class="product-price-box">
+        <span class="price-current" id="display-price">₹699</span>
+        <span id="display-mrp-box">
+          
+        </span>
+      </div>
+      <p style="font-size: 12px; color: var(--color-text-muted); margin-top: -12px; margin-bottom: 16px;">Inclusive of all taxes</p>
+
+      
+
+      
+      <p class="product-description">Moisturising lipstick that delivers extra colour and hydration for a stunning lip look that stays in place all day.
+8H long-lasting lipstick colour and moisture.
+Nourishes lips with Cocoa Butter &amp; Shea butter.
+15 flattering lipstick shades designed to suit every skin tone.</p>
+      
+
+      <!-- Quantity Selector -->
+      <div class="product-qty-selector">
+        <span style="font-weight: 600; font-size: 14px;">Quantity:</span>
+        <div class="premium-qty">
+          <button onclick="adjustQty(-1)">−</button>
+          <span class="qty-val" id="product-qty">1</span>
+          <button onclick="adjustQty(1)">+</button>
+        </div>
+        
+      </div>
+
+      <!-- Actions -->
+      <div class="product-actions">
+        
+        <button class="btn btn-primary add-to-cart-btn" data-product-id="179" data-qty="1" id="add-cart-btn" style="flex: 1.5; padding: 12px 16px; font-size: 14px;">
+          Add to Cart
+        </button>
+        <button class="btn btn-outline" onclick="addToCart(179, document.getElementById('product-qty').textContent); window.location.href='/checkout';" style="flex: 1; padding: 12px 16px; font-size: 14px;">
+          Buy Now
+        </button>
+        
+        <button class="btn btn-outline btn-icon wishlist-btn " 
+                onclick="toggleWishlist(this, 179)" 
+                title="Wishlist" 
+                style="font-size: 18px; width: 44px; height: 44px; color: inherit;">
+          ♡
+        </button>
+      </div>
+
+      <!-- Product Meta -->
+      <div class="product-meta">
+        <div class="product-meta-item">
+          <span>Product Code</span>
+          <span>46437</span>
+        </div>
+        
+        <div class="product-meta-item">
+          <span>Weight</span>
+          <span>3.8g</span>
+        </div>
+        
+        <div class="product-meta-item">
+          <span>Category</span>
+          <span>Makeup</span>
+        </div>
+      </div>
+
+      <!-- Product Accordion -->
+      <div class="product-accordion">
+        
+        <div class="accordion-item active">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            About the Product
+            <span class="accordion-icon">▾</span>
+          </div>
+          <div class="accordion-content">
+            Moisturising lipstick that delivers extra colour and hydration for a stunning lip look that stays in place all day.
+8H long-lasting lipstick colour and moisture.
+Nourishes lips with Cocoa Butter &amp; Shea butter.
+15 flattering lipstick shades designed to suit every skin tone.
+          </div>
+        </div>
+        
+
+        
+
+        
+      </div>
+
+      <div class="product-meta">
+        <div class="product-meta-item">
+          <span>Availability</span>
+          <span style="color: var(--color-success)">
+            In Stock
+          </span>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Sticky Action Bar -->
+<div class="mobile-product-bar" id="mobile-action-bar" style="display: none;">
+  
+  <button class="btn btn-outline" onclick="addToCart(179, document.getElementById('product-qty').textContent); window.location.href='/checkout';">
+    Buy Now
+  </button>
+  <button class="btn btn-primary add-to-cart-btn" data-product-id="179" data-qty="1">
+    Add to Cart
+  </button>
+  
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const mobileBar = document.getElementById('mobile-action-bar');
+  const mainActions = document.querySelector('.product-actions');
+  
+  if (mobileBar && mainActions && window.innerWidth <= 768) {
+    window.addEventListener('scroll', () => {
+      const rect = mainActions.getBoundingClientRect();
+      // Show sticky bar if main buttons are scrolled out of view
+      if (rect.bottom < 0) {
+        mobileBar.style.display = 'flex';
+        document.body.classList.add('has-mobile-bar');
+      } else {
+        mobileBar.style.display = 'none';
+        document.body.classList.remove('has-mobile-bar');
+      }
+    });
+  }
+});
+</script>
+
+<!-- Ratings & Reviews -->
+<section class="section" id="reviews">
+  <div class="container">
+    <div class="section-title fade-in">
+      <h2>Ratings & Reviews</h2>
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px;">
+        <div style="color: var(--color-accent); font-size: 24px;">
+          
+            ★
+          
+            ★
+          
+            ★
+          
+            ★
+          
+            ☆
+          
+        </div>
+        <span style="font-weight: 700; font-size: 20px;">4.0</span>
+        <span style="color: var(--color-text-secondary);">(0 reviews)</span>
+      </div>
+    </div>
+
+    <div style="max-width: 800px; margin: 0 auto;">
+      <!-- Review Summary & Action -->
+      <div class="fade-in" style="background: var(--color-bg-alt); padding: 40px; border-radius: 24px; text-align: center; margin-bottom: 48px; border: 1px solid var(--color-border-light);">
+        <h3 style="margin-bottom: 8px;">Customer Feedback</h3>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 24px;">
+          <div style="color: var(--color-accent); font-size: 32px;">
+            
+              ★
+            
+              ★
+            
+              ★
+            
+              ★
+            
+              ☆
+            
+          </div>
+          <span style="font-weight: 800; font-size: 36px; color: var(--color-text);">4.0</span>
+        </div>
+        <p style="color: var(--color-text-secondary); margin-bottom: 32px;">Based on 0 verified customer reviews</p>
+        
+        
+        <a href="/login" class="btn btn-outline btn-lg">Login to Write a Review</a>
+        
+      </div>
+
+      <!-- Review Form Modal -->
+      <div id="review-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+        <div style="background: var(--color-white); width: 90%; max-width: 500px; border-radius: 24px; overflow: hidden; box-shadow: var(--shadow-lg); animation: slideUp 0.4s ease;">
+          <div style="padding: 24px; border-bottom: 1px solid var(--color-border-light); display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0;">Share Your Experience</h3>
+            <button onclick="closeReviewModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--color-text-muted);">✕</button>
+          </div>
+          <form action="/product/179/review" method="POST" style="padding: 32px;">
+            <div style="margin-bottom: 24px;">
+              <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 12px; color: var(--color-text);">Your Rating</label>
+              <div class="star-rating" style="justify-content: center; gap: 8px;">
+                <input type="radio" id="modal-star5" name="rating" value="5" required /><label for="modal-star5" style="font-size: 36px;">★</label>
+                <input type="radio" id="modal-star4" name="rating" value="4" /><label for="modal-star4" style="font-size: 36px;">★</label>
+                <input type="radio" id="modal-star3" name="rating" value="3" /><label for="modal-star3" style="font-size: 36px;">★</label>
+                <input type="radio" id="modal-star2" name="rating" value="2" /><label for="modal-star2" style="font-size: 36px;">★</label>
+                <input type="radio" id="modal-star1" name="rating" value="1" /><label for="modal-star1" style="font-size: 36px;">★</label>
+              </div>
+            </div>
+            <div style="margin-bottom: 32px;">
+              <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 12px; color: var(--color-text);">Your Feedback</label>
+              <textarea name="comment" rows="5" style="width: 100%; padding: 16px; border: 1px solid var(--color-border); border-radius: 12px; font-family: inherit; resize: none; font-size: 15px;" placeholder="Tell us what you liked or disliked about this product..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; height: 56px; font-size: 16px;">Submit Review</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Reviews List -->
+      <div class="fade-in">
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+          
+          <div style="text-align: center; padding: 48px; background: var(--color-bg-alt); border-radius: 20px;">
+            <p style="color: var(--color-text-secondary);">No reviews yet. Be the first to rate this product!</p>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+  .star-rating input { display: none; }
+  .star-rating label {
+    font-size: 28px;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  .star-rating input:checked ~ label,
+  .star-rating label:hover,
+  .star-rating label:hover ~ label {
+    color: var(--color-accent);
+  }
+</style>
+
+
+<!-- Related Products -->
+
+<section class="section" style="background: var(--color-bg-alt);">
+  <div class="container">
+    <div class="section-title">
+      <h2>You May Also Like</h2>
+    </div>
+    <div class="products-grid">
+      
+      <div class="product-card fade-in">
+        <a href="/products/novage+-wrinkle-smooth-serum.">
+          <div class="product-card-image">
+            <img src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F41035%2F41035_1.png&amp;MediaId=17448865&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" alt="Novage+ Wrinkle Smooth Serum.">
+            
+            <div class="product-card-badges"><span class="badge-discount">-35%</span></div>
+            
+          </div>
+        </a>
+        <div class="product-card-info">
+          <a href="/products?brand=Novage%2B" class="product-card-brand" style="text-decoration: none; z-index: 2; position: relative;">Novage+</a>
+          <a href="/products/novage+-wrinkle-smooth-serum."><h3 class="product-card-name">Novage+ Wrinkle Smooth Serum.</h3></a>
+          <div class="product-card-price">
+            <span class="price-current">₹2179</span>
+            
+            <span class="price-mrp">MRP ₹3350</span>
+            
+          </div>
+          <button class="btn-add-cart" data-product-id="45">Add to Cart</button>
+        </div>
+      </div>
+      
+      <div class="product-card fade-in">
+        <a href="/products/novage+-blemish+-age-defy-serum.">
+          <div class="product-card-image">
+            <img src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F41039%2F41039_1.png&amp;MediaId=17448845&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" alt="Novage+ Blemish+ Age Defy Serum.">
+            
+            <div class="product-card-badges"><span class="badge-discount">-35%</span></div>
+            
+          </div>
+        </a>
+        <div class="product-card-info">
+          <a href="/products?brand=Novage%2B" class="product-card-brand" style="text-decoration: none; z-index: 2; position: relative;">Novage+</a>
+          <a href="/products/novage+-blemish+-age-defy-serum."><h3 class="product-card-name">Novage+ Blemish+ Age Defy Serum.</h3></a>
+          <div class="product-card-price">
+            <span class="price-current">₹2179</span>
+            
+            <span class="price-mrp">MRP ₹3350</span>
+            
+          </div>
+          <button class="btn-add-cart" data-product-id="46">Add to Cart</button>
+        </div>
+      </div>
+      
+      <div class="product-card fade-in">
+        <a href="/products/novage+-bright-intense-serum.">
+          <div class="product-card-image">
+            <img src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F41040%2F41040_1.png&amp;MediaId=17447865&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" alt="Novage+ Bright Intense Serum.">
+            
+            <div class="product-card-badges"><span class="badge-discount">-35%</span></div>
+            
+          </div>
+        </a>
+        <div class="product-card-info">
+          <a href="/products?brand=Novage%2B" class="product-card-brand" style="text-decoration: none; z-index: 2; position: relative;">Novage+</a>
+          <a href="/products/novage+-bright-intense-serum."><h3 class="product-card-name">Novage+ Bright Intense Serum.</h3></a>
+          <div class="product-card-price">
+            <span class="price-current">₹2179</span>
+            
+            <span class="price-mrp">MRP ₹3350</span>
+            
+          </div>
+          <button class="btn-add-cart" data-product-id="47">Add to Cart</button>
+        </div>
+      </div>
+      
+      <div class="product-card fade-in">
+        <a href="/products/novage+-lift-+-firm-serum.">
+          <div class="product-card-image">
+            <img src="https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F41037%2F41037_1.png&amp;MediaId=17448854&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" alt="Novage+ Lift + Firm Serum.">
+            
+            <div class="product-card-badges"><span class="badge-discount">-35%</span></div>
+            
+          </div>
+        </a>
+        <div class="product-card-info">
+          <a href="/products?brand=Novage%2B" class="product-card-brand" style="text-decoration: none; z-index: 2; position: relative;">Novage+</a>
+          <a href="/products/novage+-lift-+-firm-serum."><h3 class="product-card-name">Novage+ Lift + Firm Serum.</h3></a>
+          <div class="product-card-price">
+            <span class="price-current">₹2179</span>
+            
+            <span class="price-mrp">MRP ₹3350</span>
+            
+          </div>
+          <button class="btn-add-cart" data-product-id="48">Add to Cart</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+
+<script>
+  // Product Data for Dynamic Switching
+  const currentProductId = 179;
+  const variantsData = {
+    179: {
+      id: 179,
+      code: "46437",
+      shade: "Warm Cocoa",
+      price: 699.0,
+      mrp: 699.0,
+      discount: 0,
+      weight: "3.8g",
+      color: "#ae5e51",
+      main_img: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_1.png&amp;MediaId=18117921&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP",
+      gallery: [
+        { type: 'image', src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_1.png&amp;MediaId=18117921&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_2.png&amp;MediaId=18117913&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_3.png&amp;MediaId=18117914&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_4.png&amp;MediaId=18117915&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_5.png&amp;MediaId=18117916&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_6.png&amp;MediaId=18117917&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_7.png&amp;MediaId=18117919&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_8.png&amp;MediaId=18117920&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46437%2F46437_9.png&amp;MediaId=18841599&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+      ]
+    },
+    
+    182: {
+      id: 182,
+      code: "46449",
+      shade: "Cherry Plum",
+      price: 699.0,
+      mrp: 699.0,
+      discount: 0,
+      weight: "3.8g",
+      color: "#811830",
+      main_img: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46449%2F46449_1.png&amp;MediaId=18118029&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP",
+      gallery: [
+        { type: 'image', src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46449%2F46449_1.png&amp;MediaId=18118029&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46449%2F46449_2.png&amp;MediaId=18118021&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46449%2F46449_3.png&amp;MediaId=18118022&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46449%2F46449_4.png&amp;MediaId=18118023&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46449%2F46449_5.png&amp;MediaId=18118024&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46449%2F46449_6.png&amp;MediaId=18118025&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46449%2F46449_7.png&amp;MediaId=18118027&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46449%2F46449_8.png&amp;MediaId=18118028&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46449%2F46449_9.png&amp;MediaId=18841611&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+      ]
+    },
+    
+    180: {
+      id: 180,
+      code: "46441",
+      shade: "Creamy Rosewood",
+      price: 699.0,
+      mrp: 699.0,
+      discount: 0,
+      weight: "3.8g",
+      color: "#b3605f",
+      main_img: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46441%2F46441_1.png&amp;MediaId=18117957&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP",
+      gallery: [
+        { type: 'image', src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46441%2F46441_1.png&amp;MediaId=18117957&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46441%2F46441_2.png&amp;MediaId=18117949&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46441%2F46441_3.png&amp;MediaId=18117950&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46441%2F46441_4.png&amp;MediaId=18117951&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46441%2F46441_5.png&amp;MediaId=18117952&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46441%2F46441_6.png&amp;MediaId=18117953&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46441%2F46441_7.png&amp;MediaId=18117955&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46441%2F46441_8.png&amp;MediaId=18117956&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46441%2F46441_9.png&amp;MediaId=18841603&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+      ]
+    },
+    
+    186: {
+      id: 186,
+      code: "46447",
+      shade: "Smart Red",
+      price: 699.0,
+      mrp: 699.0,
+      discount: 0,
+      weight: "3.8g",
+      color: "#b50621",
+      main_img: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46447%2F46447_1.png&amp;MediaId=18118011&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP",
+      gallery: [
+        { type: 'image', src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46447%2F46447_1.png&amp;MediaId=18118011&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46447%2F46447_2.png&amp;MediaId=18118003&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46447%2F46447_3.png&amp;MediaId=18118004&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46447%2F46447_4.png&amp;MediaId=18118005&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46447%2F46447_5.png&amp;MediaId=18118006&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46447%2F46447_6.png&amp;MediaId=18118007&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46447%2F46447_7.png&amp;MediaId=18118009&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46447%2F46447_8.png&amp;MediaId=18118010&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46447%2F46447_9.png&amp;MediaId=18841609&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+      ]
+    },
+    
+    181: {
+      id: 181,
+      code: "46443",
+      shade: "Marvellous Mocha",
+      price: 699.0,
+      mrp: 699.0,
+      discount: 0,
+      weight: "3.8g",
+      color: "#954a4d",
+      main_img: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46443%2F46443_1.png&amp;MediaId=18117975&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP",
+      gallery: [
+        { type: 'image', src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46443%2F46443_1.png&amp;MediaId=18117975&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46443%2F46443_2.png&amp;MediaId=18117967&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46443%2F46443_3.png&amp;MediaId=18117968&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46443%2F46443_4.png&amp;MediaId=18117969&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46443%2F46443_5.png&amp;MediaId=18117970&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46443%2F46443_6.png&amp;MediaId=18117971&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46443%2F46443_7.png&amp;MediaId=18117973&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46443%2F46443_8.png&amp;MediaId=18117974&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46443%2F46443_9.png&amp;MediaId=18841605&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+      ]
+    },
+    
+    183: {
+      id: 183,
+      code: "46442",
+      shade: "Soft Magenta",
+      price: 699.0,
+      mrp: 699.0,
+      discount: 0,
+      weight: "3.8g",
+      color: "#ad4d53",
+      main_img: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46442%2F46442_1.png&amp;MediaId=18117966&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP",
+      gallery: [
+        { type: 'image', src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46442%2F46442_1.png&amp;MediaId=18117966&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46442%2F46442_2.png&amp;MediaId=18117958&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46442%2F46442_3.png&amp;MediaId=18117959&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46442%2F46442_4.png&amp;MediaId=18117960&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46442%2F46442_5.png&amp;MediaId=18117961&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46442%2F46442_6.png&amp;MediaId=18117962&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46442%2F46442_7.png&amp;MediaId=18117964&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46442%2F46442_8.png&amp;MediaId=18117965&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46442%2F46442_9.png&amp;MediaId=18841604&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+      ]
+    },
+    
+    185: {
+      id: 185,
+      code: "46444",
+      shade: "Burnt Sienna",
+      price: 699.0,
+      mrp: 699.0,
+      discount: 0,
+      weight: "3.8g",
+      color: "#924644",
+      main_img: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46444%2F46444_1.png&amp;MediaId=18117984&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP",
+      gallery: [
+        { type: 'image', src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46444%2F46444_1.png&amp;MediaId=18117984&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46444%2F46444_2.png&amp;MediaId=18117976&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46444%2F46444_3.png&amp;MediaId=18117977&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46444%2F46444_4.png&amp;MediaId=18117978&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46444%2F46444_5.png&amp;MediaId=18117979&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46444%2F46444_6.png&amp;MediaId=18117980&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46444%2F46444_7.png&amp;MediaId=18117982&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46444%2F46444_8.png&amp;MediaId=18117983&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46444%2F46444_9.png&amp;MediaId=18841606&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+      ]
+    },
+    
+    188: {
+      id: 188,
+      code: "46445",
+      shade: "Double Espresso",
+      price: 699.0,
+      mrp: 699.0,
+      discount: 0,
+      weight: "3.8g",
+      color: "#794030",
+      main_img: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46445%2F46445_1.png&amp;MediaId=18117993&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP",
+      gallery: [
+        { type: 'image', src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46445%2F46445_1.png&amp;MediaId=18117993&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46445%2F46445_2.png&amp;MediaId=18117985&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46445%2F46445_3.png&amp;MediaId=18117986&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46445%2F46445_4.png&amp;MediaId=18117987&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46445%2F46445_5.png&amp;MediaId=18117988&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46445%2F46445_6.png&amp;MediaId=18117989&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46445%2F46445_7.png&amp;MediaId=18117991&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46445%2F46445_8.png&amp;MediaId=18117992&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46445%2F46445_9.png&amp;MediaId=18841607&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+      ]
+    },
+    
+    187: {
+      id: 187,
+      code: "46446",
+      shade: "Deep Berry",
+      price: 699.0,
+      mrp: 699.0,
+      discount: 0,
+      weight: "3.8g",
+      color: "#853846",
+      main_img: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46446%2F46446_1.png&amp;MediaId=18118002&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP",
+      gallery: [
+        { type: 'image', src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46446%2F46446_1.png&amp;MediaId=18118002&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46446%2F46446_2.png&amp;MediaId=18117994&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46446%2F46446_3.png&amp;MediaId=18117995&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46446%2F46446_4.png&amp;MediaId=18117996&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46446%2F46446_5.png&amp;MediaId=18117997&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46446%2F46446_6.png&amp;MediaId=18117998&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46446%2F46446_7.png&amp;MediaId=18118000&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46446%2F46446_8.png&amp;MediaId=18118001&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46446%2F46446_9.png&amp;MediaId=18841608&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+      ]
+    },
+    
+    184: {
+      id: 184,
+      code: "46438",
+      shade: "Baked Terracotta",
+      price: 699.0,
+      mrp: 699.0,
+      discount: 0,
+      weight: "3.8g",
+      color: "#a14940",
+      main_img: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46438%2F46438_1.png&amp;MediaId=18117930&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP",
+      gallery: [
+        { type: 'image', src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46438%2F46438_1.png&amp;MediaId=18117930&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46438%2F46438_2.png&amp;MediaId=18117922&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46438%2F46438_3.png&amp;MediaId=18117923&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46438%2F46438_4.png&amp;MediaId=18117924&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46438%2F46438_5.png&amp;MediaId=18117925&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46438%2F46438_6.png&amp;MediaId=18117926&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46438%2F46438_7.png&amp;MediaId=18117928&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46438%2F46438_8.png&amp;MediaId=18117929&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46438%2F46438_9.png&amp;MediaId=18841600&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+      ]
+    },
+    
+    189: {
+      id: 189,
+      code: "46439",
+      shade: "Pinkish Mauve",
+      price: 699.0,
+      mrp: 699.0,
+      discount: 0,
+      weight: "3.8g",
+      color: "#af656f",
+      main_img: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46439%2F46439_1.png&amp;MediaId=18117939&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP",
+      gallery: [
+        { type: 'image', src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46439%2F46439_1.png&amp;MediaId=18117939&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46439%2F46439_2.png&amp;MediaId=18117931&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46439%2F46439_3.png&amp;MediaId=18117932&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46439%2F46439_4.png&amp;MediaId=18117933&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46439%2F46439_5.png&amp;MediaId=18117934&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46439%2F46439_6.png&amp;MediaId=18117935&amp;Version=2&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46439%2F46439_7.png&amp;MediaId=18117937&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46439%2F46439_8.png&amp;MediaId=18117938&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+          
+          { type: "image", src: "https://media-cdn.oriflame.com/productImage?externalMediaId=product-management-media%2FProducts%2F46439%2F46439_9.png&amp;MediaId=18841601&amp;Version=3&amp;w=1000&amp;bc=%23f5f5f5&amp;ib=%23f5f5f5&amp;q=90&amp;imageFormat=WebP" },
+          
+        
+      ]
+    },
+    
+  };
+
+  let currentGallery = variantsData[currentProductId].gallery;
+  let currentImgIndex = 0;
+
+  function switchToVariant(id) {
+    const data = variantsData[id];
+    if (!data) return;
+
+    // Update active state in variant list
+    document.querySelectorAll('.variant-item').forEach(item => {
+      item.classList.remove('active');
+      if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(id)) {
+        item.classList.add('active');
+      }
+    });
+
+    // Update Text info
+    const shadeInfoBox = document.getElementById('shade-info-box');
+    if (shadeInfoBox) {
+        if (data.shade || data.color) {
+            shadeInfoBox.style.display = 'flex';
+        } else {
+            shadeInfoBox.style.display = 'none';
+        }
+    }
+
+    const shadeNameEl = document.getElementById('selected-shade-name');
+    if (shadeNameEl) {
+        if (data.shade) {
+            shadeNameEl.textContent = data.shade;
+            shadeNameEl.style.display = 'block';
+        } else {
+            shadeNameEl.style.display = 'none';
+        }
+    }
+    
+    const shadeCodeEl = document.getElementById('selected-shade-code');
+    if (shadeCodeEl) shadeCodeEl.textContent = data.code || '-';
+    
+    const shadeWeightEl = document.getElementById('selected-shade-weight');
+    if (shadeWeightEl) {
+        shadeWeightEl.textContent = data.weight || '';
+        shadeWeightEl.parentElement.style.display = data.weight ? 'inline' : 'none';
+    }
+
+    const shadeDotEl = document.getElementById('selected-shade-dot');
+    if (shadeDotEl) {
+        if (data.color) {
+            shadeDotEl.style.backgroundColor = data.color;
+            shadeDotEl.style.display = 'block';
+        } else {
+            shadeDotEl.style.display = 'none';
+        }
+    }
+    
+    document.getElementById('display-price').textContent = `₹${data.price.toFixed(0)}`;
+    
+    const mrpBox = document.getElementById('display-mrp-box');
+    if (data.mrp > data.price) {
+      mrpBox.innerHTML = `
+        <span class="price-mrp" style="font-size: 18px;">MRP ₹${data.mrp.toFixed(0)}</span>
+        <span class="price-discount" style="font-size: 16px;">Save ${data.discount}%</span>
+      `;
+    } else {
+      mrpBox.innerHTML = '';
+    }
+
+    // Update Cart/Wishlist Buttons
+    const cartBtn = document.getElementById('add-cart-btn');
+    if (cartBtn) cartBtn.dataset.productId = data.id;
+    
+    const wishlistBtn = document.querySelector('.btn-wishlist');
+    if (wishlistBtn) wishlistBtn.setAttribute('onclick', `toggleWishlist(this, ${data.id})`);
+
+    // Update Gallery
+    currentGallery = data.gallery;
+    currentImgIndex = 0;
+    
+    const thumbSlider = document.getElementById('thumb-slider');
+    if (thumbSlider) {
+      thumbSlider.innerHTML = '';
+      currentGallery.forEach((item, index) => {
+        const thumb = document.createElement('div');
+        thumb.className = `product-gallery-thumb ${index === 0 ? 'active' : ''}`;
+        thumb.dataset.type = item.type;
+        thumb.dataset.src = item.src;
+        
+        let thumbContent = '';
+        if (item.type === 'video') {
+          thumbContent = '<div class="video-thumb-overlay">▶</div>';
+          if (item.src.includes('youtube.com/embed/')) {
+            const ytId = item.src.split('/').pop().split('?')[0];
+            thumbContent += `<img src="https://img.youtube.com/vi/${ytId}/0.jpg" alt="">`;
+          } else {
+            thumbContent += '<div style="width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px;">Video</div>';
+          }
+        } else {
+          thumbContent = `<img src="${item.src}" alt="">`;
+        }
+        
+        thumb.innerHTML = thumbContent;
+        thumb.onclick = () => changeImage(thumb, item.src);
+        thumbSlider.appendChild(thumb);
+      });
+      // Reset slider position
+      thumbSlider.style.transform = 'translateX(0)';
+    }
+
+    // Show first image of new variant
+    const firstThumb = document.querySelector('.product-gallery-thumb');
+    if (firstThumb) changeImage(firstThumb, data.main_img);
+  }
+
+  function changeImage(thumb, src) {
+    const type = thumb.dataset.type || 'image';
+    const mainImg = document.getElementById('main-image');
+    const videoContainer = document.getElementById('main-video-container');
+    const iframe = document.getElementById('main-iframe');
+    const video = document.getElementById('main-video');
+    
+    mainImg.style.display = 'none';
+    videoContainer.style.display = 'none';
+    iframe.style.display = 'none';
+    video.style.display = 'none';
+    iframe.src = '';
+    video.src = '';
+    
+    if (type === 'video') {
+      videoContainer.style.display = 'block';
+      if (src.includes('youtube.com/embed/')) {
+        iframe.style.display = 'block';
+        iframe.src = src.includes('?') ? src + "&autoplay=1" : src + "?autoplay=1";
+      } else {
+        video.style.display = 'block';
+        video.src = src;
+        video.play();
+      }
+    } else {
+      mainImg.style.display = 'block';
+      mainImg.src = src;
+    }
+    
+    document.querySelectorAll('.product-gallery-thumb').forEach(t => t.classList.remove('active'));
+    thumb.classList.add('active');
+    
+    // Update current index
+    const thumbs = Array.from(document.querySelectorAll('.product-gallery-thumb'));
+    currentImgIndex = thumbs.indexOf(thumb);
+  }
+
+  function navigateGallery(delta) {
+    const thumbs = Array.from(document.querySelectorAll('.product-gallery-thumb'));
+    if (thumbs.length === 0) return;
+    
+    currentImgIndex += delta;
+    if (currentImgIndex < 0) currentImgIndex = thumbs.length - 1;
+    if (currentImgIndex >= thumbs.length) currentImgIndex = 0;
+    
+    const targetThumb = thumbs[currentImgIndex];
+    const src = targetThumb.dataset.src;
+    changeImage(targetThumb, src);
+    
+    // Scroll thumb into view
+    const slider = document.getElementById('thumb-slider');
+    const visibleCount = 4;
+    const maxScroll = Math.max(0, thumbs.length - visibleCount);
+    let targetScrollIndex = Math.min(currentImgIndex, maxScroll);
+    const thumbWidth = thumbs[0].offsetWidth + 10;
+    slider.style.transform = `translateX(-${targetScrollIndex * thumbWidth}px)`;
+  }
+
+  function adjustQty(delta) {
+    const qtyEl = document.getElementById('product-qty');
+    const btn = document.getElementById('add-cart-btn');
+    let qty = parseInt(qtyEl.textContent) + delta;
+    if (qty < 1) qty = 1;
+    qtyEl.textContent = qty;
+    if (btn) btn.dataset.qty = qty;
+  }
+
+  function toggleWishlist(btn, productId) {
+    fetch(`/wishlist/toggle/${productId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => {
+      if (response.status === 401) {
+        window.location.href = '/login?next=' + window.location.pathname;
+        return;
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data && data.success) {
+        if (data.status === 'added') {
+          btn.innerHTML = '♥';
+          btn.classList.add('active');
+        } else {
+          btn.innerHTML = '♡';
+          btn.classList.remove('active');
+        }
+      }
+    })
+    .catch(err => console.error('Wishlist error:', err));
+  }
+
+  function toggleAccordion(header) {
+    const item = header.parentElement;
+    const isActive = item.classList.contains('active');
+    document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active'));
+    if (!isActive) item.classList.add('active');
+  }
+
+  function openReviewModal() { document.getElementById('review-modal').style.display = 'flex'; }
+  function closeReviewModal() { document.getElementById('review-modal').style.display = 'none'; }
+
+  window.onclick = function(event) {
+    const modal = document.getElementById('review-modal');
+    if (event.target == modal) modal.style.display = 'none';
+  }
+</script>
+
+  </main>
+
+  <!-- Left Navigation Sidebar -->
+  <div class="left-sidebar-overlay" id="left-sidebar-overlay"></div>
+  <aside class="left-sidebar" id="left-sidebar">
+    <div class="left-sidebar-header">
+      <a href="/" class="logo" style="font-size: var(--font-size-lg);">
+        <img src="/static/images/logo.png" alt="Nilu's Oriflame Logo" style="height: 32px; border-radius: 6px;">
+        <span>Nilu's Oriflame</span>
+      </a>
+      <button class="modal-close" id="left-sidebar-close">✕</button>
+    </div>
+    <div class="left-sidebar-content">
+      
+      <ul class="left-menu-list">
+        <li>
+          <a href="/catalogue" class="left-menu-link">
+            <svg class="icon-svg" style="width: 18px; height: 18px;" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            Catalogue
+          </a>
+        </li>
+        <li>
+          <a href="/blog" class="left-menu-link">
+            <svg class="icon-svg" style="width: 18px; height: 18px;" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            Daily Blog
+          </a>
+        </li>
+        
+        <li class="mobile-only-link">
+          <a href="/login" class="left-menu-link">
+            <svg class="icon-svg" style="width: 18px; height: 18px;" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+            Login / Register
+          </a>
+        </li>
+        
+        <li class="mobile-only-link">
+          <hr style="border: none; border-top: 1px solid var(--color-border-light); margin: 8px 16px; opacity: 0.5;">
+        </li>
+        <li class="mobile-only-link">
+          <a href="/products" class="left-menu-link">
+            <svg class="icon-svg" style="width: 18px; height: 18px;" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            Shop All
+          </a>
+        </li>
+        <li class="mobile-only-link">
+          <a href="/products?filter=bestsellers" class="left-menu-link">
+            <svg class="icon-svg" style="width: 18px; height: 18px;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            Bestsellers
+          </a>
+        </li>
+        <li class="mobile-only-link">
+          <a href="/products?filter=new" class="left-menu-link">
+            <svg class="icon-svg" style="width: 18px; height: 18px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            New Arrivals
+          </a>
+        </li>
+        <li class="mobile-only-link">
+          <a href="/products?filter=offers" class="left-menu-link">
+            <svg class="icon-svg" style="width: 18px; height: 18px;" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+            Offers
+          </a>
+        </li>
+        <li class="mobile-only-link">
+          <a href="/join" class="left-menu-link">
+            <svg class="icon-svg" style="width: 18px; height: 18px;" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Join Us
+          </a>
+        </li>
+        <li>
+          <a href="/contact" class="left-menu-link">
+            <svg class="icon-svg" style="width: 18px; height: 18px;" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            Contact Us
+          </a>
+        </li>
+        <li class="mobile-only-link">
+          <hr style="border: none; border-top: 1px solid var(--color-border-light); margin: 8px 16px; opacity: 0.5;">
+        </li>
+
+        
+        <li>
+          <a href="/login" class="left-menu-link">
+            <svg class="icon-svg" style="width: 18px; height: 18px;" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Login / Join Us
+          </a>
+        </li>
+        <li>
+          <a href="/contact" class="left-menu-link">
+            <svg class="icon-svg" style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            Contact Us
+          </a>
+        </li>
+        
+
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-sidebar-overlay"></div>
+  <aside class="cart-sidebar">
+    <div class="cart-sidebar-header">
+      <h3>Shopping Cart <span id="cart-sidebar-count" style="color: var(--color-text-muted); font-size: 14px; font-weight: 400;"></span></h3>
+      <button class="modal-close" id="cart-close">✕</button>
+    </div>
+    <div class="cart-sidebar-items">
+      <!-- Cart items loaded via AJAX -->
+      <div class="empty-state" style="padding: 48px 16px;">
+        <div class="empty-state-icon">🛒</div>
+        <h3 style="font-size: 16px;">Your cart is empty</h3>
+        <p style="font-size: 13px;">Add some products to get started!</p>
+      </div>
+    </div>
+    <div class="cart-sidebar-footer">
+      <div class="cart-totals">
+        <div class="cart-total-row">
+          <span>Subtotal</span>
+          <span id="cart-subtotal">₹0</span>
+        </div>
+        <div class="cart-total-row">
+          <span>Shipping</span>
+          <span style="color: var(--color-success);">Free</span>
+        </div>
+        <div class="cart-total-row total">
+          <span>Total</span>
+          <span id="cart-total">₹0</span>
+        </div>
+      </div>
+      <a href="/cart" class="btn btn-secondary" style="width: 100%; margin-bottom: 8px;">View Cart</a>
+      <a href="/checkout" class="btn btn-primary" style="width: 100%;">Checkout</a>
+    </div>
+  </aside>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <!-- Brand -->
+        <div class="footer-brand">
+          <a href="/" class="logo" style="color: var(--color-white); margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+            <img src="/static/images/logo.png" alt="Nilu's Oriflame Logo" style="width: 40px; height: 40px; border-radius: 12px; object-fit: cover;">
+            <span class="logo-text" style="letter-spacing: 2px; font-weight: 800; font-size: 20px; color: var(--color-white);">Nilu's Oriflame</span>
+          </a>
+          <p style="color: rgba(255,255,255,0.6); line-height: 1.8; margin-bottom: 24px;">Swedish beauty reinvented. We believe in the power of nature and the science of skin. Empowering millions through social selling since 1967.</p>
+          <div class="footer-social">
+            <a href="https://www.facebook.com/profile.php?id=61566099375714" title="Facebook" target="_blank" rel="noopener noreferrer">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+            </a>
+            <a href="#" title="Instagram" target="_blank" rel="noopener noreferrer">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            </a>
+            <a href="#" title="Twitter" target="_blank" rel="noopener noreferrer">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>
+            </a>
+            <a href="#" title="YouTube" target="_blank" rel="noopener noreferrer">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2C1 8.14 1 12 1 12s0 3.86.42 5.58a2.78 2.78 0 0 0 1.94 2c1.71.42 8.6.42 8.6.42s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2C23 15.86 23 12 23 12s0-3.86-.42-5.58z"></path><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"></polygon></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <a href="/products">All Products</a>
+          <a href="/products?filter=new">New Arrivals</a>
+          <a href="/products?filter=bestsellers">Bestsellers</a>
+          <a href="/products?filter=offers">Special Offers</a>
+          <a href="/join">Join Us</a>
+        </div>
+
+        <!-- Customer Care -->
+        <div class="footer-col">
+          <h4>Customer Care</h4>
+          <a href="/contact">Contact Us</a>
+          <a href="/contact">Track Order</a>
+          <a href="/contact">Returns & Exchange</a>
+          <a href="/contact">Shipping Policy</a>
+          <a href="/contact">FAQ</a>
+        </div>
+
+        <!-- Newsletter -->
+        <div class="footer-col">
+          <h4>Stay Updated</h4>
+          <p style="font-size: 13px; margin-bottom: 16px; color: rgba(255,255,255,0.5);">Subscribe for exclusive offers and beauty tips.</p>
+          <div class="footer-newsletter">
+            <form class="newsletter-form" onsubmit="event.preventDefault(); showToast('Subscribed successfully!', 'success');" style="display: flex; gap: 8px;">
+              <input type="email" placeholder="Your email" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 8px; color: white; flex: 1; font-size: 14px;">
+              <button type="submit" class="btn btn-primary btn-sm" style="height: 46px; padding: 0 20px;">JOIN</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom -->
+      <div class="footer-bottom" style="margin-top: 48px; padding: 24px 0; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: rgba(255,255,255,0.4);">
+        <span>© 2026 Nilu's Oriflame. All rights reserved.</span>
+        <div style="display: flex; gap: 24px;">
+          <a href="#" style="color: inherit; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">Privacy Policy</a>
+          <a href="#" style="color: inherit; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">Terms of Service</a>
+          <a href="#" style="color: inherit; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">Cookie Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="mobile-bottom-nav">
+    <a href="/" class="mobile-nav-item ">
+      <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span>Home</span>
+    </a>
+    <a href="/products" class="mobile-nav-item ">
+      <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+      <span>Shop</span>
+    </a>
+    <button class="mobile-nav-item" id="mobile-cart-toggle">
+      <div style="position: relative; display: inline-block;">
+        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        <span class="cart-badge mobile-cart-badge d-none">0</span>
+      </div>
+      <span>Cart</span>
+    </button>
+    <a href="/dashboard" class="mobile-nav-item ">
+      <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <span>Account</span>
+    </a>
+  </nav>
+
+  <!-- Scripts -->
+  <script src="/static/js/main.js"></script>
+  <script src="/static/js/cart.js"></script>
+  
+</body>
+</html>
