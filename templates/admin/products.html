@@ -181,9 +181,6 @@
           <div style="display: flex; gap: 8px;">
             <button class="admin-btn admin-btn-secondary admin-btn-icon" title="Edit" onclick="populateFormFromData({{ product.id }})">✏️</button>
             <button class="admin-btn admin-btn-danger admin-btn-icon" title="Delete" onclick="adminDeleteProduct({{ product.id }})">🗑️</button>
-            {% if not product.parent_id %}
-            <button class="admin-btn admin-btn-icon" style="background:#8b5cf6;color:#fff;" title="Add Variant" onclick="openAddVariantModal({{ product.id }}, '{{ product.name|replace("'","\\'") }}')">+ Variant</button>
-            {% endif %}
           </div>
         </td>
       </tr>
