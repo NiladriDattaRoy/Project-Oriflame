@@ -107,6 +107,43 @@ def slugify(text):
     return text.lower().replace(' ', '-').replace('&', 'and').replace("'", '')
 
 
+def parse_media_url(url):
+    """
+    Parses a URL to determine its type (image/video) and normalizes it.
+    Supports YouTube (various formats) and direct video links.
+    """
+    url = url.strip()
+    if not url:
+        return None, None
+
+    # Check for direct video extensions
+    ext = url.split('.')[-1].lower().split('?')[0]
+    if ext in ['mp4', 'webm', 'ogg', 'mov', 'avi']:
+        return url, 'video'
+
+    # Check for YouTube
+    if 'youtube.com/watch?v=' in url:
+        try:
+            video_id = url.split('v=')[1].split('&')[0]
+            return f"https://www.youtube.com/embed/{video_id}", 'video'
+        except: pass
+    if 'youtu.be/' in url:
+        try:
+            video_id = url.split('/')[-1].split('?')[0]
+            return f"https://www.youtube.com/embed/{video_id}", 'video'
+        except: pass
+    if 'youtube.com/shorts/' in url:
+        try:
+            video_id = url.split('/shorts/')[1].split('?')[0]
+            return f"https://www.youtube.com/embed/{video_id}", 'video'
+        except: pass
+    if 'youtube.com/embed/' in url:
+        return url.split('?')[0], 'video'
+
+    # Default to image
+    return url, 'image'
+
+
 def calculate_mlm_commissions(order):
     """Calculate and create MLM commissions for an order."""
     if not order or order.payment_status != 'paid':
@@ -1404,21 +1441,11 @@ def admin_save_product(product_id=None):
                     db.session.add(img_record)
                     
         pasted_urls = form.get('media_urls', '').split('\n')
-        for i, url in enumerate(pasted_urls):
-            url = url.strip()
+        for i, raw_url in enumerate(pasted_urls):
+            url, m_type = parse_media_url(raw_url)
             if not url:
                 continue
                 
-            m_type = 'image'
-            if 'youtube.com/watch?v=' in url:
-                video_id = url.split('v=')[1].split('&')[0]
-                url = f"https://www.youtube.com/embed/{video_id}"
-                m_type = 'video'
-            elif 'youtu.be/' in url:
-                video_id = url.split('/')[-1]
-                url = f"https://www.youtube.com/embed/{video_id}"
-                m_type = 'video'
-            
             # First non-video URL becomes main image if not set
             if not main_image_set and m_type == 'image':
                 product.image_url = url
@@ -1475,16 +1502,10 @@ def admin_save_product(product_id=None):
             media_urls_raw = v_media_urls[i] if i < len(v_media_urls) else ''
             media_urls = [u.strip() for u in media_urls_raw.split('\n') if u.strip()]
             main_set = False
-            for idx, url in enumerate(media_urls):
-                m_type = 'image'
-                if 'youtube.com/watch?v=' in url:
-                    video_id = url.split('v=')[1].split('&')[0]
-                    url = f"https://www.youtube.com/embed/{video_id}"
-                    m_type = 'video'
-                elif 'youtu.be/' in url:
-                    video_id = url.split('/')[-1]
-                    url = f"https://www.youtube.com/embed/{video_id}"
-                    m_type = 'video'
+            for idx, raw_url in enumerate(media_urls):
+                url, m_type = parse_media_url(raw_url)
+                if not url:
+                    continue
                 if not main_set and m_type == 'image':
                     variant.image_url = url
                     main_set = True
