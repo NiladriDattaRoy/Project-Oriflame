@@ -9,9 +9,17 @@ load_dotenv(override=True)
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
+from datetime import timedelta
+
 class Config:
     """Base configuration."""
     SECRET_KEY = os.environ.get('SECRET_KEY', 'oriflame-secret-key-x9k2-2026')
+    # Session and Remember Me
+
+    REMEMBER_COOKIE_DURATION = timedelta(days=30)
+    PERMANENT_SESSION_LIFETIME = timedelta(days=30)
+    SESSION_PERMANENT = True
+
     db_url = os.environ.get('DATABASE_URL')
     if db_url:
         if db_url.startswith("postgres://"):

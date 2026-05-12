@@ -567,6 +567,8 @@ def login():
                 flash('Your account has been deactivated. Please contact support.', 'error')
                 return render_template('login.html')
             
+            if remember:
+                session.permanent = True
             login_user(user, remember=remember)
             flash(f'Welcome back, {user.first_name}!', 'success')
             
