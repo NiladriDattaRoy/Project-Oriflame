@@ -1568,16 +1568,10 @@ def save_product_variant(parent_id):
         media_urls_raw = form.get('inline_variant_media_urls[]', '')
         media_urls = [u.strip() for u in media_urls_raw.split('\n') if u.strip()]
         main_set = False
-        for idx, url in enumerate(media_urls):
-            m_type = 'image'
-            if 'youtube.com/watch?v=' in url:
-                video_id = url.split('v=')[1].split('&')[0]
-                url = f"https://www.youtube.com/embed/{video_id}"
-                m_type = 'video'
-            elif 'youtu.be/' in url:
-                video_id = url.split('/')[-1]
-                url = f"https://www.youtube.com/embed/{video_id}"
-                m_type = 'video'
+        for idx, raw_url in enumerate(media_urls):
+            url, m_type = parse_media_url(raw_url)
+            if not url:
+                continue
             if not main_set and m_type == 'image':
                 variant.image_url = url
                 main_set = True
