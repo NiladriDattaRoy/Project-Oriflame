@@ -111,6 +111,13 @@ async function adminSaveProduct(form) {
   const id = formData.get('id');
   const url = id ? `/oriflame-admin-panel-x9k2/products/${id}` : '/oriflame-admin-panel-x9k2/products';
   
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const originalText = submitBtn ? submitBtn.textContent : 'Save';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Saving...';
+  }
+
   try {
     const response = await fetch(url, {
       method: 'POST',
@@ -124,7 +131,6 @@ async function adminSaveProduct(form) {
       
       if (form.dataset.stayOpen === 'true') {
         form.dataset.stayOpen = 'false';
-        // Clear only id and code, keep the rest for variants
         form.querySelector('[name="id"]').value = '';
         form.querySelector('[name="code"]').value = '';
         form.querySelector('[name="code"]').focus();
@@ -134,9 +140,17 @@ async function adminSaveProduct(form) {
       }
     } else {
       showToast(data.message || 'Failed to save product', 'error');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
     }
   } catch (err) {
     showToast('Something went wrong', 'error');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
   }
 }
 
@@ -242,6 +256,15 @@ async function adminToggleUser(userId) {
     showToast('Something went wrong', 'error');
   }
 }
+
+// Global exposure for inline onclick handlers
+window.adminSaveProduct = adminSaveProduct;
+window.adminDeleteProduct = adminDeleteProduct;
+window.adminUpdateOrderStatus = adminUpdateOrderStatus;
+window.adminDeleteOrder = adminDeleteOrder;
+window.adminUpdateUserRole = adminUpdateUserRole;
+window.adminToggleUser = adminToggleUser;
+window.toggleVariantRows = toggleVariantRows;
 
 /* ==================== ADMIN TABLES ==================== */
 function initAdminTables() {
