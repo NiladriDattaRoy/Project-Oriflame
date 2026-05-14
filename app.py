@@ -2185,10 +2185,15 @@ def fix_orphans():
     count = 0
     
     # Grouping logic: Find products with identical names and link them
-    # This is safer than prefix matching which often catches unrelated products.
     processed = set()
     
     for p in all_products:
+        # Cleanup: Clear default black color2 if name doesn't imply Duo
+        is_duo_name = "duo" in p.name.lower() or (p.shade_name and "duo" in p.shade_name.lower())
+        if p.shade_color_2 == '#000000' and not is_duo_name:
+            p.shade_color_2 = None
+            count += 1
+
         if p.id in processed or p.parent_id is not None:
             continue
             
@@ -2207,7 +2212,7 @@ def fix_orphans():
             processed.add(p.id)
             
     db.session.commit()
-    return jsonify({"success": True, "message": f"Successfully linked {count} orphan variants!"})
+    return jsonify({"success": True, "message": f"Successfully processed {count} items (linked orphans & cleaned colors)!"})
 
 @app.route('/oriflame-admin-panel-x9k2/get_product/<int:product_id>')
 @login_required

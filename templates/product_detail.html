@@ -126,9 +126,14 @@
           Select Shade / Variant:
         </span>
         <div class="variant-list">
-          <div class="variant-item active" title="{{ product.shade_name or product.code }}" onclick="switchToVariant({{ product.id }})">
             {% if product.shade_color %}
-              {% if product.shade_color_2 %}
+              {% set is_duo = product.shade_color_2 and product.shade_color_2 != product.shade_color and product.shade_color_2 != '' %}
+              {# If it has black as 2nd color, only show duo if name suggests it #}
+              {% if is_duo and product.shade_color_2 == '#000000' and 'duo' not in product.name.lower() and (not product.shade_name or 'duo' not in product.shade_name.lower()) %}
+                {% set is_duo = False %}
+              {% endif %}
+              
+              {% if is_duo %}
               <div class="shade-circle duo" style="--c1: {{ product.shade_color }}; --c2: {{ product.shade_color_2 }};"></div>
               {% else %}
               <div class="shade-circle" style="background-color: {{ product.shade_color }};"></div>
@@ -140,7 +145,12 @@
           {% for variant in variants %}
           <div class="variant-item" title="{{ variant.shade_name or variant.code }}" onclick="switchToVariant({{ variant.id }})">
             {% if variant.shade_color %}
-              {% if variant.shade_color_2 %}
+              {% set v_is_duo = variant.shade_color_2 and variant.shade_color_2 != variant.shade_color and variant.shade_color_2 != '' %}
+              {% if v_is_duo and variant.shade_color_2 == '#000000' and 'duo' not in variant.name.lower() and (not variant.shade_name or 'duo' not in variant.shade_name.lower()) %}
+                {% set v_is_duo = False %}
+              {% endif %}
+
+              {% if v_is_duo %}
               <div class="shade-circle duo" style="--c1: {{ variant.shade_color }}; --c2: {{ variant.shade_color_2 }};"></div>
               {% else %}
               <div class="shade-circle" style="background-color: {{ variant.shade_color }};"></div>
@@ -496,6 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
       discount: {{ product.discount_percent }},
       weight: "{{ product.weight or '' }}",
       color: "{{ product.shade_color or '' }}",
+      color2: "{{ product.shade_color_2 or '' }}",
       main_img: "{{ product.image_url or '/static/images/placeholder.png' }}",
       gallery: [
         { type: 'image', src: "{{ product.image_url or '/static/images/placeholder.png' }}" },
@@ -516,6 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
       discount: {{ v.discount_percent }},
       weight: "{{ v.weight or '' }}",
       color: "{{ v.shade_color or '' }}",
+      color2: "{{ v.shade_color_2 or '' }}",
       main_img: "{{ v.image_url or '/static/images/placeholder.png' }}",
       gallery: [
         { type: 'image', src: "{{ v.image_url or '/static/images/placeholder.png' }}" },
@@ -576,7 +588,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const shadeDotEl = document.getElementById('selected-shade-dot');
     if (shadeDotEl) {
         if (data.color) {
-            shadeDotEl.style.backgroundColor = data.color;
+            if (data.color2 && data.color2 !== '' && data.color2 !== data.color) {
+                // If black, only show duo if name suggests it
+                let nameStr = (data.shade || '').toLowerCase() + ' ' + (data.name || '').toLowerCase();
+                if (data.color2 === '#000000' && !nameStr.includes('duo')) {
+                    shadeDotEl.classList.remove('duo');
+                    shadeDotEl.style.background = data.color;
+                } else {
+                    shadeDotEl.classList.add('duo');
+                    shadeDotEl.style.background = `linear-gradient(90deg, ${data.color} 50%, ${data.color2} 50%)`;
+                }
+            } else {
+                shadeDotEl.classList.remove('duo');
+                shadeDotEl.style.background = data.color;
+            }
             shadeDotEl.style.display = 'block';
         } else {
             shadeDotEl.style.display = 'none';

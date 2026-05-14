@@ -1,0 +1,65 @@
+ID: 40, Code: 46970, Name: Milk & Honey Gold Pampering Shower Cream., Shade: , C1: , C2: None
+ID: 41, Code: 35958, Name: Milk & Honey Gold Conditioner for Radiant,Soft & Silky Hair., Shade: , C1: , C2: None
+ID: 42, Code: 47537, Name: Milk & Honey Gold Majestic Magnolia & Body Wash., Shade: , C1: , C2: None
+ID: 43, Code: 47536, Name: Milk & Honey Gold Majestic Magnolia Hand & Body Cream, Shade: , C1: , C2: None
+ID: 44, Code: 42049, Name: Love Nature Radiance Facial Kit with Organic Milk, Honey and Turmeric 4 pcs., Shade: , C1: , C2: None
+ID: 45, Code: 41035, Name: Novage+ Wrinkle Smooth Serum., Shade: , C1: , C2: None
+ID: 46, Code: 41039, Name: Novage+ Blemish+ Age Defy Serum., Shade: , C1: , C2: None
+ID: 47, Code: 41040, Name: Novage+ Bright Intense Serum., Shade: , C1: , C2: None
+ID: 48, Code: 41037, Name: Novage+ Lift + Firm Serum., Shade: , C1: , C2: None
+ID: 49, Code: 47510, Name: Novage+ Facial T-Bar Massager Zinc alloy, Aluminium Size: 14x3.5x1.6cm, Shade: , C1: , C2: None
+ID: 52, Code: 42118, Name: Giordani Gold Serum Boost Primer., Shade: , C1: , C2: None
+ID: 53, Code: 46057, Name: Scope Earth Wonder Eau de Toilette., Shade: , C1: , C2: None
+ID: 54, Code: 37730, Name: The ONE Colour Stylist Ultimate Lip Liner 0.28g, Shade: Dusty Rose, C1: #c97c89, C2: None
+ID: 55, Code: 43296, Name: The ONE Colour Stylist Super Pout Lipstick, Shade: Sumptuous Mauve, C1: #a87974, C2: None
+ID: 57, Code: 44315, Name: Infinita My Sunshine Eau de Parfum, Shade: , C1: , C2: None
+ID: 58, Code: 44288, Name: OH! SWEET DULCE DE LECHE Eau de Toilette, Shade: , C1: , C2: None
+ID: 59, Code: 40683, Name: Giordani Gold Essenza Supreme Parfum, Shade: , C1: , C2: None
+ID: 60, Code: 43298, Name: The ONE Colour Stylist Super Pout Lipstick, Shade: Rosewood Cherry, C1: #985460, C2: None
+ID: 61, Code: 43302, Name: The ONE Colour Stylist Super Pout Lipstick, Shade: Red Pout, C1: #872236, C2: None
+ID: 62, Code: 43301, Name: The ONE Colour Stylist Super Pout Lipstick, Shade: Brown Flame, C1: #834a3b, C2: None
+ID: 63, Code: 43299, Name: The ONE Colour Stylist Super Pout Lipstick, Shade: Taupe Blush, C1: #763640, C2: None
+ID: 64, Code: 43300, Name: The ONE Colour Stylist Super Pout Lipstick, Shade: Sienna Coral, C1: #ac5a5c, C2: None
+ID: 65, Code: 42239, Name: Giordani Gold Age Defying Serum Boost Foundation SPF 12 + UVA Protection., Shade: Light Beige Neutral, C1: #c9a682, C2: None
+ID: 67, Code: 44835, Name: Giordani Gold Serum Infused Pressed Powder, Shade: Dark, C1: #dfa57e, C2: None
+ID: 68, Code: 44834, Name: Giordani Gold Serum Infused Pressed Powder, Shade: Medium, C1: #d6ac91, C2: None
+ID: 69, Code: 44833, Name: Giordani Gold Serum Infused Pressed Powder, Shade: Light, C1: #f6c7a9, C2: None
+ID: 70, Code: 42237, Name: Giordani Gold Age Defying Serum Boost Foundation SPF 12 + UVA Protection., Shade: Vanilla Cool, C1: #d8b59a, C2: None
+ID: 71, Code: 422238, Name: Giordani Gold Age Defying Serum Boost Foundation SPF 12 + UVA Protection., Shade: Porcelain Warm, C1: #dca88c, C2: None
+ID: 72, Code: 41798, Name: The ONE Colour Unlimited Ultra Fix Lipstick, Shade: Ultra Terracotta, C1: #662d2c, C2: None
+ID: 73, Code: 41801, Name: The ONE Colour Unlimited Ultra Fix Lipstick, Shade: Ultra Pink, C1: #af225b, C2: None
+ID: 74, Code: 41805, Name: The ONE Colour Unlimited Ultra Fix Lipstick, Shade: Ultra Bordeaux, C1: #971435, C2: None
+ID: 75, Code: 41803, Name: The ONE Colour Unlimited Ultra Fix Lipstick, Shade: Ultra Coral, C1: #c00c1d, C2: None
+ID: 76, Code: 41802, Name: The ONE Colour Unlimited Ultra Fix Lipstick, Shade: Ultra Fuchsia, C1: #a1123b, C2: None
+ID: 77, Code: 41804, Name: The ONE Colour Unlimited Ultra Fix Lipstick, Shade: Ultra Red, C1: #970a15, C2: None
+ID: 78, Code: 41800, Name: The ONE Colour Unlimited Ultra Fix Lipstick, Shade: Ultra Raspberry, C1: #650722, C2: None
+ID: 79, Code: 41806, Name: The ONE Colour Unlimited Ultra Fix Lipstick, Shade: Ultra Bungundy, C1: #871b48, C2: None
+ID: 80, Code: 37734, Name: The ONE Colour Stylist Ultimate Lip Liner 0.28g, Shade: Scarlet Red, C1: #ce091a, C2: None
+ID: 81, Code: 37735, Name: The ONE Colour Stylist Ultimate Lip Liner 0.28g, Shade: Diva Burgundy, C1: #a50923, C2: None
+ID: 82, Code: 37736, Name: The ONE Colour Stylist Ultimate Lip Liner 0.28g, Shade: Dark Plum, C1: #830f34, C2: None
+ID: 83, Code: 37737, Name: The ONE Colour Stylist Ultimate Lip Liner 0.28g, Shade: Magnific Brown, C1: #6e2520, C2: None
+ID: 84, Code: 47513, Name: Giordani Gold Miss Giordani Eau de Parfume, Shade: , C1: , C2: None
+ID: 85, Code: 42519, Name: Possess Eau de Parfum, Shade: , C1: , C2: None
+ID: 86, Code: 43122, Name: Nordic Waters for her Eau de Parfum, Shade: , C1: , C2: None
+ID: 87, Code: 40788, Name: Eclat Nuit Eau de Parfum for her, Shade: , C1: , C2: None
+ID: 88, Code: 40790, Name: Eclat Nuit Eau de Parfum for him, Shade: , C1: , C2: None
+ID: 89, Code: 46795, Name: Eclat Homme Weekend Azur Eau de Toilette, Shade: , C1: , C2: None
+ID: 90, Code: 46792, Name: Eclat Homme Weekend Riviera Eau de Toilette, Shade: , C1: , C2: None
+ID: 91, Code: 35649, Name: Eclat Amour Eau de Toilette, Shade: , C1: , C2: None
+ID: 92, Code: 35651, Name: Eclat Toujours Eau de Toilette, Shade: , C1: , C2: None
+ID: 93, Code: 47498, Name: Every Me Drama Queen Irish Eau de Toilette, Shade: , C1: , C2: None
+ID: 94, Code: 46793, Name: Every Me Sweetheart Rose Eau de Toilette, Shade: , C1: , C2: None
+ID: 95, Code: 48921, Name: Men's Aviator Sunglasses Size : 14 x 14.5 x 5cm. Material: PC, Stainless Steel, Brass, Polyester pouch., Shade: , C1: , C2: None
+ID: 96, Code: 44308, Name: Venture Power Eau de Toilette , Shade: , C1: , C2: None
+ID: 97, Code: 38550, Name: Nordic Waters for him Eau de Parfum, Shade: , C1: , C2: None
+ID: 98, Code: 47020, Name: All Or Nothing Amplified Perfumed Body Cream, Shade: , C1: , C2: None
+ID: 99, Code: 47015, Name: Possess Perfumed Body Cream, Shade: , C1: , C2: None
+ID: 100, Code: 47013, Name: Love Potion Perfumed Body Cream, Shade: , C1: , C2: None
+ID: 101, Code: 47012, Name: Amber Elixir Perfumed Body Cream, Shade: , C1: , C2: None
+ID: 102, Code: ORI-DUO-PARENT, Name: OnColour Perfect Duo Eye Pencil, Shade: None, C1: None, C2: None
+ID: 103, Code: 41367, Name: OnColour Perfect Duo Eye Pencil, Shade: Blue & Sapphire, C1: #0047AB, C2: #0F52BA
+ID: 104, Code: 41368, Name: OnColour Perfect Duo Eye Pencil, Shade: Black & White, C1: #000000, C2: #FFFFFF
+ID: 105, Code: TEST_CODE_99, Name: Test New Product, Shade: None, C1: None, C2: None
+ID: 106, Code: TEST_CODE_100, Name: Test New Product Two, Shade: None, C1: None, C2: None
+ID: 107, Code: TEST_INLINE_100, Name: Test New Product Inline Variants, Shade: None, C1: None, C2: None
+ID: 108, Code: VAR101, Name: Test New Product Inline Variants, Shade: Shade 101, C1: #ff0000, C2: None
