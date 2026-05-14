@@ -134,6 +134,7 @@
           Select Shade / Variant:
         </span>
         <div class="variant-list">
+          <div class="variant-item active" title="{{ product.shade_name or product.code }}" onclick="switchToVariant({{ product.id }})">
             {% if product.shade_color %}
               {% set is_duo = product.shade_color_2 and product.shade_color_2 != product.shade_color and product.shade_color_2 != '' %}
               {# If it has black as 2nd color, only show duo if name suggests it #}
@@ -168,6 +169,7 @@
             {% endif %}
           </div>
           {% endfor %}
+        </div>
         </div>
         
         <div class="selected-shade-info" id="shade-info-box" style="display: {{ 'flex' if product.shade_name or product.shade_color else 'none' }};">
