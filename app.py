@@ -140,6 +140,26 @@ def parse_media_url(url):
     if 'youtube.com/embed/' in url:
         return url.split('?')[0], 'video'
 
+    # Check for Vimeo
+    if 'vimeo.com/' in url:
+        try:
+            # Handle vimeo.com/12345 or vimeo.com/video/12345
+            video_id = url.split('/')[-1].split('?')[0]
+            return f"https://player.vimeo.com/video/{video_id}", 'video'
+        except: pass
+
+    # Check for DailyMotion
+    if 'dailymotion.com/video/' in url:
+        try:
+            video_id = url.split('/video/')[1].split('?')[0]
+            return f"https://www.dailymotion.com/embed/video/{video_id}", 'video'
+        except: pass
+    if 'dai.ly/' in url:
+        try:
+            video_id = url.split('/')[-1].split('?')[0]
+            return f"https://www.dailymotion.com/embed/video/{video_id}", 'video'
+        except: pass
+
     # Default to image
     return url, 'image'
 
