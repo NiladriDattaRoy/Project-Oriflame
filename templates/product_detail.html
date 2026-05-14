@@ -19,21 +19,24 @@
     .product-detail-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 40px;
-      padding: 40px 0;
+      gap: 30px;
+      padding: 30px 0;
       align-items: start;
     }
     @media (max-width: 992px) {
       .product-detail-grid { 
         grid-template-columns: 1fr; 
-        gap: 30px; 
+        gap: 20px; 
+        padding: 15px 0;
       }
     }
 
     .product-info-column {
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 0.85rem;
+      position: relative;
+      z-index: 2;
     }
 
     .product-category-tag {
@@ -136,7 +139,7 @@
         <span class="rating-count" style="font-size: 13px; color: #999;">({{ product.review_count }} reviews)</span>
       </div>
 
-      <div class="price-block">
+      <div class="price-block" style="margin: 0.15rem 0;">
         <span class="current-price" id="display-price">₹{{ "%.0f"|format(product.price) }}</span>
         {% if product.mrp > product.price %}
           <span class="original-price" id="display-mrp">₹{{ "%.0f"|format(product.mrp) }}</span>
