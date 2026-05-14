@@ -13,6 +13,35 @@
   
   <!-- Styles -->
   <link rel="stylesheet" href="/static/css/main.css?v=6.1">
+  <style>
+    .styled-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: #e0e0e0;
+      border-radius: 5px;
+      outline: none;
+    }
+    .styled-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      background: var(--color-accent);
+      cursor: pointer;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .styled-slider::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      background: var(--color-accent);
+      cursor: pointer;
+      border-radius: 50%;
+      border: 2px solid white;
+    }
+  </style>
   {% block extra_css %}{% endblock %}
 </head>
 <body>

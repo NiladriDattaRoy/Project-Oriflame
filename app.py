@@ -184,28 +184,72 @@ def calculate_mlm_commissions(order):
     db.session.commit()
 
 
+def group_products(all_matching):
+    """Consolidate variants into parent products."""
+    seen_roots = {} # root_id or name -> product object
+    variants_map = {} # root_id or name -> list of variant products
+    name_to_root = {} # name -> root_id
+    
+    for p in all_matching:
+        # Determine root identifier
+        root_id = p.parent_id
+        
+        if not root_id:
+            # Check if we've seen this name before
+            clean_name = p.name.strip().lower()
+            if clean_name in name_to_root:
+                root_id = name_to_root[clean_name]
+            else:
+                root_id = f"name_{clean_name}"
+                name_to_root[clean_name] = root_id
+
+        if root_id not in seen_roots:
+            seen_roots[root_id] = p
+            variants_map[p.id] = [] # Store variants by the ID of the 'root' product we picked
+        else:
+            # It's a variant
+            root_product = seen_roots[root_id]
+            if p.id != root_product.id:
+                if root_product.id not in variants_map:
+                    variants_map[root_product.id] = []
+                variants_map[root_product.id].append(p)
+                
+                # If root product has no image, take it from this variant
+                if not root_product.image_url or 'placeholder' in root_product.image_url:
+                    if p.image_url and 'placeholder' not in p.image_url:
+                        root_product.image_url = p.image_url
+                
+    return list(seen_roots.values()), variants_map
+
 # ═══════════════════════════════════════════════════════════════════════════════
 #  PUBLIC ROUTES
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @app.route('/')
 def home():
-    new_arrivals = Product.query.filter_by(is_active=True, is_new=True).order_by(Product.created_at.desc()).limit(8).all()
-    bestsellers = Product.query.filter_by(is_active=True, is_bestseller=True).order_by(Product.rating.desc()).limit(8).all()
-    featured = Product.query.filter_by(is_active=True, is_featured=True).limit(8).all()
+    new_arrivals_raw = Product.query.filter_by(is_active=True, is_new=True).order_by(Product.created_at.desc()).all()
+    bestsellers_raw = Product.query.filter_by(is_active=True, is_bestseller=True).order_by(Product.rating.desc()).all()
+    featured_raw = Product.query.filter_by(is_active=True, is_featured=True).all()
+    
+    # Group them to avoid duplicates on home page
+    new_arrivals, na_variants = group_products(new_arrivals_raw)
+    bestsellers, bs_variants = group_products(bestsellers_raw)
+    featured, f_variants = group_products(featured_raw)
+
+    # Combined variants map for the template
+    variants_map = {**na_variants, **bs_variants, **f_variants}
     
     # Fallback if not enough products
     if len(new_arrivals) < 4:
-        new_arrivals = Product.query.filter_by(is_active=True).order_by(Product.created_at.desc()).limit(8).all()
-    if len(bestsellers) < 4:
-        bestsellers = Product.query.filter_by(is_active=True).order_by(Product.rating.desc()).limit(8).all()
-    if len(featured) < 4:
-        featured = Product.query.filter_by(is_active=True).order_by(Product.price.desc()).limit(8).all()
-    
+        raw = Product.query.filter_by(is_active=True).order_by(Product.created_at.desc()).limit(20).all()
+        new_arrivals, na_v = group_products(raw)
+        variants_map.update(na_v)
+        
     return render_template('index.html',
-                           new_arrivals=new_arrivals,
-                           bestsellers=bestsellers,
-                           featured=featured)
+                           new_arrivals=new_arrivals[:8],
+                           bestsellers=bestsellers[:8],
+                           featured=featured[:8],
+                           variants_map=variants_map)
 
 
 @app.route('/products')
@@ -283,38 +327,7 @@ def products():
     all_matching = query.all()
     
     # Grouping Logic: Consolidate variants into parent products
-    # We want to show only the 'root' product in the grid
-    grouped_products = []
-    seen_roots = {} # root_id or name -> product object
-    variants_map = {} # root_id or name -> list of variant products
-    name_to_root = {} # name -> root_id
-    
-    for p in all_matching:
-        # Determine root identifier
-        root_id = p.parent_id
-        
-        if not root_id:
-            # Check if we've seen this name before
-            clean_name = p.name.strip().lower()
-            if clean_name in name_to_root:
-                root_id = name_to_root[clean_name]
-            else:
-                root_id = f"name_{clean_name}"
-                name_to_root[clean_name] = root_id
-
-        if root_id not in seen_roots:
-            seen_roots[root_id] = p
-            variants_map[p.id] = [] # Store variants by the ID of the 'root' product we picked
-        else:
-            # It's a variant
-            root_product = seen_roots[root_id]
-            if p.id != root_product.id:
-                if root_product.id not in variants_map:
-                    variants_map[root_product.id] = []
-                variants_map[root_product.id].append(p)
-                
-    # Flatten the grouped products
-    products_list = list(seen_roots.values())
+    products_list, variants_map = group_products(all_matching)
     
     # Re-apply sorting to the grouped list (since order might have changed)
     # (Simplified: we use the original query's order for roots)
@@ -370,31 +383,7 @@ def category_page(slug):
     per_page = Config.PRODUCTS_PER_PAGE
 
     # Grouping Logic: Consolidate variants into parent products (same as main products page)
-    seen_roots = {}
-    variants_map = {}
-    name_to_root = {}
-
-    for p in all_matching:
-        root_id = p.parent_id
-        if not root_id:
-            clean_name = p.name.strip().lower()
-            if clean_name in name_to_root:
-                root_id = name_to_root[clean_name]
-            else:
-                root_id = f"name_{clean_name}"
-                name_to_root[clean_name] = root_id
-
-        if root_id not in seen_roots:
-            seen_roots[root_id] = p
-            variants_map[p.id] = []
-        else:
-            root_product = seen_roots[root_id]
-            if p.id != root_product.id:
-                if root_product.id not in variants_map:
-                    variants_map[root_product.id] = []
-                variants_map[root_product.id].append(p)
-
-    products_list = list(seen_roots.values())
+    products_list, variants_map = group_products(all_matching)
     total = len(products_list)
     total_pages = (total + per_page - 1) // per_page
     start = (page - 1) * per_page
