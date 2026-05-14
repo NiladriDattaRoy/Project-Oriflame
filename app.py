@@ -2252,6 +2252,47 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static/images'),
                                'placeholder.png', mimetype='image/png')
 
+@app.route('/oriflame-admin-panel-x9k2/fix_db_schema')
+@login_required
+@admin_required
+def fix_db_schema():
+    """Manually apply ALTER TABLE commands to increase column limits on live DB."""
+    from sqlalchemy import text
+    commands = [
+        # Product table
+        "ALTER TABLE products ALTER COLUMN name TYPE VARCHAR(512)",
+        "ALTER TABLE products ALTER COLUMN code TYPE VARCHAR(100)",
+        "ALTER TABLE products ALTER COLUMN slug TYPE VARCHAR(512)",
+        "ALTER TABLE products ALTER COLUMN short_description TYPE VARCHAR(2000)",
+        "ALTER TABLE products ALTER COLUMN weight TYPE VARCHAR(100)",
+        "ALTER TABLE products ALTER COLUMN image_url TYPE VARCHAR(1024)",
+        "ALTER TABLE products ALTER COLUMN image_url_2 TYPE VARCHAR(1024)",
+        
+        # Category table
+        "ALTER TABLE categories ALTER COLUMN name TYPE VARCHAR(512)",
+        "ALTER TABLE categories ALTER COLUMN slug TYPE VARCHAR(512)",
+        "ALTER TABLE categories ALTER COLUMN image_url TYPE VARCHAR(1024)",
+        
+        # ProductImage table
+        "ALTER TABLE product_images ALTER COLUMN image_url TYPE VARCHAR(1024)"
+    ]
+    
+    results = []
+    is_sqlite = app.config['SQLALCHEMY_DATABASE_URI'].startswith('sqlite')
+    
+    for cmd in commands:
+        try:
+            db.session.execute(text(cmd))
+            results.append(f"SUCCESS: {cmd}")
+        except Exception as e:
+            if is_sqlite:
+                results.append(f"SKIPPED (SQLite): {cmd}")
+            else:
+                results.append(f"ERROR: {cmd} -> {str(e)}")
+    
+    db.session.commit()
+    return "<br>".join(results)
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

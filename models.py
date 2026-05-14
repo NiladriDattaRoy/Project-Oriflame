@@ -77,10 +77,10 @@ class Category(db.Model):
     __tablename__ = 'categories'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    slug = db.Column(db.String(100), unique=True, nullable=False)
+    name = db.Column(db.String(512), nullable=False)
+    slug = db.Column(db.String(512), unique=True, nullable=False)
     description = db.Column(db.Text)
-    image_url = db.Column(db.String(256))
+    image_url = db.Column(db.String(1024))
     icon = db.Column(db.String(50))  # CSS icon class
     parent_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
     display_order = db.Column(db.Integer, default=0)
@@ -99,17 +99,17 @@ class Product(db.Model):
     __tablename__ = 'products'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(200), nullable=False)
-    code = db.Column(db.String(20), unique=True, nullable=True)
-    slug = db.Column(db.String(200), unique=True, nullable=False)
-    short_description = db.Column(db.String(300))
+    name = db.Column(db.String(512), nullable=False)
+    code = db.Column(db.String(100), unique=True, nullable=True)
+    slug = db.Column(db.String(512), unique=True, nullable=False)
+    short_description = db.Column(db.String(2000))
     description = db.Column(db.Text)
     price = db.Column(db.Float, nullable=True)
     mrp = db.Column(db.Float, nullable=True)
-    weight = db.Column(db.String(50))
+    weight = db.Column(db.String(100))
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
-    image_url = db.Column(db.String(256))
-    image_url_2 = db.Column(db.String(256))
+    image_url = db.Column(db.String(1024))
+    image_url_2 = db.Column(db.String(1024))
     stock = db.Column(db.Integer, default=100)
     rating = db.Column(db.Float, default=4.0)
     review_count = db.Column(db.Integer, default=0)
@@ -152,7 +152,7 @@ class ProductImage(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
-    image_url = db.Column(db.String(512), nullable=False)
+    image_url = db.Column(db.String(1024), nullable=False)
     media_type = db.Column(db.String(20), default='image') # 'image' or 'video'
     display_order = db.Column(db.Integer, default=0)
 
