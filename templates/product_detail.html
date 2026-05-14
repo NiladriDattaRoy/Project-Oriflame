@@ -139,7 +139,10 @@
           </div>
           {% for img in product.images.all() %}
             {% if img.image_url != product.image_url %}
-            {% set is_vid = img.media_type == 'video' or 'youtube.com' in img.image_url or 'youtu.be' in img.image_url or 'vimeo.com' in img.image_url or 'dailymotion.com' in img.image_url or 'dai.ly' in img.image_url %}
+            {% set is_vid = img.media_type == 'video' or 
+                             'youtube.com' in img.image_url or 'youtu.be' in img.image_url or 
+                             'vimeo.com' in img.image_url or 'dailymotion.com' in img.image_url or 'dai.ly' in img.image_url or
+                             '.mp4' in img.image_url.lower() or '.webm' in img.image_url.lower() or '.mov' in img.image_url.lower() %}
             <div class="product-gallery-thumb" data-type="{{ 'video' if is_vid else 'image' }}" data-src="{{ img.image_url }}" onclick="changeImage(this, '{{ img.image_url }}')">
               {% if is_vid %}
                 <div class="video-thumb-overlay">▶</div>

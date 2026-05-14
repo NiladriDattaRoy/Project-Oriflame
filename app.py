@@ -116,9 +116,9 @@ def parse_media_url(url):
     if not url:
         return None, None
 
-    # Check for direct video extensions
-    ext = url.split('.')[-1].lower().split('?')[0]
-    if ext in ['mp4', 'webm', 'ogg', 'mov', 'avi']:
+    # Check for direct video extensions (anywhere in URL as it might be in query params)
+    url_lower = url.lower()
+    if any(ext in url_lower for ext in ['.mp4', '.webm', '.ogg', '.mov', '.avi']):
         return url, 'video'
 
     # Check for YouTube
