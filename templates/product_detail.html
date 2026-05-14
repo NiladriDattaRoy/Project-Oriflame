@@ -73,13 +73,21 @@
         }
         .variant-list {
           display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          margin-bottom: 16px;
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          gap: 10px;
+          margin-bottom: 20px;
+          padding: 5px 2px;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+        }
+        .variant-list::-webkit-scrollbar {
+          display: none;
         }
         .variant-item {
-          width: 32px;
-          height: 32px;
+          flex: 0 0 auto; /* Prevent shrinking */
+          width: 36px;
+          height: 36px;
           border-radius: 50%;
           padding: 2px;
           border: 2px solid transparent;
