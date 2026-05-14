@@ -15,7 +15,87 @@
     <span>{{ product.name }}</span>
   </div>
 
-  <div class="product-detail">
+  <style>
+    .product-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      padding: 40px 0;
+      align-items: start;
+    }
+    @media (max-width: 992px) {
+      .product-detail-grid { 
+        grid-template-columns: 1fr; 
+        gap: 30px; 
+      }
+    }
+
+    .product-info-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .product-category-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--color-accent);
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+
+    .product-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      color: var(--color-text-primary);
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .price-block {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+      margin: 0.25rem 0;
+    }
+    .current-price { font-size: 1.8rem; font-weight: 700; color: var(--color-text-primary); }
+    .original-price { font-size: 1.1rem; color: var(--color-text-muted); text-decoration: line-through; }
+    .discount-pill { background: #fee2e2; color: #ef4444; padding: 2px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+
+    .shade-selector-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .variant-list {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 10px;
+      padding: 5px 2px;
+      scrollbar-width: none;
+    }
+    .variant-item {
+      flex: 0 0 auto;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .variant-item.active { border-color: #000; box-shadow: inset 0 0 0 2px #fff; }
+    .shade-circle { width: 100%; height: 100%; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); }
+    .shade-circle.duo { background: linear-gradient(90deg, var(--c1) 50%, var(--c2) 50%); }
+  </style>
+
+  <div class="product-detail-grid">
     <!-- Gallery -->
     <div class="product-gallery">
       <div class="product-gallery-main">
@@ -29,26 +109,13 @@
       </div>
       <div class="product-gallery-thumbs-wrapper">
         <div class="product-gallery-thumbs" id="thumb-slider">
-          {# Add main image as first thumb #}
           <div class="product-gallery-thumb active" data-type="image" data-src="{{ product.image_url or '/static/images/placeholder.png' }}" onclick="changeImage(this, '{{ product.image_url or '/static/images/placeholder.png' }}')">
             <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="">
           </div>
-          {# Add additional gallery images/videos #}
           {% for img in product.images.all() %}
             {% if img.image_url != product.image_url %}
             <div class="product-gallery-thumb" data-type="{{ img.media_type }}" data-src="{{ img.image_url }}" onclick="changeImage(this, '{{ img.image_url }}')">
-              {% if img.media_type == 'video' %}
-                <div class="video-thumb-overlay">▶</div>
-                {# Try to show YT thumbnail if it's an embed #}
-                {% if 'youtube.com/embed/' in img.image_url %}
-                  {% set yt_id = img.image_url.split('/')[-1] %}
-                  <img src="https://img.youtube.com/vi/{{ yt_id }}/0.jpg" alt="">
-                {% else %}
-                  <div style="width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; color: #fff;">Video</div>
-                {% endif %}
-              {% else %}
-                <img src="{{ img.image_url }}" alt="">
-              {% endif %}
+              <img src="{{ img.image_url }}" alt="">
             </div>
             {% endif %}
           {% endfor %}
@@ -57,98 +124,43 @@
     </div>
 
     <!-- Product Info -->
-    <div class="product-info">
-      {% if product.brand %}
-      <a href="/products?brand={{ product.brand|urlencode }}" class="product-brand" style="text-decoration: none;">{{ product.brand }}</a>
-      {% endif %}
-      
-      <h1>{{ product.name }}</h1>
+    <div class="product-info-column">
+      <div>
+        <span class="product-category-tag">{{ product.category.name if product.category else 'ORIFLAME' }}</span>
+        <h1 class="product-title">{{ product.name }}</h1>
+        {% if product.brand %}<span style="color: #999; font-weight: 500; font-size: 14px;">By {{ product.brand }}</span>{% endif %}
+      </div>
 
-      <!-- Variants / Shades -->
-      <!-- Variants / Shades -->
+      <div class="product-card-rating">
+        <span class="stars" style="font-size: 16px;">{% for i in range(5) %}{% if i < product.rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
+        <span class="rating-count" style="font-size: 13px; color: #999;">({{ product.review_count }} reviews)</span>
+      </div>
+
+      <div class="price-block">
+        <span class="current-price" id="display-price">₹{{ "%.0f"|format(product.price) }}</span>
+        {% if product.mrp > product.price %}
+          <span class="original-price" id="display-mrp">₹{{ "%.0f"|format(product.mrp) }}</span>
+          <span class="discount-pill" id="display-discount">Save {{ product.discount_percent }}%</span>
+        {% endif %}
+      </div>
+
       {% if variants or product.shade_name %}
-      <style>
-        .shade-circle.duo {
-          background: linear-gradient(90deg, var(--c1) 50%, var(--c2) 50%);
-        }
-        .variant-list {
-          display: flex;
-          flex-wrap: nowrap;
-          overflow-x: auto;
-          gap: 10px;
-          margin-bottom: 20px;
-          padding: 5px 2px;
-          -webkit-overflow-scrolling: touch;
-          scrollbar-width: none;
-        }
-        .variant-list::-webkit-scrollbar {
-          display: none;
-        }
-        .variant-item {
-          flex: 0 0 auto; /* Prevent shrinking */
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          padding: 2px;
-          border: 2px solid transparent;
-          transition: all 0.2s ease;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .variant-item.active {
-          border-color: #000;
-          box-shadow: inset 0 0 0 2px #fff;
-        }
-        .shade-circle {
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          border: 1px solid rgba(0,0,0,0.1);
-        }
-        .variant-item img {
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          object-fit: cover;
-        }
-        .selected-shade-info {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px;
-          background: rgba(0,0,0,0.03);
-          border-radius: 8px;
-          margin-bottom: 20px;
-        }
-        .shade-dot-indicator {
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          border: 1px solid rgba(0,0,0,0.1);
-        }
-      </style>
       <div class="product-variants">
-        <span style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">
-          Select Shade / Variant:
-        </span>
+        <div class="shade-selector-header">
+          <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Select Shade</span>
+          <span class="current-shade-name" id="selected-shade-name" style="font-weight: 600; color: var(--color-accent-dark);">{{ product.shade_name or 'Default' }}</span>
+        </div>
+        
         <div class="variant-list">
           <div class="variant-item active" title="{{ product.shade_name or product.code }}" onclick="switchToVariant({{ product.id }})">
             {% if product.shade_color %}
               {% set is_duo = product.shade_color_2 and product.shade_color_2 != product.shade_color and product.shade_color_2 != '' %}
-              {# If it has black as 2nd color, only show duo if name suggests it #}
               {% if is_duo and product.shade_color_2 == '#000000' and 'duo' not in product.name.lower() and (not product.shade_name or 'duo' not in product.shade_name.lower()) %}
                 {% set is_duo = False %}
               {% endif %}
-              
-              {% if is_duo %}
-              <div class="shade-circle duo" style="--c1: {{ product.shade_color }}; --c2: {{ product.shade_color_2 }};"></div>
-              {% else %}
-              <div class="shade-circle" style="background-color: {{ product.shade_color }};"></div>
-              {% endif %}
+              <div class="shade-circle {{ 'duo' if is_duo else '' }}" style="{% if is_duo %}--c1: {{ product.shade_color }}; --c2: {{ product.shade_color_2 }};{% else %}background-color: {{ product.shade_color }};{% endif %}"></div>
             {% else %}
-              <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="{{ product.code }}">
+              <img src="{{ product.image_url or '/static/images/placeholder.png' }}" alt="{{ product.code }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
             {% endif %}
           </div>
           {% for variant in variants %}
@@ -158,199 +170,105 @@
               {% if v_is_duo and variant.shade_color_2 == '#000000' and 'duo' not in variant.name.lower() and (not variant.shade_name or 'duo' not in variant.shade_name.lower()) %}
                 {% set v_is_duo = False %}
               {% endif %}
-
-              {% if v_is_duo %}
-              <div class="shade-circle duo" style="--c1: {{ variant.shade_color }}; --c2: {{ variant.shade_color_2 }};"></div>
-              {% else %}
-              <div class="shade-circle" style="background-color: {{ variant.shade_color }};"></div>
-              {% endif %}
+              <div class="shade-circle {{ 'duo' if v_is_duo else '' }}" style="{% if v_is_duo %}--c1: {{ variant.shade_color }}; --c2: {{ variant.shade_color_2 }};{% else %}background-color: {{ variant.shade_color }};{% endif %}"></div>
             {% else %}
-              <img src="{{ variant.image_url or '/static/images/placeholder.png' }}" alt="{{ variant.code }}">
+              <img src="{{ variant.image_url or '/static/images/placeholder.png' }}" alt="{{ variant.code }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
             {% endif %}
           </div>
           {% endfor %}
         </div>
-        </div>
-        
-        <div class="selected-shade-info" id="shade-info-box" style="display: {{ 'flex' if product.shade_name or product.shade_color else 'none' }};">
-          <div class="shade-dot-indicator" id="selected-shade-dot" style="background-color: {{ product.shade_color or 'transparent' }}; display: {{ 'block' if product.shade_color else 'none' }}"></div>
-          <div style="line-height: 1.4;">
-            <div id="selected-shade-name" style="font-weight: 700; font-size: 14px; display: {{ 'block' if product.shade_name else 'none' }};">{{ product.shade_name }}</div>
-            <div style="font-size: 12px; color: var(--color-text-secondary);">
-              Code: <span id="selected-shade-code">{{ product.code }}</span> 
-              {% if product.weight %} | <span id="selected-shade-weight">{{ product.weight }}</span>{% endif %}
-            </div>
-          </div>
-        </div>
       </div>
       {% endif %}
-      
-      <div class="product-card-rating" style="margin-bottom: 16px;">
-        <span class="stars" style="font-size: 18px;">{% for i in range(5) %}{% if i < product.rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
-        <span class="rating-count">({{ product.review_count }} reviews)</span>
+
+      <div class="product-actions" style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+        <div class="quantity-selector" style="display: flex; align-items: center; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; width: 110px; height: 48px;">
+          <button onclick="changeQty(-1)" style="flex: 1; height: 100%; border: none; background: white; font-size: 18px;">−</button>
+          <input type="number" id="buy-qty" value="1" min="1" style="width: 34px; text-align: center; border: none; font-weight: 700; font-size: 15px;">
+          <button onclick="changeQty(1)" style="flex: 1; height: 100%; border: none; background: white; font-size: 18px;">+</button>
+        </div>
+        <button class="btn btn-primary" style="flex: 1; height: 48px; font-weight: 700; font-size: 15px; border-radius: 8px;" onclick="addToCart({{ product.id }})">Add to Bag</button>
       </div>
 
-      <div class="product-price-box">
-        <span class="price-current" id="display-price">₹{{ "%.0f"|format(product.price) }}</span>
-        <span id="display-mrp-box">
-          {% if product.mrp > product.price %}
-          <span class="price-mrp" style="font-size: 18px;">MRP ₹{{ "%.0f"|format(product.mrp) }}</span>
-          <span class="price-discount" style="font-size: 16px;">Save {{ product.discount_percent }}%</span>
-          {% endif %}
-        </span>
-      </div>
-      <p style="font-size: 12px; color: var(--color-text-muted); margin-top: -12px; margin-bottom: 16px;">Inclusive of all taxes</p>
-
-      {% if product.short_description %}
-      <p class="product-description">{{ product.short_description }}</p>
-      {% endif %}
-
-      {% if product.description %}
-      <p class="product-description">{{ product.description }}</p>
-      {% endif %}
-
-      <!-- Quantity Selector -->
-      <div class="product-qty-selector">
-        <span style="font-weight: 600; font-size: 14px;">Quantity:</span>
-        <div class="premium-qty">
-          <button onclick="adjustQty(-1)">−</button>
-          <span class="qty-val" id="product-qty">1</span>
-          <button onclick="adjustQty(1)">+</button>
+      <div class="product-meta" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee;">
+        <div style="font-size: 13px; color: #666; display: flex; gap: 20px;">
+          <span><strong>Code:</strong> <span id="selected-shade-code">{{ product.code }}</span></span>
+          {% if product.weight %}<span><strong>Weight:</strong> {{ product.weight }}</span>{% endif %}
         </div>
-        {% if product.stock <= 10 and product.stock > 0 %}
-        <span style="color: var(--color-warning); font-size: 13px; margin-left: 12px;">Only {{ product.stock }} left!</span>
-        {% endif %}
-      </div>
-
-      <!-- Actions -->
-      <div class="product-actions">
-        {% if product.in_stock %}
-        <button class="btn btn-primary add-to-cart-btn" data-product-id="{{ product.id }}" data-qty="1" id="add-cart-btn" style="flex: 1.5; padding: 12px 16px; font-size: 14px;">
-          Add to Cart
-        </button>
-        <button class="btn btn-outline" onclick="addToCart({{ product.id }}, document.getElementById('product-qty').textContent); window.location.href='/checkout';" style="flex: 1; padding: 12px 16px; font-size: 14px;">
-          Buy Now
-        </button>
-        {% else %}
-        <button class="btn btn-secondary" disabled style="flex: 1; opacity: 0.5; padding: 12px 16px; font-size: 14px;">Out of Stock</button>
-        {% endif %}
-        <button class="btn btn-outline btn-icon wishlist-btn {% if is_in_wishlist %}active{% endif %}" 
-                onclick="toggleWishlist(this, {{ product.id }})" 
-                title="Wishlist" 
-                style="font-size: 18px; width: 44px; height: 44px; color: {% if is_in_wishlist %}var(--color-accent-dark){% else %}inherit{% endif %};">
-          {% if is_in_wishlist %}♥{% else %}♡{% endif %}
-        </button>
-      </div>
-
-      <!-- Product Meta -->
-      <div class="product-meta">
-        <div class="product-meta-item">
-          <span>Product Code</span>
-          <span>{{ product.code }}</span>
-        </div>
-        {% if product.weight %}
-        <div class="product-meta-item">
-          <span>Weight</span>
-          <span>{{ product.weight }}</span>
-        </div>
-        {% endif %}
-        <div class="product-meta-item">
-          <span>Category</span>
-          <span>{{ product.category.name if product.category else 'Uncategorized' }}</span>
-        </div>
-      </div>
-
-      <!-- Product Accordion -->
-      <div class="product-accordion">
-        {% if product.description %}
-        <div class="accordion-item active">
-          <div class="accordion-header" onclick="toggleAccordion(this)">
-            About the Product
-            <span class="accordion-icon">▾</span>
-          </div>
-          <div class="accordion-content">
-            {{ product.description }}
-          </div>
-        </div>
-        {% endif %}
-
-        {% if product.how_to_use %}
-        <div class="accordion-item">
-          <div class="accordion-header" onclick="toggleAccordion(this)">
-            How to Use
-            <span class="accordion-icon">▾</span>
-          </div>
-          <div class="accordion-content">
-            {{ product.how_to_use }}
-          </div>
-        </div>
-        {% endif %}
-
-        {% if product.ingredients %}
-        <div class="accordion-item">
-          <div class="accordion-header" onclick="toggleAccordion(this)">
-            Ingredients
-            <span class="accordion-icon">▾</span>
-          </div>
-          <div class="accordion-content">
-            {{ product.ingredients }}
-          </div>
-        </div>
-        {% endif %}
-      </div>
-
-      <div class="product-meta">
-        <div class="product-meta-item">
-          <span>Availability</span>
-          <span style="color: {% if product.in_stock %}var(--color-success){% else %}var(--color-danger){% endif %}">
-            {% if product.in_stock %}In Stock{% else %}Out of Stock{% endif %}
-          </span>
-        </div>
-        {% if product.tags %}
-        <div class="product-meta-item">
-          <span>Tags</span>
-          <span>{{ product.tags }}</span>
-        </div>
-        {% endif %}
       </div>
     </div>
   </div>
+
+<div class="product-card-rating" style="margin-bottom: 16px;">
+  <span class="stars" style="font-size: 18px;">{% for i in range(5) %}{% if i < product.rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
+  <span class="rating-count">({{ product.review_count }} reviews)</span>
 </div>
 
-<!-- Mobile Sticky Action Bar -->
-<div class="mobile-product-bar" id="mobile-action-bar" style="display: none;">
-  {% if product.in_stock %}
-  <button class="btn btn-outline" onclick="addToCart({{ product.id }}, document.getElementById('product-qty').textContent); window.location.href='/checkout';">
-    Buy Now
-  </button>
-  <button class="btn btn-primary add-to-cart-btn" data-product-id="{{ product.id }}" data-qty="1">
-    Add to Cart
-  </button>
-  {% else %}
-  <button class="btn btn-secondary" disabled style="flex: 1; opacity: 0.5;">Out of Stock</button>
+<p style="font-size: 12px; color: var(--color-text-muted); margin-top: -12px; margin-bottom: 16px;">Inclusive of all taxes</p>
+
+{% if product.short_description %}
+<p class="product-description">{{ product.short_description }}</p>
+{% endif %}
+
+{% if product.description %}
+<p class="product-description">{{ product.description }}</p>
+{% endif %}
+
+<!-- Product Meta -->
+<div class="product-meta">
+  <div class="product-meta-item">
+    <span>Product Code</span>
+    <span>{{ product.code }}</span>
+  </div>
+  {% if product.weight %}
+  <div class="product-meta-item">
+    <span>Weight</span>
+    <span>{{ product.weight }}</span>
+  </div>
+  {% endif %}
+  <div class="product-meta-item">
+    <span>Category</span>
+    <span>{{ product.category.name if product.category else 'Uncategorized' }}</span>
+  </div>
+</div>
+
+<!-- Product Accordion -->
+<div class="product-accordion">
+  {% if product.description %}
+  <div class="accordion-item active">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      About the Product
+      <span class="accordion-icon">▾</span>
+    </div>
+    <div class="accordion-content">
+      {{ product.description }}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if product.how_to_use %}
+  <div class="accordion-item">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      How to Use
+      <span class="accordion-icon">▾</span>
+    </div>
+    <div class="accordion-content">
+      {{ product.how_to_use }}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if product.ingredients %}
+  <div class="accordion-item">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      Ingredients
+      <span class="accordion-icon">▾</span>
+    </div>
+    <div class="accordion-content">
+      {{ product.ingredients }}
+    </div>
+  </div>
   {% endif %}
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const mobileBar = document.getElementById('mobile-action-bar');
-  const mainActions = document.querySelector('.product-actions');
-  
-  if (mobileBar && mainActions && window.innerWidth <= 768) {
-    window.addEventListener('scroll', () => {
-      const rect = mainActions.getBoundingClientRect();
-      // Show sticky bar if main buttons are scrolled out of view
-      if (rect.bottom < 0) {
-        mobileBar.style.display = 'flex';
-        document.body.classList.add('has-mobile-bar');
-      } else {
-        mobileBar.style.display = 'none';
-        document.body.classList.remove('has-mobile-bar');
-      }
-    });
-  }
-});
-</script>
 
 <!-- Ratings & Reviews -->
 <section class="section" id="reviews">
@@ -369,7 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
 
     <div style="max-width: 800px; margin: 0 auto;">
-      <!-- Review Summary & Action -->
       <div class="fade-in" style="background: var(--color-bg-alt); padding: 40px; border-radius: 24px; text-align: center; margin-bottom: 48px; border: 1px solid var(--color-border-light);">
         <h3 style="margin-bottom: 8px;">Customer Feedback</h3>
         <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 24px;">
@@ -389,7 +306,6 @@ document.addEventListener('DOMContentLoaded', () => {
         {% endif %}
       </div>
 
-      <!-- Review Form Modal -->
       <div id="review-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
         <div style="background: var(--color-white); width: 90%; max-width: 500px; border-radius: 24px; overflow: hidden; box-shadow: var(--shadow-lg); animation: slideUp 0.4s ease;">
           <div style="padding: 24px; border-bottom: 1px solid var(--color-border-light); display: flex; justify-content: space-between; align-items: center;">
@@ -566,76 +482,41 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Update Text info
-    const shadeInfoBox = document.getElementById('shade-info-box');
-    if (shadeInfoBox) {
-        if (data.shade || data.color) {
-            shadeInfoBox.style.display = 'flex';
-        } else {
-            shadeInfoBox.style.display = 'none';
-        }
-    }
-
     const shadeNameEl = document.getElementById('selected-shade-name');
     if (shadeNameEl) {
-        if (data.shade) {
-            shadeNameEl.textContent = data.shade;
-            shadeNameEl.style.display = 'block';
-        } else {
-            shadeNameEl.style.display = 'none';
-        }
-    }
-    
-    const shadeCodeEl = document.getElementById('selected-shade-code');
-    if (shadeCodeEl) shadeCodeEl.textContent = data.code || '-';
-    
-    const shadeWeightEl = document.getElementById('selected-shade-weight');
-    if (shadeWeightEl) {
-        shadeWeightEl.textContent = data.weight || '';
-        shadeWeightEl.parentElement.style.display = data.weight ? 'inline' : 'none';
-    }
-
-    const shadeDotEl = document.getElementById('selected-shade-dot');
-    if (shadeDotEl) {
-        if (data.color) {
-            if (data.color2 && data.color2 !== '' && data.color2 !== data.color) {
-                // If black, only show duo if name suggests it
-                let nameStr = (data.shade || '').toLowerCase() + ' ' + (data.name || '').toLowerCase();
-                if (data.color2 === '#000000' && !nameStr.includes('duo')) {
-                    shadeDotEl.classList.remove('duo');
-                    shadeDotEl.style.background = data.color;
-                } else {
-                    shadeDotEl.classList.add('duo');
-                    shadeDotEl.style.background = `linear-gradient(90deg, ${data.color} 50%, ${data.color2} 50%)`;
-                }
-            } else {
-                shadeDotEl.classList.remove('duo');
-                shadeDotEl.style.background = data.color;
-            }
-            shadeDotEl.style.display = 'block';
-        } else {
-            shadeDotEl.style.display = 'none';
-        }
+        shadeNameEl.textContent = data.shade || 'Default';
     }
     
     document.getElementById('display-price').textContent = `₹${data.price.toFixed(0)}`;
     
-    const mrpBox = document.getElementById('display-mrp-box');
+    const mrpBox = document.querySelector('.price-block');
     if (data.mrp > data.price) {
-      mrpBox.innerHTML = `
-        <span class="price-mrp" style="font-size: 18px;">MRP ₹${data.mrp.toFixed(0)}</span>
-        <span class="price-discount" style="font-size: 16px;">Save ${data.discount}%</span>
-      `;
+      // Find or create original price and discount
+      let originalPrice = mrpBox.querySelector('.original-price');
+      if (!originalPrice) {
+        originalPrice = document.createElement('span');
+        originalPrice.className = 'original-price';
+        mrpBox.appendChild(originalPrice);
+      }
+      originalPrice.textContent = `₹${data.mrp.toFixed(0)}`;
+
+      let discountPill = mrpBox.querySelector('.discount-pill');
+      if (!discountPill) {
+        discountPill = document.createElement('span');
+        discountPill.className = 'discount-pill';
+        mrpBox.appendChild(discountPill);
+      }
+      discountPill.textContent = `Save ${data.discount}%`;
     } else {
-      mrpBox.innerHTML = '';
+      const op = mrpBox.querySelector('.original-price');
+      const dp = mrpBox.querySelector('.discount-pill');
+      if (op) op.remove();
+      if (dp) dp.remove();
     }
 
-    // Update Cart/Wishlist Buttons
-    const cartBtn = document.getElementById('add-cart-btn');
-    if (cartBtn) cartBtn.dataset.productId = data.id;
-    
-    const wishlistBtn = document.querySelector('.btn-wishlist');
-    if (wishlistBtn) wishlistBtn.setAttribute('onclick', `toggleWishlist(this, ${data.id})`);
+    // Update Cart Buttons
+    const cartBtn = document.querySelector('.btn-primary');
+    if (cartBtn) cartBtn.setAttribute('onclick', `addToCart(${data.id})`);
 
     // Update Gallery
     currentGallery = data.gallery;
@@ -782,6 +663,32 @@ document.addEventListener('DOMContentLoaded', () => {
   window.onclick = function(event) {
     const modal = document.getElementById('review-modal');
     if (event.target == modal) modal.style.display = 'none';
+  }
+  function changeQty(delta) {
+    const input = document.getElementById('buy-qty');
+    let val = parseInt(input.value) + delta;
+    if (val < 1) val = 1;
+    input.value = val;
+  }
+
+  function addToCart(id) {
+    const qty = parseInt(document.getElementById('buy-qty').value);
+    // Call the global addToCart from cart.js
+    if (window.CartAPI) {
+      window.CartAPI.addItem(id, qty);
+    } else {
+      // Fallback if cart.js is not loaded or different
+      fetch(`/cart/add/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity: qty })
+      }).then(r => r.json()).then(data => {
+        if (data.success) {
+          showToast('Added to cart!', 'success');
+          if (window.updateCartBadge) window.updateCartBadge(data.cart_count);
+        }
+      });
+    }
   }
 </script>
 {% endblock %}
