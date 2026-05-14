@@ -377,8 +377,13 @@
             </div>
           </div>
           <div class="admin-form-group">
-            <label class="admin-form-label">Color 2 (Duo)</label>
-            <div style="display:flex;gap:8px;align-items:center;">
+            <label class="admin-form-label" style="display:flex; justify-content:space-between; align-items:center;">
+              Color 2 (Duo)
+              <label style="font-size: 11px; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="checkbox" id="av-is-duo" onchange="document.getElementById('av-duo-row').style.display = this.checked ? 'flex' : 'none'"> Duo
+              </label>
+            </label>
+            <div id="av-duo-row" style="display:none; gap:8px; align-items:center;">
               <input type="text" class="admin-form-control" name="shade_color_2" placeholder="#000000" id="av-color2-text" style="flex:1;" oninput="document.getElementById('av-color2-pick').value=this.value">
               <input type="color" class="admin-form-control" id="av-color2-pick" style="width:38px;padding:2px;" value="#000000" oninput="document.getElementById('av-color2-text').value=this.value">
             </div>
@@ -411,6 +416,8 @@ function openAddVariantModal(parentId, parentName) {
   document.getElementById('av-parent-display').value = parentName + '  (ID: ' + parentId + ')';
   document.getElementById('av-color-text').value = '';
   document.getElementById('av-color2-text').value = '';
+  document.getElementById('av-is-duo').checked = false;
+  document.getElementById('av-duo-row').style.display = 'none';
   document.getElementById('add-variant-modal-title').textContent = 'Add Variant for: ' + parentName;
   document.getElementById('add-variant-modal').classList.add('active');
 }
@@ -429,12 +436,15 @@ async function submitAddVariant() {
   data.append('code', fd.get('code'));
   data.append('shade_name', fd.get('shade_name') || '');
   data.append('shade_color', fd.get('shade_color') || '');
-  data.append('shade_color_2', fd.get('shade_color_2') || '');
+  const isDuo = document.getElementById('av-is-duo').checked;
+  const shadeColor2 = isDuo ? fd.get('shade_color_2') : '';
+
+  data.append('shade_color_2', shadeColor2);
   // Pass media_urls as inline_variant_media_urls for one variant
   data.append('inline_variant_code[]', fd.get('code'));
   data.append('inline_variant_name[]', fd.get('shade_name') || '');
-  data.append('inline_variant_color[]', fd.get('shade_color') || '#000000');
-  data.append('inline_variant_color2[]', fd.get('shade_color_2') || '#000000');
+  data.append('inline_variant_color[]', fd.get('shade_color') || '');
+  data.append('inline_variant_color2[]', shadeColor2);
   data.append('inline_variant_media_urls[]', fd.get('media_urls') || '');
 
   statusEl.style.color = '#c9a96e';
@@ -470,8 +480,13 @@ function addInlineVariantRow() {
   tr.innerHTML = `
     <td><input type="text" class="admin-form-control" name="inline_variant_code[]" placeholder="Code" required></td>
     <td><input type="text" class="admin-form-control" name="inline_variant_name[]" placeholder="Shade"></td>
-    <td><input type="color" class="admin-form-control" name="inline_variant_color[]" style="width: 30px; padding: 0;" value="#000000"></td>
-    <td><input type="color" class="admin-form-control" name="inline_variant_color2[]" style="width: 30px; padding: 0;" value="#000000"></td>
+    <td><input type="color" class="admin-form-control" name="inline_variant_color[]" style="width: 30px; padding: 0;" value="#c9a96e"></td>
+    <td>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+        <input type="checkbox" onchange="this.nextElementSibling.style.display = this.checked ? 'block' : 'none'">
+        <input type="color" class="admin-form-control" name="inline_variant_color2[]" style="width: 30px; padding: 0; display:none;" value="#000000">
+      </div>
+    </td>
     <td><textarea class="admin-form-control" name="inline_variant_media_urls[]" placeholder="One URL per line"></textarea></td>
     <td><button type="button" class="admin-btn admin-btn-secondary" style="padding: 4px; color: #ff4444;" onclick="this.closest('tr').remove(); if(document.getElementById('inline-variants-body').children.length===0) document.getElementById('inline-variants-empty').style.display='block';">✕</button></td>
   `;

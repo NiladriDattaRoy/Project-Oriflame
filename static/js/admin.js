@@ -70,20 +70,26 @@ function populateForm(modal, data) {
 
   // Special handling for color picker sync
   if (data.shadeColor) {
-    const picker = modal.querySelector('#shade-color-picker');
-    if (picker) picker.value = data.shadeColor;
+    const picker = modal.querySelector('#shade-color-picker') || modal.querySelector('#av-color-pick');
+    if (picker) {
+      picker.value = data.shadeColor;
+      const textInput = modal.querySelector('#shade-color-text') || modal.querySelector('#av-color-text');
+      if (textInput) textInput.value = data.shadeColor;
+    }
   }
-  if (data.shadeColor2) {
-    const picker2 = modal.querySelector('#shade-color-picker-2');
+
+  const duoCheck = modal.querySelector('[name="is_duo"]') || modal.querySelector('#av-is-duo');
+  const duoRow = modal.querySelector('#duo-color-row') || modal.querySelector('#av-duo-row');
+  const picker2 = modal.querySelector('#shade-color-picker-2') || modal.querySelector('#av-color2-pick');
+  const textInput2 = modal.querySelector('#shade-color-text-2') || modal.querySelector('#av-color2-text');
+
+  if (data.shadeColor2 && data.shadeColor2 !== '') {
     if (picker2) picker2.value = data.shadeColor2;
-    const duoCheck = modal.querySelector('[name="is_duo"]');
+    if (textInput2) textInput2.value = data.shadeColor2;
     if (duoCheck) duoCheck.checked = true;
-    const duoRow = modal.querySelector('#duo-color-row');
     if (duoRow) duoRow.style.display = 'flex';
   } else {
-    const duoCheck = modal.querySelector('[name="is_duo"]');
     if (duoCheck) duoCheck.checked = false;
-    const duoRow = modal.querySelector('#duo-color-row');
     if (duoRow) duoRow.style.display = 'none';
   }
 }
