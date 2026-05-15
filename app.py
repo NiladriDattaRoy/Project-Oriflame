@@ -71,7 +71,8 @@ def inject_globals():
             cart_count = current_user.cart.item_count
         wishlist_count = Wishlist.query.filter_by(user_id=current_user.id).count()
         
-        if current_user.is_admin:
+        # Only fetch admin counts if on an admin page to save DB resources on public site
+        if current_user.is_admin and request.path.startswith('/oriflame-admin-panel-x9k2'):
             product_count = Product.query.count()
             pending_orders = Order.query.filter_by(status='pending').count()
             

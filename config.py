@@ -37,8 +37,8 @@ class Config:
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_recycle": 3600,
         "pool_pre_ping": True,
-        "pool_size": 10,
-        "max_overflow": 20,
+        "pool_size": 2,
+        "max_overflow": 5,
     }
 
     # Upload settings
