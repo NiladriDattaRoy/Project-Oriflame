@@ -2305,6 +2305,10 @@ def fix_db_schema():
     db.session.commit()
     return "<br>".join(results)
 
+@app.route('/healthz')
+def healthz():
+    return "OK", 200
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
