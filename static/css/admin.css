@@ -516,8 +516,10 @@ select.admin-form-control option {
 }
 
 textarea.admin-form-control {
-  resize: vertical;
-  min-height: 100px;
+  resize: none; /* Disable manual resize to allow script to handle it */
+  min-height: 120px;
+  overflow: hidden; /* Hide scrollbar for a cleaner look during auto-resize */
+  line-height: 1.5;
 }
 
 .admin-form-row {

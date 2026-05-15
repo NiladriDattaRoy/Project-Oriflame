@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initAdminTables();
   initAdminCharts();
   initAdminSidebar();
+  initAutoResizeTextareas();
 });
 
 /* ==================== ADMIN SIDEBAR ==================== */
@@ -64,6 +65,9 @@ function populateForm(modal, data) {
       }
     }
   });
+  
+  // Trigger auto-resize after population
+  modal.querySelectorAll('textarea.admin-form-control').forEach(autoResize);
   
   const idInput = modal.querySelector('[name="id"]');
   if (idInput) idInput.value = data.id || '';
@@ -295,4 +299,47 @@ function initAdminCharts() {
   chartContainer.innerHTML = data.map((val, i) => `
     <div class="admin-chart-bar" style="height: ${(val / maxVal) * 100}%;" title="Month ${i + 1}: ₹${val}K"></div>
   `).join('');
+}
+
+/* ==================== UTILS ==================== */
+function initAutoResizeTextareas() {
+  const textareas = document.querySelectorAll('textarea.admin-form-control');
+  
+  textareas.forEach(textarea => {
+    // Initial resize
+    autoResize(textarea);
+    
+    // Add event listener
+    textarea.addEventListener('input', () => autoResize(textarea));
+  });
+
+  // Watch for dynamic content (like when populating a form)
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'value' || mutation.type === 'childList') {
+        textareas.forEach(autoResize);
+      }
+    });
+  });
+
+  textareas.forEach(textarea => {
+    observer.observe(textarea, { attributes: true, childList: true, characterData: true });
+  });
+}
+
+function autoResize(textarea) {
+  textarea.style.height = 'auto';
+  textarea.style.height = (textarea.scrollHeight) + 'px';
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 }

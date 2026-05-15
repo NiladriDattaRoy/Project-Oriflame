@@ -1029,8 +1029,10 @@ def create_razorpay_order():
             'amount': amount,
             'currency': 'INR',
             'receipt': str(order.order_number),
-            'payment_capture': '1'
+            'payment_capture': 1  # Integer 1 for automatic capture
         })
+        
+        print(f"[RAZORPAY] Order created successfully: {razorpay_order['id']} for Order #{order.order_number}", flush=True)
         print(f"[RAZORPAY] Order created successfully: {razorpay_order['id']}", flush=True)
         return jsonify({
             'order_id': razorpay_order['id'],
@@ -1078,6 +1080,7 @@ def verify_payment():
     
     try:
         print(f"[RAZORPAY] Verifying signature for Payment ID: {razorpay_payment_id}")
+        print(f"[RAZORPAY] Verifying signature for Order {local_order_id}. Payment: {razorpay_payment_id}", flush=True)
         razorpay_client.utility.verify_payment_signature(params_dict)
         
         # If verification is successful, update the order
@@ -2157,8 +2160,8 @@ def seed_database():
             rating=pd_item['rating'],
             review_count=pd_item['reviews'],
             stock=100,
-            short_description=f"Premium {pd_item['brand']} {pd_item['name'].split()[-1].lower()} crafted with Swedish beauty innovation.",
-            description=f"Discover the {pd_item['name']} from {pd_item['brand']}. This premium product is designed to deliver exceptional results with carefully selected ingredients and Swedish beauty expertise. Experience the Oriflame difference with this must-have addition to your beauty routine.",
+            short_description=f"Premium {pd_item['brand']} {pd_item['name'].split()[-1].lower()} crafted with Swedish beauty innovation. This high-performance formula is designed to provide long-lasting results and a luxurious feel.",
+            description=f"Discover the {pd_item['name']} from {pd_item['brand']}. This premium product is designed to deliver exceptional results with carefully selected ingredients and Swedish beauty expertise. Experience the Oriflame difference with this must-have addition to your beauty routine. Formulated with high-quality ingredients to ensure maximum efficacy and skin compatibility.",
             image_url=f'/static/images/products/{pd_item["code"]}.png'
         )
         db.session.add(product)

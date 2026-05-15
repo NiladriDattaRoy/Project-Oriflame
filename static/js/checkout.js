@@ -176,8 +176,8 @@ async function handleRazorpayPayment(orderData, overlay, method) {
         verifyRazorpayPayment(response, orderData.order_id, overlay);
       },
       "prefill": {
-        "name": document.querySelector('[name="shipping_name"]').value,
-        "contact": document.querySelector('[name="shipping_phone"]').value,
+        "name": (document.querySelector('[name="shipping_name"]').value || '').substring(0, 50).trim(),
+        "contact": (document.querySelector('[name="shipping_phone"]').value || '').replace(/\D/g, '').slice(-10),
         "method": method === 'wallets' ? 'wallet' : (method === 'upi' ? 'upi' : '')
       },
       "theme": { "color": "#d32f2f" },
@@ -232,9 +232,22 @@ async function verifyRazorpayPayment(rzpResponse, localOrderId, overlay) {
         <div style="font-size: 64px; margin-bottom: 16px;">✓</div>
         <h3 style="color: var(--color-success); margin-bottom: 8px;">Payment Successful!</h3>
         <p style="color: var(--color-text-secondary); margin-bottom: 8px;">Order #${data.order_number}</p>
-        <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Transaction Ref: ${data.transaction_ref}</p>
-        <a href="/dashboard" class="btn btn-primary">View Dashboard</a>
+        <p style="color: var(--color-text-secondary); margin-bottom: 12px;">Transaction Ref: ${data.transaction_ref}</p>
+        <p style="color: #666; font-size: 0.9rem; margin-bottom: 24px;">Redirecting to your dashboard in <span id="redirect-timer">5</span> seconds...</p>
+        <a href="/dashboard" class="btn btn-primary">Go Now</a>
       `;
+
+      // Start countdown
+      let timeLeft = 5;
+      const timerInterval = setInterval(() => {
+        timeLeft -= 1;
+        const timerEl = document.getElementById('redirect-timer');
+        if (timerEl) timerEl.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          window.location.href = '/dashboard';
+        }
+      }, 1000);
     } else {
       overlay.querySelector('.modal').innerHTML = `
         <div style="font-size: 64px; margin-bottom: 16px;">✕</div>
@@ -266,9 +279,22 @@ async function processPayment(orderData, overlay) {
         <div style="font-size: 64px; margin-bottom: 16px;">✓</div>
         <h3 style="color: var(--color-success); margin-bottom: 8px;">Order Placed!</h3>
         <p style="color: var(--color-text-secondary); margin-bottom: 8px;">Order #${data.order_number}</p>
-        <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Method: ${methodDisplay}</p>
-        <a href="/dashboard" class="btn btn-primary">View Dashboard</a>
+        <p style="color: var(--color-text-secondary); margin-bottom: 12px;">Method: ${methodDisplay}</p>
+        <p style="color: #666; font-size: 0.9rem; margin-bottom: 24px;">Redirecting to your dashboard in <span id="redirect-timer">5</span> seconds...</p>
+        <a href="/dashboard" class="btn btn-primary">Go Now</a>
       `;
+
+      // Start countdown
+      let timeLeft = 5;
+      const timerInterval = setInterval(() => {
+        timeLeft -= 1;
+        const timerEl = document.getElementById('redirect-timer');
+        if (timerEl) timerEl.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          window.location.href = '/dashboard';
+        }
+      }, 1000);
     } else {
       overlay.querySelector('.modal').innerHTML = `
         <div style="font-size: 64px; margin-bottom: 16px;">✕</div>
