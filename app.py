@@ -2263,7 +2263,7 @@ def fix_db_schema():
         "ALTER TABLE products ALTER COLUMN name TYPE VARCHAR(512)",
         "ALTER TABLE products ALTER COLUMN code TYPE VARCHAR(100)",
         "ALTER TABLE products ALTER COLUMN slug TYPE VARCHAR(512)",
-        "ALTER TABLE products ALTER COLUMN short_description TYPE VARCHAR(2000)",
+        "ALTER TABLE products ALTER COLUMN short_description TYPE TEXT",
         "ALTER TABLE products ALTER COLUMN weight TYPE VARCHAR(100)",
         "ALTER TABLE products ALTER COLUMN image_url TYPE VARCHAR(1024)",
         "ALTER TABLE products ALTER COLUMN image_url_2 TYPE VARCHAR(1024)",

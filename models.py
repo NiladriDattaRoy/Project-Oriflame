@@ -102,7 +102,7 @@ class Product(db.Model):
     name = db.Column(db.String(512), nullable=False)
     code = db.Column(db.String(100), unique=True, nullable=True)
     slug = db.Column(db.String(512), unique=True, nullable=False)
-    short_description = db.Column(db.String(2000))
+    short_description = db.Column(db.Text)
     description = db.Column(db.Text)
     price = db.Column(db.Float, nullable=True)
     mrp = db.Column(db.Float, nullable=True)
