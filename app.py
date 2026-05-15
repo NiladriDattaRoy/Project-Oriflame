@@ -19,6 +19,7 @@ from flask_login import (
 
 from config import Config, BASE_DIR
 from flask_migrate import Migrate
+from sqlalchemy import func, text
 from models import (
     db, User, Category, Product, ProductImage, Catalogue, Cart, CartItem,
     Address, Order, OrderItem, Transaction, MLMCommission, Wishlist, BlogPost, ContactMessage, Review
@@ -60,7 +61,17 @@ def load_user(user_id):
 @app.context_processor
 def inject_globals():
     """Make categories and cart count available in all templates."""
-    categories = Category.query.filter_by(is_active=True).order_by(Category.display_order).all()
+    # Fetch categories with product counts in ONE query to avoid N+1 problem
+    categories_with_counts = db.session.query(
+        Category, 
+        func.count(Product.id)
+    ).outerjoin(Product).filter(Category.is_active == True).group_by(Category.id).order_by(Category.display_order).all()
+    
+    # Attach count to category object for easy template access
+    categories = []
+    for cat, count in categories_with_counts:
+        cat.temp_product_count = count
+        categories.append(cat)
     cart_count = 0
     wishlist_count = 0
     product_count = 0
